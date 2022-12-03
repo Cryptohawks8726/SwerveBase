@@ -21,12 +21,24 @@ public final class Constants {
         // Physical Constants
         public static final double driveBaseWidth = 2.0;
         public static final double driveBaseLength = 2.0;
-        
+        public static final double driveGearRatio = 6.12; // L3
+        public static final double steerGearRatio = 12.8; 
+        public static final double wheelDiameterMeters = 0.098; // Measure and check later. Compensating for tread wear over comp could be cool
+        public static final double driveConversionFactor = wheelDiameterMeters * Math.PI / driveGearRatio;
         // Electrical Constants
         // TODO: add current limits
         
         // Controller Gains
-        // TODO: add PID + FF constants
+        // TODO: Tune PID + FF constants
+        public static final double kDriveP = 0.0;
+        public static final double kDriveI = 0.0;
+        public static final double kDriveD = 0.0;
+        public static final double kDriveFF = 0.0;
+
+        public static final double kSteerP = 0.0;
+        public static final double kSteerI = 0.0;
+        public static final double kSteerD = 0.0;
+        public static final double kSteerFF = 0.0;
         
         // Module Constants
         public enum Module{
