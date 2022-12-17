@@ -29,8 +29,8 @@ public class SwerveDrive extends SubsystemBase {
         
     }
 
-    public void drive(Translation2d xyTranslation,double rotation){ // translation is robot-relative for now
-        modStates = kinematics.toSwerveModuleStates(new ChassisSpeeds(xyTranslation.getX(),xyTranslation.getY(),rotation)); 
+    public void drive(ChassisSpeeds robotSpeeds){ 
+        modStates = kinematics.toSwerveModuleStates(robotSpeeds);
         Arrays.asList(modules).forEach(mod -> {mod.drive(modStates[mod.getModPos()]);});
     }
 }

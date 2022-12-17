@@ -16,7 +16,7 @@ public class SwerveModule {
     private int modPos;
     private CANSparkMax driveMotor, steerMotor;
     private CANCoder absEncoder;
-    private Translation2d displacment;
+    private Translation2d displacmentFromCenter;
     private SparkMaxPIDController driveController, steerController;
     private RelativeEncoder driveEncoder, steerEncoder;
 
@@ -26,7 +26,7 @@ public class SwerveModule {
         // config can coder
 
         // turn down status frames on encoder
-        displacment = modConstants.displacment;
+        displacmentFromCenter = modConstants.displacment;
 
         driveMotor = new CANSparkMax(modConstants.driveMotorid, MotorType.kBrushless);
         steerMotor = new CANSparkMax(modConstants.steerMotorid, MotorType.kBrushless);
@@ -59,7 +59,7 @@ public class SwerveModule {
     }
     
     public Translation2d getDisplacment(){
-        return displacment;
+        return displacmentFromCenter;
     }
     
     public void seedRelativeEncoder(){
