@@ -25,6 +25,9 @@ public final class Constants {
         public static final double steerGearRatio = 12.8; 
         public static final double wheelDiameterMeters = 0.098; // Measure and check later. Compensating for tread wear over comp could be cool
         public static final double driveConversionFactor = wheelDiameterMeters * Math.PI / driveGearRatio;
+
+        public static final double maxSpeed = 3.0; // m/s, I have no clue if this is realistic
+        public static final double maxAngularSpeed = 3.75; // rad/s
         // Electrical Constants
         // TODO: add current limits
         
