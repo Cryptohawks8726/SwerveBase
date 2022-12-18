@@ -32,7 +32,7 @@ public class XboxTeleopDrive extends CommandBase{
         xVel = Math.signum(xVel) * Math.pow(xVel,2) * Constants.Swerve.maxSpeed; //square input while preserving sign
         yVel = Math.signum(yVel) * Math.pow(yVel,2) * Constants.Swerve.maxSpeed;
         drivetrain.drive(
-            isFieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(xVel, yVel, thetaVel,drivetrain.getheadingorsmth)
+            isFieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(xVel, yVel, thetaVel,drivetrain.getPoseEstimate().getRotation())
             :new ChassisSpeeds(xVel, yVel, thetaVel)
         );
     }
