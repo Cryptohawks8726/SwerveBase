@@ -3,7 +3,7 @@ package frc.robot;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
-
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -30,7 +30,7 @@ public class SwerveModule {
 
         driveMotor = new CANSparkMax(modConstants.driveMotorid, MotorType.kBrushless);
         steerMotor = new CANSparkMax(modConstants.steerMotorid, MotorType.kBrushless);
-        // config SparkMax
+        // config SparkMax 
         driveEncoder = driveMotor.getEncoder();
         steerEncoder = steerMotor.getEncoder();
         // config encoders
@@ -66,12 +66,20 @@ public class SwerveModule {
         steerEncoder.setPosition(absEncoder.getPosition());
     }
     
-    public void drive(SwerveModuleState setPoint){
+    public SwerveModule drive(SwerveModuleState setPoint){
         setPoint = SwerveModuleState.optimize(setPoint, Rotation2d.fromDegrees(steerEncoder.getPosition()%360));
         driveController.setReference(setPoint.speedMetersPerSecond, ControlType.kVelocity); // IDK if velocity control will work well
         steerController.setReference(setPoint.angle.getDegrees(), ControlType.kPosition);
+        return this;
     }
     
+    public void setBrake(){
+        driveMotor.setIdleMode(IdleMode.kBrake); // angle motor will always be in brake
+    }
+
+    public void setCoast(){
+        driveMotor.setIdleMode(IdleMode.kCoast);
+    }
     public SwerveModuleState getCurrentState(){ // used for odometry
         return new SwerveModuleState(driveEncoder.getVelocity(),Rotation2d.fromDegrees(steerEncoder.getPosition()%360));
     }

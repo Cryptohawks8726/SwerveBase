@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.util.Arrays;
+import java.util.List;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.AHRS.SerialDataType;
@@ -16,17 +17,15 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
 
 public class SwerveDrive extends SubsystemBase {
-    private SwerveModule[] modules = {
-        new SwerveModule(Constants.Swerve.Module.NE),
-        new SwerveModule(Constants.Swerve.Module.SE),
-        new SwerveModule(Constants.Swerve.Module.SW),
-        new SwerveModule(Constants.Swerve.Module.NW)
-    };
+    
+    private List<SwerveModule> modules;
+
     private SwerveModuleState[] modStates;
     private SwerveDriveKinematics kinematics;
     private SwerveDrivePoseEstimator odometry;
@@ -35,11 +34,18 @@ public class SwerveDrive extends SubsystemBase {
     private Matrix<N3,N1> regularVisionStDev;
    
     public SwerveDrive(){
+        modules = Arrays.asList(
+            new SwerveModule(Constants.Swerve.Module.NE),
+            new SwerveModule(Constants.Swerve.Module.SE),
+            new SwerveModule(Constants.Swerve.Module.SW),
+            new SwerveModule(Constants.Swerve.Module.NW)
+        );
+        
         kinematics = new SwerveDriveKinematics(
-            modules[0].getDisplacment(),
-            modules[1].getDisplacment(),
-            modules[2].getDisplacment(),
-            modules[3].getDisplacment()
+            modules.get(0).getDisplacment(),
+            modules.get(1).getDisplacment(),
+            modules.get(2).getDisplacment(),
+            modules.get(3).getDisplacment()
         );
         
         gyro = new AHRS(SerialPort.Port.kUSB1,SerialDataType.kRawData,(byte) 100);
@@ -52,12 +58,21 @@ public class SwerveDrive extends SubsystemBase {
  
     @Override
     public void periodic(){
-        odometry.update(gyro.getRotation2d(), new SwerveModuleState[] {modules[0].getCurrentState(),modules[1].getCurrentState(),modules[2].getCurrentState(),modules[3].getCurrentState()});
+        odometry.update(gyro.getRotation2d(), new SwerveModuleState[] {modules.get(0).getCurrentState(),modules.get(1).getCurrentState(),modules.get(2).getCurrentState(),modules.get(3).getCurrentState()});
     }
 
     public void drive(ChassisSpeeds robotSpeeds){ 
         modStates = kinematics.toSwerveModuleStates(robotSpeeds);
-        Arrays.asList(modules).forEach(mod -> {mod.drive(modStates[mod.getModPos()]);});
+        modules.forEach(mod -> {mod.drive(modStates[mod.getModPos()]);});
+    }
+
+    public StartEndCommand passiveBrake(){
+        SwerveModuleState leftToRight = new SwerveModuleState(0.0,Rotation2d.fromDegrees(45));
+        SwerveModuleState rightToLeft = new SwerveModuleState(0.0, Rotation2d.fromDegrees(135));
+        return new StartEndCommand(
+            () -> modules.forEach(mod -> {mod.drive((mod.getModPos() %2 == 0) ? leftToRight : rightToLeft).setBrake();}), 
+            () -> modules.forEach(mod -> {mod.setCoast();}), this
+        );
     }
 
     public Pose2d getPoseEstimate(){
