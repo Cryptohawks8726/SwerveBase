@@ -25,11 +25,17 @@ public class XboxTeleopDrive extends CommandBase{
         The controller axes have x as left-right and y as up-down
         */
         boolean isRobotRelative = controller.getRawButtonPressed(XboxController.Button.kLeftBumper.value);
-        double xVel = controller.getRawAxis(XboxController.Axis.kRightY.value);
+        
+        // Get Controller Values
+        double xVel = controller.getRawAxis(XboxController.Axis.kRightY.value); 
         double yVel = controller.getRawAxis(XboxController.Axis.kRightX.value);
+
+        // Angular Velocity
         double thetaVel = controller.getRawAxis(XboxController.Axis.kLeftX.value) * Constants.Swerve.maxAngularSpeed;
+        
         xVel = Math.signum(xVel) * Math.pow(xVel,2) * Constants.Swerve.maxSpeed; //square input while preserving sign
         yVel = Math.signum(yVel) * Math.pow(yVel,2) * Constants.Swerve.maxSpeed;
+        
         drivetrain.drive(
             isRobotRelative ? new ChassisSpeeds(xVel, yVel, thetaVel)
             : ChassisSpeeds.fromFieldRelativeSpeeds(xVel, yVel, thetaVel,drivetrain.getPoseEstimate().getRotation())
