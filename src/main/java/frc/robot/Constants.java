@@ -28,6 +28,8 @@ public final class Constants {
 
         public static final double maxSpeed = 3.0; // m/s, I have no clue if this is realistic
         public static final double maxAngularSpeed = 3.75; // rad/s
+        public static final double driverThetaDeadband = 0.05;
+        public static final double driverTranslationDeadband = 0.02;
         // Electrical Constants
         // TODO: add current limits
         

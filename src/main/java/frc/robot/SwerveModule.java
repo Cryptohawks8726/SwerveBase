@@ -66,7 +66,7 @@ public class SwerveModule {
         steerEncoder.setPosition(absEncoder.getPosition());
     }
     
-    public SwerveModule drive(SwerveModuleState setPoint){
+    public SwerveModule closedLoopDrive(SwerveModuleState setPoint){
         setPoint = SwerveModuleState.optimize(setPoint, Rotation2d.fromDegrees(steerEncoder.getPosition()%360));
         driveController.setReference(setPoint.speedMetersPerSecond, ControlType.kVelocity); // IDK if velocity control will work well
         steerController.setReference(setPoint.angle.getDegrees(), ControlType.kPosition);

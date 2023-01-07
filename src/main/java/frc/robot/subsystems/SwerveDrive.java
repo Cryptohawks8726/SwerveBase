@@ -51,6 +51,7 @@ public class SwerveDrive extends SubsystemBase {
         gyro = new AHRS(SerialPort.Port.kUSB1,SerialDataType.kRawData,(byte) 100);
         gyro.calibrate();
         
+        // how much we trust vision measurments for odometry
         initalVisionStDev = new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.9, 0.9, 0.9); // TODO: lower so the first vision measurement corrects for the wrong initial pose, and then raise again to increase accuracy
         regularVisionStDev = new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.9, 0.9, 0.9); 
         odometry = new SwerveDrivePoseEstimator(new Rotation2d(), new Pose2d(), kinematics, new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), new MatBuilder<>(Nat.N1(), Nat.N1()).fill(0.02),  initalVisionStDev); // TODO: Update to 2023 Constructor
@@ -58,19 +59,27 @@ public class SwerveDrive extends SubsystemBase {
  
     @Override
     public void periodic(){
-        odometry.update(gyro.getRotation2d(), new SwerveModuleState[] {modules.get(0).getCurrentState(),modules.get(1).getCurrentState(),modules.get(2).getCurrentState(),modules.get(3).getCurrentState()});
+        odometry.update(
+            gyro.getRotation2d(), 
+            new SwerveModuleState[] {
+                modules.get(0).getCurrentState()
+                ,modules.get(1).getCurrentState()
+                ,modules.get(2).getCurrentState()
+                ,modules.get(3).getCurrentState()
+            }
+        );
     }
 
-    public void drive(ChassisSpeeds robotSpeeds){ 
+    public void drive(ChassisSpeeds robotSpeeds, boolean isClosedLoop){  
         modStates = kinematics.toSwerveModuleStates(robotSpeeds);
-        modules.forEach(mod -> {mod.drive(modStates[mod.getModPos()]);});
+        modules.forEach(mod -> {mod.closedLoopDrive(modStates[mod.getModPos()]);});
     }
 
     public StartEndCommand passiveBrake(){
         SwerveModuleState leftToRight = new SwerveModuleState(0.0,Rotation2d.fromDegrees(45));
         SwerveModuleState rightToLeft = new SwerveModuleState(0.0, Rotation2d.fromDegrees(135));
         return new StartEndCommand(
-            () -> modules.forEach(mod -> {mod.drive((mod.getModPos() %2 == 0) ? leftToRight : rightToLeft).setBrake();}), 
+            () -> modules.forEach(mod -> {mod.closedLoopDrive((mod.getModPos() %2 == 0) ? leftToRight : rightToLeft).setBrake();}), 
             () -> modules.forEach(mod -> {mod.setCoast();}), this
         );
     }
