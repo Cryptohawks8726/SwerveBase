@@ -80,7 +80,8 @@ public class SwerveDrive extends SubsystemBase {
         SwerveModuleState rightToLeft = new SwerveModuleState(0.0, Rotation2d.fromDegrees(135));
         return new StartEndCommand(
             () -> modules.forEach(mod -> {mod.closedLoopDrive((mod.getModPos() %2 == 0) ? leftToRight : rightToLeft).setBrake();}), 
-            () -> modules.forEach(mod -> {mod.setCoast();}), this
+            () -> modules.forEach(mod -> {mod.setCoast();}), 
+            this
         );
     }
 
