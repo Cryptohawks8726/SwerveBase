@@ -44,6 +44,11 @@ public final class Constants {
         public static final double kSteerI = 0.0;
         public static final double kSteerD = 0.0;
         public static final double kSteerFF = 0.0;
+
+        public static final double kHeadingP = 0.0;
+        public static final double kHeadingI = 0.0;
+        public static final double kHeadingD = 0.0;
+        public static final double kHeadingFF = 0.0;
         
         // Module Constants
         public enum Module{
