@@ -37,7 +37,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     drivetrain.setDefaultCommand(new XboxTeleopDrive(drivetrain,driverController));
     JoystickButton driverRightBumper = new JoystickButton(driverController,XboxController.Button.kRightBumper.value);
-    driverRightBumper.whileHeld(drivetrain.passiveBrake());
+    driverRightBumper.whileHeld(drivetrain.passiveBrake(),false);
   }
 
   /**
