@@ -52,7 +52,7 @@ public class XboxTeleopDrive extends CommandBase{
         xVel = (Math.abs(xVel) < Constants.Swerve.driverTranslationDeadband) ? 0.0 : xVel;
         yVel = (Math.abs(yVel) < Constants.Swerve.driverTranslationDeadband) ? 0.0 : yVel;
         // maintain heading if there's no rotational input
-        if (Math.abs(thetaVel) < Constants.Swerve.driverThetaDeadband){
+        /* if (Math.abs(thetaVel) < Constants.Swerve.driverThetaDeadband){
             if (isHeadingSet == false){
                 headingPID.reset();
                 isHeadingSet = true;
@@ -64,7 +64,7 @@ public class XboxTeleopDrive extends CommandBase{
             }
         } else{
             isHeadingSet = false;
-        }
+        }*/
 
         drivetrain.drive(
             isRobotRelative ? new ChassisSpeeds(xVel, yVel, thetaVel)

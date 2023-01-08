@@ -19,10 +19,12 @@ public class SwerveModule {
     private Translation2d displacmentFromCenter;
     private SparkMaxPIDController driveController, steerController;
     private RelativeEncoder driveEncoder, steerEncoder;
+    private SwerveModuleState lastSetState;
 
     public SwerveModule(Constants.Swerve.Module modConstants){
         modPos = modConstants.modPos;
         absEncoder = new CANCoder(modConstants.cancoderid);
+        lastSetState = new SwerveModuleState();
         // config can coder
 
         // turn down status frames on encoder
@@ -39,6 +41,8 @@ public class SwerveModule {
         
         steerEncoder.setPositionConversionFactor(360.0 / Constants.Swerve.steerGearRatio); // degrees
         steerEncoder.setVelocityConversionFactor(360.0 / Constants.Swerve.steerGearRatio / 60.0); // d/s
+
+        seedRelativeEncoder();
 
         driveController = driveMotor.getPIDController();
         steerController = steerMotor.getPIDController();
@@ -68,6 +72,7 @@ public class SwerveModule {
     
     public SwerveModule closedLoopDrive(SwerveModuleState setPoint){
         setPoint = SwerveModuleState.optimize(setPoint, Rotation2d.fromDegrees(steerEncoder.getPosition()%360));
+        lastSetState = setPoint;
         driveController.setReference(setPoint.speedMetersPerSecond, ControlType.kVelocity); // IDK if velocity control will work well
         steerController.setReference(setPoint.angle.getDegrees(), ControlType.kPosition);
         return this;
@@ -80,7 +85,12 @@ public class SwerveModule {
     public void setCoast(){
         driveMotor.setIdleMode(IdleMode.kCoast);
     }
+    
     public SwerveModuleState getCurrentState(){ // used for odometry
         return new SwerveModuleState(driveEncoder.getVelocity(),Rotation2d.fromDegrees(steerEncoder.getPosition()%360));
+    }
+
+    public SwerveModuleState getLastSetState(){
+        return lastSetState;
     }
 }

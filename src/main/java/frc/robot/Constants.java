@@ -35,12 +35,12 @@ public final class Constants {
         
         // Controller Gains
         // TODO: Tune PID + FF constants
-        public static final double kDriveP = 0.0;
+        public static final double kDriveP = 0.00002;
         public static final double kDriveI = 0.0;
         public static final double kDriveD = 0.0;
         public static final double kDriveFF = 0.0;
 
-        public static final double kSteerP = 0.0;
+        public static final double kSteerP = 0.00002;
         public static final double kSteerI = 0.0;
         public static final double kSteerD = 0.0;
         public static final double kSteerFF = 0.0;
@@ -59,10 +59,10 @@ public final class Constants {
 
             Mod{modPos,driveMotorid,steerMotorid,cancoderid,displacment(x,y)}
             */
-            NE(0,0,0,0,new Translation2d(driveBaseLength/2,driveBaseWidth/2)), 
-            SE(1,0,0,0,new Translation2d(-driveBaseLength/2,driveBaseWidth/2)),
-            SW(2,0,0,0,new Translation2d(-driveBaseLength/2,-driveBaseWidth/2)),
-            NW(3,0,0,0,new Translation2d(driveBaseLength/2,-driveBaseWidth/2)); 
+            NE(0,10,11,12,new Translation2d(driveBaseLength/2,driveBaseWidth/2)), 
+            SE(1,20,21,22,new Translation2d(-driveBaseLength/2,driveBaseWidth/2)),
+            SW(2,30,31,32,new Translation2d(-driveBaseLength/2,-driveBaseWidth/2)),
+            NW(3,40,41,42,new Translation2d(driveBaseLength/2,-driveBaseWidth/2)); 
             
             public final int modPos;
             public final int driveMotorid;
