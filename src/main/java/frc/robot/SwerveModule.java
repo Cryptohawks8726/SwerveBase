@@ -9,6 +9,7 @@ import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
@@ -16,7 +17,7 @@ public class SwerveModule {
     private int modPos;
     private CANSparkMax driveMotor, steerMotor;
     private CANCoder absEncoder;
-    private Translation2d displacmentFromCenter;
+    private Transform2d transformationFromCenter;
     private SparkMaxPIDController driveController, steerController;
     private RelativeEncoder driveEncoder, steerEncoder;
     private SwerveModuleState lastSetState;
@@ -28,7 +29,7 @@ public class SwerveModule {
         // config can coder
 
         // turn down status frames on encoder
-        displacmentFromCenter = modConstants.displacment;
+        transformationFromCenter = modConstants.displacment;
 
         driveMotor = new CANSparkMax(modConstants.driveMotorid, MotorType.kBrushless);
         steerMotor = new CANSparkMax(modConstants.steerMotorid, MotorType.kBrushless);
@@ -62,8 +63,8 @@ public class SwerveModule {
         return modPos;
     }
     
-    public Translation2d getDisplacment(){
-        return displacmentFromCenter;
+    public Transform2d getCenterTransform(){
+        return transformationFromCenter;
     }
     
     public void seedRelativeEncoder(){
