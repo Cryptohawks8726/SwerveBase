@@ -131,7 +131,8 @@ public class SwerveDrive extends SubsystemBase {
                     )
             );
         }
-        
+        SmartDashboard.putNumber("xpos", odometry.getEstimatedPosition().getTranslation().getX());
+        SmartDashboard.putNumber("ypos", odometry.getEstimatedPosition().getTranslation().getY());
         SmartDashboard.putNumber("setXVel", lastSetChassisSpeeds.vxMetersPerSecond);
         SmartDashboard.putNumber("setYVel", lastSetChassisSpeeds.vyMetersPerSecond);
         SmartDashboard.putNumber("gyroAngle",simGyro.getAngle());
@@ -142,6 +143,7 @@ public class SwerveDrive extends SubsystemBase {
     public void drive(ChassisSpeeds robotSpeeds, boolean isClosedLoop){  
         lastSetChassisSpeeds = robotSpeeds;
         modStates = kinematics.toSwerveModuleStates(robotSpeeds);
+        SwerveDriveKinematics.desaturateWheelSpeeds(modStates,Constants.Swerve.maxSpeed);
         modules.forEach(mod -> {mod.closedLoopDrive(modStates[mod.getModPos()]);});
     }
 

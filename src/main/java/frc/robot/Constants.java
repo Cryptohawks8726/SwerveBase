@@ -21,8 +21,8 @@ public final class Constants {
     public static final class Swerve {
         
         // Physical Constants
-        public static final double driveBaseWidth = 2.0;
-        public static final double driveBaseLength = 2.0;
+        public static final double driveBaseWidth = 0.762;
+        public static final double driveBaseLength = 0.762; //meters
         public static final double driveGearRatio = 6.12; // L3
         public static final double steerGearRatio = 12.8; 
         public static final double wheelDiameterMeters = 0.098; // Measure and check later. Compensating for tread wear over comp could be cool
