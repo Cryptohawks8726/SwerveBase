@@ -61,6 +61,8 @@ public final class Constants {
 
             Mod{modPos,driveMotorid,steerMotorid,cancoderid,displacment(x,y)}
             */
+
+            //TODO: Define Forward
             NE(0,10,11,12,new Transform2d(new Translation2d(driveBaseLength/2,driveBaseWidth/2),new Rotation2d())), 
             SE(1,20,21,22,new Transform2d(new Translation2d(-driveBaseLength/2,driveBaseWidth/2),new Rotation2d())),
             SW(2,30,31,32,new Transform2d(new Translation2d(-driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())),

@@ -41,7 +41,7 @@ public class SwerveDrive extends SubsystemBase {
     private AHRS gyro;
     private AnalogGyroSim simGyro;
     private Matrix<N3,N1> initalVisionStDev;
-    private Matrix<N3,N1> regularVisionStDev;
+    //private Matrix<N3,N1> regularVisionStDev;
 
     private Field2d field; 
     private FieldObject2d modNE,modSE,modSW,modNW;
@@ -68,8 +68,17 @@ public class SwerveDrive extends SubsystemBase {
        
         // how much we trust vision measurments for odometry
         initalVisionStDev = new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.9, 0.9, 0.9); // TODO: lower so the first vision measurement corrects for the wrong initial pose, and then raise again to increase accuracy
-        regularVisionStDev = new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.9, 0.9, 0.9); 
-        odometry = new SwerveDrivePoseEstimator(new Rotation2d(), new Pose2d(), kinematics, new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), new MatBuilder<>(Nat.N1(), Nat.N1()).fill(0.02),  initalVisionStDev); // TODO: Update to 2023 Constructor
+        
+        //regularVisionStDev = new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.9, 0.9, 0.9); 
+        
+        odometry = new SwerveDrivePoseEstimator(new Rotation2d(), 
+        new Pose2d(),
+        kinematics, 
+        new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), 
+        new MatBuilder<>(Nat.N1(), Nat.N1()).fill(0.02), 
+        initalVisionStDev); // TODO: Update to 2023 Constructor
+        
+        
         lastSetChassisSpeeds = new ChassisSpeeds();
         
         field = new Field2d();
@@ -119,11 +128,14 @@ public class SwerveDrive extends SubsystemBase {
                 ,modules.get(3).getLastSetState()
             }
         );
-        field.setRobotPose(odometry.getEstimatedPosition());
+
+        Pose2d estimatedPostition = odometry.getEstimatedPosition();
+
+        field.setRobotPose(estimatedPostition);
         // sim new positions of modules
         for (int i = 0;i<4;i++){
             modPoses[i].setPose(
-                odometry.getEstimatedPosition() // current robot origin
+                estimatedPostition // current robot origin
                 .plus(
                     modules.get(i).getCenterTransform() // transform by constant translation to module
                     .plus
@@ -131,8 +143,8 @@ public class SwerveDrive extends SubsystemBase {
                     )
             );
         }
-        SmartDashboard.putNumber("xpos", odometry.getEstimatedPosition().getTranslation().getX());
-        SmartDashboard.putNumber("ypos", odometry.getEstimatedPosition().getTranslation().getY());
+        SmartDashboard.putNumber("xpos", estimatedPostition.getTranslation().getX());
+        SmartDashboard.putNumber("ypos", estimatedPostition.getTranslation().getY());
         SmartDashboard.putNumber("setXVel", lastSetChassisSpeeds.vxMetersPerSecond);
         SmartDashboard.putNumber("setYVel", lastSetChassisSpeeds.vyMetersPerSecond);
         SmartDashboard.putNumber("mod0vel", modules.get(0).getLastSetState().speedMetersPerSecond);
