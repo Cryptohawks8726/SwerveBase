@@ -135,9 +135,15 @@ public class SwerveDrive extends SubsystemBase {
         SmartDashboard.putNumber("ypos", odometry.getEstimatedPosition().getTranslation().getY());
         SmartDashboard.putNumber("setXVel", lastSetChassisSpeeds.vxMetersPerSecond);
         SmartDashboard.putNumber("setYVel", lastSetChassisSpeeds.vyMetersPerSecond);
-        SmartDashboard.putNumber("gyroAngle",simGyro.getAngle());
-        SmartDashboard.putNumber("gyroRate", simGyro.getRate());
-    }
+        SmartDashboard.putNumber("mod0vel", modules.get(0).getLastSetState().speedMetersPerSecond);
+        SmartDashboard.putNumber("mod1vel", modules.get(1).getLastSetState().speedMetersPerSecond);
+        SmartDashboard.putNumber("mod2vel", modules.get(2).getLastSetState().speedMetersPerSecond);
+        SmartDashboard.putNumber("mod3vel", modules.get(3).getLastSetState().speedMetersPerSecond);
+        SmartDashboard.putNumber("mod0deg", modules.get(0).getLastSetState().angle.getDegrees());
+        SmartDashboard.putNumber("mod1deg", modules.get(1).getLastSetState().angle.getDegrees());
+        SmartDashboard.putNumber("mod2deg", modules.get(2).getLastSetState().angle.getDegrees());
+        SmartDashboard.putNumber("mod3deg", modules.get(3).getLastSetState().angle.getDegrees());
+    };
 
 
     public void drive(ChassisSpeeds robotSpeeds, boolean isClosedLoop){  
