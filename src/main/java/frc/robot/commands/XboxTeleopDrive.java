@@ -16,6 +16,8 @@ public class XboxTeleopDrive extends CommandBase{
     private Rotation2d lastHeading;
     private boolean isHeadingSet;
     private PIDController headingPID;
+
+    // TODO: Implement Optimization
     
     public XboxTeleopDrive(SwerveDrive drivetrain,XboxController controller){
         this.drivetrain = drivetrain;
@@ -39,6 +41,7 @@ public class XboxTeleopDrive extends CommandBase{
         boolean isRobotRelative = controller.getRawButtonPressed(XboxController.Button.kLeftBumper.value);
         
         // Get Controller Values
+        // FIXME: xVel and yVel pull the wrong values? Flip them
         double xVel = controller.getRawAxis(XboxController.Axis.kRightY.value); 
         double yVel = controller.getRawAxis(XboxController.Axis.kRightX.value);
 
