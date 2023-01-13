@@ -8,7 +8,10 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.XboxTeleopDrive;
 import frc.robot.subsystems.SwerveDrive;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -19,11 +22,11 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final SwerveDrive drivetrain;
-  private final XboxController driverController;
+  private final CommandXboxController driverController;
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     drivetrain = new SwerveDrive();
-    driverController = new XboxController(0);
+    driverController = new CommandXboxController(0);
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -36,8 +39,8 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     drivetrain.setDefaultCommand(new XboxTeleopDrive(drivetrain,driverController));
-    JoystickButton driverRightBumper = new JoystickButton(driverController,XboxController.Button.kRightBumper.value);
-    driverRightBumper.whileHeld(drivetrain.passiveBrake(),false);
+    Trigger driverRightBumper = driverController.rightBumper();
+    driverRightBumper.whileTrue(drivetrain.passiveBrake());
   }
 
   /**

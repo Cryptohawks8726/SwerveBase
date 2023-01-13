@@ -8,9 +8,11 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class SwerveModule {
@@ -21,6 +23,7 @@ public class SwerveModule {
     private SparkMaxPIDController driveController, steerController;
     private RelativeEncoder driveEncoder, steerEncoder;
     private SwerveModuleState lastSetState;
+    private SwerveModulePosition simulatedPosition;
 
     public SwerveModule(Constants.Swerve.Module modConstants){
         modPos = modConstants.modPos;
@@ -57,6 +60,9 @@ public class SwerveModule {
         steerController.setI(Constants.Swerve.kSteerI);
         steerController.setD(Constants.Swerve.kSteerD);
         steerController.setFF(Constants.Swerve.kSteerFF);
+
+        // sim setup
+        simulatedPosition = new SwerveModulePosition();
     }
 
     public int getModPos(){
@@ -90,7 +96,16 @@ public class SwerveModule {
     public SwerveModuleState getCurrentState(){ // used for odometry
         return new SwerveModuleState(driveEncoder.getVelocity(),Rotation2d.fromDegrees(steerEncoder.getPosition()%360));
     }
+    
+    public SwerveModulePosition getCurrentPosition(){ // used for odometry
+        return new SwerveModulePosition(driveEncoder.getPosition(),Rotation2d.fromDegrees(steerEncoder.getPosition()%360));
+    }
 
+    public SwerveModulePosition getSimulatedPosition(double timeStep){
+        double newPosition = simulatedPosition.distanceMeters + (lastSetState.speedMetersPerSecond*timeStep);
+        simulatedPosition = new SwerveModulePosition(newPosition, lastSetState.angle);
+        return simulatedPosition;
+    }
     public SwerveModuleState getLastSetState(){
         return lastSetState;
     }

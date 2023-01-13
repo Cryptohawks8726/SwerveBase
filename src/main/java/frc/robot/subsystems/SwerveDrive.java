@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.SerialPort;
@@ -35,6 +36,7 @@ public class SwerveDrive extends SubsystemBase {
     private List<SwerveModule> modules;
 
     private SwerveModuleState[] modStates;
+    private SwerveModulePosition[] modPositions;
     private SwerveDriveKinematics kinematics;
     private SwerveDrivePoseEstimator odometry;
     private ChassisSpeeds lastSetChassisSpeeds;
@@ -54,7 +56,14 @@ public class SwerveDrive extends SubsystemBase {
             new SwerveModule(Constants.Swerve.Module.SW),
             new SwerveModule(Constants.Swerve.Module.NW)
         );
-        
+       
+        modPositions = new SwerveModulePosition[]{
+            modules.get(0).getCurrentPosition(),
+            modules.get(1).getCurrentPosition(),
+            modules.get(2).getCurrentPosition(),
+            modules.get(3).getCurrentPosition()
+        };
+
         kinematics = new SwerveDriveKinematics(
             modules.get(0).getCenterTransform().getTranslation(),
             modules.get(1).getCenterTransform().getTranslation(),
@@ -66,17 +75,14 @@ public class SwerveDrive extends SubsystemBase {
         gyro.calibrate(); // possibly move to avoid the robot being moved during calibration
         simGyro = new AnalogGyroSim(0);
        
-        // how much we trust vision measurments for odometry
-        initalVisionStDev = new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.9, 0.9, 0.9); // TODO: lower so the first vision measurement corrects for the wrong initial pose, and then raise again to increase accuracy
         
-        //regularVisionStDev = new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.9, 0.9, 0.9); 
-        
-        odometry = new SwerveDrivePoseEstimator(new Rotation2d(), 
+        odometry = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), modPositions, new Pose2d());
+        /*odometry = new SwerveDrivePoseEstimator(new Rotation2d(), 
         new Pose2d(),
         kinematics, 
         new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), 
         new MatBuilder<>(Nat.N1(), Nat.N1()).fill(0.02), 
-        initalVisionStDev); // TODO: Update to 2023 Constructor
+        initalVisionStDev); // TODO: Update to 2023 Constructor*/
         
         
         lastSetChassisSpeeds = new ChassisSpeeds();
@@ -93,16 +99,14 @@ public class SwerveDrive extends SubsystemBase {
 
     @Override
     public void periodic(){
+        
         odometry.update(
             gyro.getRotation2d(), 
-            new SwerveModuleState[] {
-                modules.get(0).getCurrentState()
-                ,modules.get(1).getCurrentState()
-                ,modules.get(2).getCurrentState()
-                ,modules.get(3).getCurrentState()
-            }
+            getSwerveModulePositions()
         );
+
         field.setRobotPose(odometry.getEstimatedPosition());
+        
         for (int i = 0;i<4;i++){
             modPoses[i].setPose(
                 odometry.getEstimatedPosition()
@@ -117,16 +121,12 @@ public class SwerveDrive extends SubsystemBase {
     
     @Override
     public void simulationPeriodic(){
+        
         // multiplying by 0.001 makes it more usable, it isn't based on an accurate time interval
         simGyro.setAngle(simGyro.getAngle() + lastSetChassisSpeeds.omegaRadiansPerSecond*57.2958*0.001);
         odometry.update(
             new Rotation2d(simGyro.getAngle()), 
-            new SwerveModuleState[] {
-                modules.get(0).getLastSetState() // used instead of current state bc rev doesn't sim position control
-                ,modules.get(1).getLastSetState()
-                ,modules.get(2).getLastSetState()
-                ,modules.get(3).getLastSetState()
-            }
+            getSwerveModulePositions()
         );
 
         Pose2d estimatedPostition = odometry.getEstimatedPosition();
@@ -178,4 +178,15 @@ public class SwerveDrive extends SubsystemBase {
     public Pose2d getPoseEstimate(){
         return odometry.getEstimatedPosition();
     }
-}
+
+    public SwerveModulePosition[] getSwerveModulePositions(){
+        
+        if (RobotBase.isSimulation()){
+            modules.forEach(mod -> {modPositions[mod.getModPos()] = mod.getSimulatedPosition(0.02);});
+        } else {
+            modules.forEach(mod -> {modPositions[mod.getModPos()] = mod.getCurrentPosition();});
+        }
+        
+        return modPositions;
+    }
+} 
