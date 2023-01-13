@@ -3,21 +3,23 @@ package frc.robot.commands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 import frc.robot.subsystems.SwerveDrive;
 import java.lang.Math;
 
 public class XboxTeleopDrive extends CommandBase{
-    private final XboxController controller;
+    private final CommandXboxController controller;
     
     private final SwerveDrive drivetrain;
     private Rotation2d lastHeading;
     private boolean isHeadingSet;
     private PIDController headingPID;
+
+    // TODO: Implement Optimization
     
-    public XboxTeleopDrive(SwerveDrive drivetrain,XboxController controller){
+    public XboxTeleopDrive(SwerveDrive drivetrain,CommandXboxController controller){
         this.drivetrain = drivetrain;
         this.controller = controller;
         addRequirements(drivetrain);
@@ -36,14 +38,15 @@ public class XboxTeleopDrive extends CommandBase{
     See https://docs.wpilib.org/en/stable/docs/software/advanced-controls/geometry/coordinate-systems.html 
         The controller axes have x as left-right and y as up-down
         */
-        boolean isRobotRelative = controller.getRawButtonPressed(XboxController.Button.kLeftBumper.value);
+        boolean isRobotRelative = controller.leftBumper().getAsBoolean();
         
         // Get Controller Values
-        double xVel = controller.getRawAxis(XboxController.Axis.kRightY.value); 
-        double yVel = controller.getRawAxis(XboxController.Axis.kRightX.value);
+        // FIXME: xVel and yVel pull the wrong values? Flip them
+        double xVel = controller.getRightY(); 
+        double yVel = controller.getRightX();
 
         // Angular Velocity
-        double thetaVel = controller.getRawAxis(XboxController.Axis.kLeftX.value) * Constants.Swerve.maxAngularSpeed;
+        double thetaVel = controller.getLeftX() * Constants.Swerve.maxAngularSpeed;
         
         xVel = Math.signum(xVel) * Math.pow(xVel,2) * Constants.Swerve.maxSpeed; //square input while preserving sign
         yVel = Math.signum(yVel) * Math.pow(yVel,2) * Constants.Swerve.maxSpeed;

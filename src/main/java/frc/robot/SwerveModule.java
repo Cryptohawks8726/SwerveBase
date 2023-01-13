@@ -8,8 +8,11 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
@@ -18,10 +21,11 @@ public class SwerveModule implements Loggable{
     private int modPos;
     private CANSparkMax driveMotor, steerMotor;
     private CANCoder absEncoder;
-    private Translation2d displacmentFromCenter;
+    private Transform2d transformationFromCenter;
     private SparkMaxPIDController driveController, steerController;
     private RelativeEncoder driveEncoder, steerEncoder;
     private SwerveModuleState lastSetState;
+    private SwerveModulePosition simulatedPosition;
 
     public SwerveModule(Constants.Swerve.Module modConstants){
         modPos = modConstants.modPos;
@@ -30,7 +34,7 @@ public class SwerveModule implements Loggable{
         // config can coder
 
         // turn down status frames on encoder
-        displacmentFromCenter = modConstants.displacment;
+        transformationFromCenter = modConstants.displacment;
 
         driveMotor = new CANSparkMax(modConstants.driveMotorid, MotorType.kBrushless);
         steerMotor = new CANSparkMax(modConstants.steerMotorid, MotorType.kBrushless);
@@ -58,14 +62,17 @@ public class SwerveModule implements Loggable{
         steerController.setI(Constants.Swerve.kSteerI);
         steerController.setD(Constants.Swerve.kSteerD);
         steerController.setFF(Constants.Swerve.kSteerFF);
+
+        // sim setup
+        simulatedPosition = new SwerveModulePosition();
     }
 
     public int getModPos(){
         return modPos;
     }
     
-    public Translation2d getDisplacment(){
-        return displacmentFromCenter;
+    public Transform2d getCenterTransform(){
+        return transformationFromCenter;
     }
     
     public void seedRelativeEncoder(){
@@ -93,11 +100,18 @@ public class SwerveModule implements Loggable{
     public SwerveModuleState getCurrentState(){ // used for odometry
         return new SwerveModuleState(driveEncoder.getVelocity(),Rotation2d.fromDegrees(steerEncoder.getPosition()%360));
     }
+    
+    public SwerveModulePosition getCurrentPosition(){ // used for odometry
+        return new SwerveModulePosition(driveEncoder.getPosition(),Rotation2d.fromDegrees(steerEncoder.getPosition()%360));
+    }
 
+    public SwerveModulePosition getSimulatedPosition(double timeStep){
+        double newPosition = simulatedPosition.distanceMeters + (lastSetState.speedMetersPerSecond*timeStep);
+        simulatedPosition = new SwerveModulePosition(newPosition, lastSetState.angle);
+        return simulatedPosition;
+    }
+    public SwerveModuleState getLastSetState(){
 
-
-    //number 1
-    public SwerveModuleState getLastSetState(){ 
         return lastSetState;
     }
 

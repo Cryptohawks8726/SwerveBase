@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 /**
@@ -19,8 +21,8 @@ public final class Constants {
     public static final class Swerve {
         
         // Physical Constants
-        public static final double driveBaseWidth = 2.0;
-        public static final double driveBaseLength = 2.0;
+        public static final double driveBaseWidth = 0.762;
+        public static final double driveBaseLength = 0.762; //meters
         public static final double driveGearRatio = 6.12; // L3
         public static final double steerGearRatio = 12.8; 
         public static final double wheelDiameterMeters = 0.098; // Measure and check later. Compensating for tread wear over comp could be cool
@@ -59,18 +61,20 @@ public final class Constants {
 
             Mod{modPos,driveMotorid,steerMotorid,cancoderid,displacment(x,y)}
             */
-            NE(0,10,11,12,new Translation2d(driveBaseLength/2,driveBaseWidth/2)), 
-            SE(1,20,21,22,new Translation2d(-driveBaseLength/2,driveBaseWidth/2)),
-            SW(2,30,31,32,new Translation2d(-driveBaseLength/2,-driveBaseWidth/2)),
-            NW(3,40,41,42,new Translation2d(driveBaseLength/2,-driveBaseWidth/2)); 
+
+            //TODO: Define Forward
+            NE(0,10,11,12,new Transform2d(new Translation2d(driveBaseLength/2,driveBaseWidth/2),new Rotation2d())), 
+            SE(1,20,21,22,new Transform2d(new Translation2d(-driveBaseLength/2,driveBaseWidth/2),new Rotation2d())),
+            SW(2,30,31,32,new Transform2d(new Translation2d(-driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())),
+            NW(3,40,41,42,new Transform2d(new Translation2d(driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())); 
             
             public final int modPos;
             public final int driveMotorid;
             public final int steerMotorid;
             public final int cancoderid;
-            public final Translation2d displacment; // from robot origin
+            public final Transform2d displacment; // from robot origin
             
-            private Module(int modPos, int driveMotorid, int steerMotorid, int cancoderid, Translation2d displacment){
+            private Module(int modPos, int driveMotorid, int steerMotorid, int cancoderid, Transform2d displacment){
                 this.modPos = modPos;
                 this.driveMotorid = driveMotorid;
                 this.steerMotorid = steerMotorid;
