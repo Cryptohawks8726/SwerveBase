@@ -14,8 +14,10 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import io.github.oblarg.oblog.Loggable;
+import io.github.oblarg.oblog.annotations.Log;
 
-public class SwerveModule {
+public class SwerveModule implements Loggable{
     private int modPos;
     private CANSparkMax driveMotor, steerMotor;
     private CANCoder absEncoder;
@@ -93,6 +95,8 @@ public class SwerveModule {
         driveMotor.setIdleMode(IdleMode.kCoast);
     }
     
+    //number 2
+    
     public SwerveModuleState getCurrentState(){ // used for odometry
         return new SwerveModuleState(driveEncoder.getVelocity(),Rotation2d.fromDegrees(steerEncoder.getPosition()%360));
     }
@@ -107,6 +111,19 @@ public class SwerveModule {
         return simulatedPosition;
     }
     public SwerveModuleState getLastSetState(){
+
         return lastSetState;
     }
+
+
+    
+    public double getLastSetStateSpeed(){
+        return lastSetState.speedMetersPerSecond;
+    }
+
+    
+    public double getLastSetStateAngle(){
+        return lastSetState.angle.getDegrees();
+    }
+
 }

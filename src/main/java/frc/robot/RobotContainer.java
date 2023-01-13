@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import io.github.oblarg.oblog.Logger;
+import io.github.oblarg.oblog.annotations.Log;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.XboxTeleopDrive;
@@ -25,10 +27,17 @@ public class RobotContainer {
   private final CommandXboxController driverController;
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
+    
     drivetrain = new SwerveDrive();
     driverController = new CommandXboxController(0);
     // Configure the button bindings
     configureButtonBindings();
+
+
+
+    
+
   }
 
   /**

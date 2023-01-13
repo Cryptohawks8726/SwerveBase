@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleSupplier;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.AHRS.SerialDataType;
@@ -10,6 +12,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,8 +33,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.SwerveModule;
+import io.github.oblarg.oblog.Loggable;
+import io.github.oblarg.oblog.annotations.Log;
 
-public class SwerveDrive extends SubsystemBase {
+
+public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
     
     private List<SwerveModule> modules;
 
@@ -158,6 +164,7 @@ public class SwerveDrive extends SubsystemBase {
     };
 
 
+
     public void drive(ChassisSpeeds robotSpeeds, boolean isClosedLoop){  
         lastSetChassisSpeeds = robotSpeeds;
         modStates = kinematics.toSwerveModuleStates(robotSpeeds);
@@ -175,6 +182,8 @@ public class SwerveDrive extends SubsystemBase {
         );
     }
 
+    //number 3
+    
     public Pose2d getPoseEstimate(){
         return odometry.getEstimatedPosition();
     }
@@ -189,4 +198,54 @@ public class SwerveDrive extends SubsystemBase {
         
         return modPositions;
     }
-} 
+
+    @Log
+    public double XCoordinate(){
+        return odometry.getEstimatedPosition().getX();
+    }
+
+    @Log
+    public double YCoordinate(){
+        return odometry.getEstimatedPosition().getY();
+    }
+
+    @Log
+    public double Module0Speed(){
+       return modules.get(0).getCurrentState().speedMetersPerSecond;
+    }
+
+    @Log
+    public double Module1Speed(){
+       return modules.get(1).getCurrentState().speedMetersPerSecond;
+    }
+
+    @Log
+    public double Module2Speed(){
+       return modules.get(2).getCurrentState().speedMetersPerSecond;
+    }
+
+    @Log
+    public double Module3Speed(){
+       return modules.get(3).getCurrentState().speedMetersPerSecond;
+    }
+
+    @Log
+    public double Module0Angle(){
+        return modules.get(0).getCurrentState().angle.getDegrees();
+    }
+
+    @Log
+    public double Module1Angle(){
+        return modules.get(1).getCurrentState().angle.getDegrees();
+    }
+
+    @Log
+    public double Module2Angle(){
+        return modules.get(2).getCurrentState().angle.getDegrees();
+    }
+
+    @Log
+    public double Module3Angle(){
+        return modules.get(3).getCurrentState().angle.getDegrees();
+    }    
+}
