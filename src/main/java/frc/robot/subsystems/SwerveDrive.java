@@ -41,7 +41,7 @@ public class SwerveDrive extends SubsystemBase {
     private SwerveDrivePoseEstimator odometry;
     private ChassisSpeeds lastSetChassisSpeeds;
     private AHRS gyro;
-    private AnalogGyroSim simGyro;
+    //private AnalogGyroSim simGyro;
     private Matrix<N3,N1> initalVisionStDev;
     //private Matrix<N3,N1> regularVisionStDev;
 
@@ -56,7 +56,6 @@ public class SwerveDrive extends SubsystemBase {
             new SwerveModule(Constants.Swerve.Module.SW),
             new SwerveModule(Constants.Swerve.Module.NW)
         );
-       
         modPositions = new SwerveModulePosition[]{
             modules.get(0).getCurrentPosition(),
             modules.get(1).getCurrentPosition(),
@@ -73,7 +72,8 @@ public class SwerveDrive extends SubsystemBase {
         
         gyro = new AHRS(SerialPort.Port.kUSB1,SerialDataType.kRawData,(byte) 100);
         gyro.calibrate(); // possibly move to avoid the robot being moved during calibration
-        simGyro = new AnalogGyroSim(0);
+        //
+        //simGyro = new AnalogGyroSim(0);
        
         
         odometry = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), modPositions, new Pose2d());
@@ -99,7 +99,15 @@ public class SwerveDrive extends SubsystemBase {
 
     @Override
     public void periodic(){
-        
+      /*  System.out.print("NE");
+       System.out.println(modules.get(0).getAbsPos());
+
+        System.out.print("SE");
+        System.out.println(modules.get(1).getAbsPos());
+        System.out.print("SW");
+        System.out.println(modules.get(2).getAbsPos());
+        System.out.print("NW");
+        System.out.println(modules.get(3).getAbsPos());*/
         odometry.update(
             gyro.getRotation2d(), 
             getSwerveModulePositions()
@@ -117,8 +125,10 @@ public class SwerveDrive extends SubsystemBase {
                     )
             );
         }
+       
+        //drive(new ChassisSpeeds(0, 0, 0),true);
     }
-    
+    /* 
     @Override
     public void simulationPeriodic(){
         
@@ -155,13 +165,28 @@ public class SwerveDrive extends SubsystemBase {
         SmartDashboard.putNumber("mod1deg", modules.get(1).getLastSetState().angle.getDegrees());
         SmartDashboard.putNumber("mod2deg", modules.get(2).getLastSetState().angle.getDegrees());
         SmartDashboard.putNumber("mod3deg", modules.get(3).getLastSetState().angle.getDegrees());
-    };
+    };*/
 
 
     public void drive(ChassisSpeeds robotSpeeds, boolean isClosedLoop){  
         lastSetChassisSpeeds = robotSpeeds;
         modStates = kinematics.toSwerveModuleStates(robotSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(modStates,Constants.Swerve.maxSpeed);
+        if (robotSpeeds.vxMetersPerSecond == 0.0 && robotSpeeds.vyMetersPerSecond == 0.0 && robotSpeeds.omegaRadiansPerSecond == 0.0){
+            
+            for (int i = 0; i<4;i++){
+                modStates[i] = new SwerveModuleState(modStates[i].speedMetersPerSecond,Rotation2d.fromDegrees(0));
+            }
+        }
+
+       /*if (robotSpeeds.vxMetersPerSecond == 0.0 && robotSpeeds.vyMetersPerSecond == 0.0){
+            
+            
+                modStates[1] = new SwerveModuleState(-modStates[1].speedMetersPerSecond,modStates[1].angle);
+                modStates[3] = new SwerveModuleState(-modStates[3].speedMetersPerSecond,modStates[3].angle);
+
+        
+        }*/
         modules.forEach(mod -> {mod.closedLoopDrive(modStates[mod.getModPos()]);});
     }
 
@@ -179,13 +204,14 @@ public class SwerveDrive extends SubsystemBase {
         return odometry.getEstimatedPosition();
     }
 
+
     public SwerveModulePosition[] getSwerveModulePositions(){
         
-        if (RobotBase.isSimulation()){
-            modules.forEach(mod -> {modPositions[mod.getModPos()] = mod.getSimulatedPosition(0.02);});
-        } else {
+        //if (RobotBase.isSimulation()){
+           // modules.forEach(mod -> {modPositions[mod.getModPos()] = mod.getSimulatedPosition(0.02);});
+      //  } else {
             modules.forEach(mod -> {modPositions[mod.getModPos()] = mod.getCurrentPosition();});
-        }
+       // }
         
         return modPositions;
     }

@@ -27,30 +27,51 @@ public class SwerveModule {
 
     public SwerveModule(Constants.Swerve.Module modConstants){
         modPos = modConstants.modPos;
-        absEncoder = new CANCoder(modConstants.cancoderid);
+        absEncoder = new CANCoder(modConstants.canCoderid);
         lastSetState = new SwerveModuleState();
+        
         // config can coder
-
-        // turn down status frames on encoder
+       absEncoder.configMagnetOffset(modConstants.canCoderOffset);
+        //absEncoder.setStatusFramePeriod(null, modPos)
+        
         transformationFromCenter = modConstants.displacment;
 
         driveMotor = new CANSparkMax(modConstants.driveMotorid, MotorType.kBrushless);
         steerMotor = new CANSparkMax(modConstants.steerMotorid, MotorType.kBrushless);
+        driveMotor.restoreFactoryDefaults();
+        steerMotor.restoreFactoryDefaults();
+        
         // config SparkMax 
+        driveMotor.setIdleMode(IdleMode.kCoast);
+        steerMotor.setIdleMode(IdleMode.kCoast);
+        
+        driveMotor.setSmartCurrentLimit(60);
+        steerMotor.setSmartCurrentLimit(60);
+        // doesn't work for drive, needed for pure rot
+        //if(modPos == 1 || modPos == 3){
+       //     driveMotor.setInverted(true);
+       // }
+        
+        driveMotor.enableVoltageCompensation(12.0);
+        steerMotor.enableVoltageCompensation(12.0);
+
         driveEncoder = driveMotor.getEncoder();
         steerEncoder = steerMotor.getEncoder();
+
+
         // config encoders
         driveEncoder.setPositionConversionFactor(Constants.Swerve.driveConversionFactor); // meters
-        driveEncoder.setVelocityConversionFactor(Constants.Swerve.driveConversionFactor/ 60.0); // m/s
+        driveEncoder.setVelocityConversionFactor(Constants.Swerve.driveConversionFactor / 60.0); // m/s
         
         steerEncoder.setPositionConversionFactor(360.0 / Constants.Swerve.steerGearRatio); // degrees
         steerEncoder.setVelocityConversionFactor(360.0 / Constants.Swerve.steerGearRatio / 60.0); // d/s
 
         seedRelativeEncoder();
+        
 
         driveController = driveMotor.getPIDController();
         steerController = steerMotor.getPIDController();
-
+        
         driveController.setP(Constants.Swerve.kDriveP);
         driveController.setI(Constants.Swerve.kDriveI);
         driveController.setD(Constants.Swerve.kDriveD);
@@ -61,12 +82,19 @@ public class SwerveModule {
         steerController.setD(Constants.Swerve.kSteerD);
         steerController.setFF(Constants.Swerve.kSteerFF);
 
+        driveMotor.burnFlash();
+        steerMotor.burnFlash();
+
         // sim setup
         simulatedPosition = new SwerveModulePosition();
     }
 
     public int getModPos(){
         return modPos;
+    }
+
+    public double getAbsPos(){
+        return absEncoder.getPosition();
     }
     
     public Transform2d getCenterTransform(){
@@ -82,6 +110,7 @@ public class SwerveModule {
         lastSetState = setPoint;
         driveController.setReference(setPoint.speedMetersPerSecond, ControlType.kVelocity); // IDK if velocity control will work well
         steerController.setReference(setPoint.angle.getDegrees(), ControlType.kPosition);
+        
         return this;
     }
     
