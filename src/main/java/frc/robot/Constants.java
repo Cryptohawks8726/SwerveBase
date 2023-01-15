@@ -67,10 +67,10 @@ public final class Constants {
             */
 
             //TODO: Define Forward
-            NE(0,10,11,12,-156.09375,new Transform2d(new Translation2d(driveBaseLength/2,driveBaseWidth/2),new Rotation2d())), 
-            SE(1,20,21,22,61.435546875-0.087890625,new Transform2d(new Translation2d(-driveBaseLength/2,driveBaseWidth/2),new Rotation2d())),
-            SW(2,30,31,32,20.0,new Transform2d(new Translation2d(-driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())),
-            NW(3,40,41,42,-43.505859375,new Transform2d(new Translation2d(driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())); 
+            NE(0,10,11,12,126.826,new Transform2d(new Translation2d(driveBaseLength/2,driveBaseWidth/2),new Rotation2d())), 
+            SE(1,20,21,22,43.418,new Transform2d(new Translation2d(-driveBaseLength/2,driveBaseWidth/2),new Rotation2d())),
+            SW(2,30,31,32,-47.549,new Transform2d(new Translation2d(-driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())),
+            NW(3,40,41,42,228.340,new Transform2d(new Translation2d(driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())); 
             
             public final int modPos;
             public final int driveMotorid;

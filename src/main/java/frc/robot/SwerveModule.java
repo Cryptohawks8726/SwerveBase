@@ -31,7 +31,9 @@ public class SwerveModule {
         lastSetState = new SwerveModuleState();
         
         // config can coder
-       absEncoder.configMagnetOffset(modConstants.canCoderOffset);
+        if(absEncoder.configMagnetOffset(modConstants.canCoderOffset).value != 0){
+            System.out.println("CanCoder offset error for mod"+modPos);
+        }
         //absEncoder.setStatusFramePeriod(null, modPos)
         
         transformationFromCenter = modConstants.displacment;

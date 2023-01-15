@@ -41,7 +41,7 @@ public class SwerveDrive extends SubsystemBase {
     private SwerveDrivePoseEstimator odometry;
     private ChassisSpeeds lastSetChassisSpeeds;
     private AHRS gyro;
-    //private AnalogGyroSim simGyro;
+    private AnalogGyroSim simGyro;
     private Matrix<N3,N1> initalVisionStDev;
     //private Matrix<N3,N1> regularVisionStDev;
 
@@ -56,6 +56,7 @@ public class SwerveDrive extends SubsystemBase {
             new SwerveModule(Constants.Swerve.Module.SW),
             new SwerveModule(Constants.Swerve.Module.NW)
         );
+
         modPositions = new SwerveModulePosition[]{
             modules.get(0).getCurrentPosition(),
             modules.get(1).getCurrentPosition(),
@@ -73,17 +74,10 @@ public class SwerveDrive extends SubsystemBase {
         gyro = new AHRS(SerialPort.Port.kUSB1,SerialDataType.kRawData,(byte) 100);
         gyro.calibrate(); // possibly move to avoid the robot being moved during calibration
         //
-        //simGyro = new AnalogGyroSim(0);
+        simGyro = new AnalogGyroSim(0);
        
         
-        odometry = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), modPositions, new Pose2d());
-        /*odometry = new SwerveDrivePoseEstimator(new Rotation2d(), 
-        new Pose2d(),
-        kinematics, 
-        new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), 
-        new MatBuilder<>(Nat.N1(), Nat.N1()).fill(0.02), 
-        initalVisionStDev); // TODO: Update to 2023 Constructor*/
-        
+        odometry = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), modPositions, new Pose2d()); 
         
         lastSetChassisSpeeds = new ChassisSpeeds();
         
@@ -99,20 +93,19 @@ public class SwerveDrive extends SubsystemBase {
 
     @Override
     public void periodic(){
-      /*  System.out.print("NE");
-       System.out.println(modules.get(0).getAbsPos());
-
+        System.out.print("NE");
+        System.out.println(modules.get(0).getAbsPos());
         System.out.print("SE");
         System.out.println(modules.get(1).getAbsPos());
         System.out.print("SW");
         System.out.println(modules.get(2).getAbsPos());
         System.out.print("NW");
-        System.out.println(modules.get(3).getAbsPos());*/
+        System.out.println(modules.get(3).getAbsPos());
         odometry.update(
             gyro.getRotation2d(), 
             getSwerveModulePositions()
         );
-
+        //zeroModules();
         field.setRobotPose(odometry.getEstimatedPosition());
         
         for (int i = 0;i<4;i++){
@@ -128,7 +121,7 @@ public class SwerveDrive extends SubsystemBase {
        
         //drive(new ChassisSpeeds(0, 0, 0),true);
     }
-    /* 
+     
     @Override
     public void simulationPeriodic(){
         
@@ -165,19 +158,19 @@ public class SwerveDrive extends SubsystemBase {
         SmartDashboard.putNumber("mod1deg", modules.get(1).getLastSetState().angle.getDegrees());
         SmartDashboard.putNumber("mod2deg", modules.get(2).getLastSetState().angle.getDegrees());
         SmartDashboard.putNumber("mod3deg", modules.get(3).getLastSetState().angle.getDegrees());
-    };*/
+    };
 
 
     public void drive(ChassisSpeeds robotSpeeds, boolean isClosedLoop){  
         lastSetChassisSpeeds = robotSpeeds;
         modStates = kinematics.toSwerveModuleStates(robotSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(modStates,Constants.Swerve.maxSpeed);
-        if (robotSpeeds.vxMetersPerSecond == 0.0 && robotSpeeds.vyMetersPerSecond == 0.0 && robotSpeeds.omegaRadiansPerSecond == 0.0){
+        // SwerveDriveKinematics.desaturateWheelSpeeds(modStates,Constants.Swerve.maxSpeed);
+       /* if (robotSpeeds.vxMetersPerSecond == 0.0 && robotSpeeds.vyMetersPerSecond == 0.0 && robotSpeeds.omegaRadiansPerSecond == 0.0){
             
             for (int i = 0; i<4;i++){
                 modStates[i] = new SwerveModuleState(modStates[i].speedMetersPerSecond,Rotation2d.fromDegrees(0));
             }
-        }
+        }*/
 
        /*if (robotSpeeds.vxMetersPerSecond == 0.0 && robotSpeeds.vyMetersPerSecond == 0.0){
             
@@ -200,18 +193,26 @@ public class SwerveDrive extends SubsystemBase {
         );
     }
 
+    public void zeroModules(){
+        modules.get(0).closedLoopDrive(new SwerveModuleState(0,Rotation2d.fromDegrees(Constants.Swerve.Module.NE.canCoderOffset)));
+        modules.get(1).closedLoopDrive(new SwerveModuleState(0,Rotation2d.fromDegrees(Constants.Swerve.Module.SE.canCoderOffset)));
+        modules.get(2).closedLoopDrive(new SwerveModuleState(0,Rotation2d.fromDegrees(Constants.Swerve.Module.SW.canCoderOffset)));
+        modules.get(3).closedLoopDrive(new SwerveModuleState(0,Rotation2d.fromDegrees(Constants.Swerve.Module.NW.canCoderOffset)));
+
+        // modules.forEach(mod -> {mod.closedLoopDrive(new SwerveModuleState(0,Rotation2d.fromDegrees(0)));});
+    }
+
     public Pose2d getPoseEstimate(){
         return odometry.getEstimatedPosition();
     }
 
-
     public SwerveModulePosition[] getSwerveModulePositions(){
         
-        //if (RobotBase.isSimulation()){
-           // modules.forEach(mod -> {modPositions[mod.getModPos()] = mod.getSimulatedPosition(0.02);});
-      //  } else {
+        if (RobotBase.isSimulation()){
+           modules.forEach(mod -> {modPositions[mod.getModPos()] = mod.getSimulatedPosition(0.02);});
+        } else {
             modules.forEach(mod -> {modPositions[mod.getModPos()] = mod.getCurrentPosition();});
-       // }
+        }
         
         return modPositions;
     }
