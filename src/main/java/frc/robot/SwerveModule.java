@@ -8,17 +8,17 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import frc.robot.Constants.Swerve.ModulePosition;
 
 public class SwerveModule {
-    private int modPos;
+    private ModulePosition modPos;
     private CANSparkMax driveMotor, steerMotor;
     private CANCoder absEncoder;
+    private double canCoderOffset;
     private Transform2d transformationFromCenter;
     private SparkMaxPIDController driveController, steerController;
     private RelativeEncoder driveEncoder, steerEncoder;
@@ -31,9 +31,7 @@ public class SwerveModule {
         lastSetState = new SwerveModuleState();
         
         // config can coder
-        if(absEncoder.configMagnetOffset(modConstants.canCoderOffset).value != 0){
-            System.out.println("CanCoder offset error for mod"+modPos);
-        }
+        canCoderOffset = modConstants.canCoderOffset;
         //absEncoder.setStatusFramePeriod(null, modPos)
         
         transformationFromCenter = modConstants.displacment;
@@ -43,12 +41,13 @@ public class SwerveModule {
         driveMotor.restoreFactoryDefaults();
         steerMotor.restoreFactoryDefaults();
         
-        // config SparkMax 
         driveMotor.setIdleMode(IdleMode.kCoast);
         steerMotor.setIdleMode(IdleMode.kCoast);
         
-        driveMotor.setSmartCurrentLimit(60);
+        //lower later
+        driveMotor.setSmartCurrentLimit(60); 
         steerMotor.setSmartCurrentLimit(60);
+        
         // doesn't work for drive, needed for pure rot
         //if(modPos == 1 || modPos == 3){
        //     driveMotor.setInverted(true);
@@ -68,9 +67,6 @@ public class SwerveModule {
         steerEncoder.setPositionConversionFactor(360.0 / Constants.Swerve.steerGearRatio); // degrees
         steerEncoder.setVelocityConversionFactor(360.0 / Constants.Swerve.steerGearRatio / 60.0); // d/s
 
-        seedRelativeEncoder();
-        
-
         driveController = driveMotor.getPIDController();
         steerController = steerMotor.getPIDController();
         
@@ -84,14 +80,24 @@ public class SwerveModule {
         steerController.setD(Constants.Swerve.kSteerD);
         steerController.setFF(Constants.Swerve.kSteerFF);
 
+
+        if (modPos.equals(ModulePosition.FL)|| modPos.equals(ModulePosition.FR)){
+            driveMotor.setInverted(true);
+        }
         driveMotor.burnFlash();
         steerMotor.burnFlash();
 
         // sim setup
         simulatedPosition = new SwerveModulePosition();
+        
+        setEncoderOffset();
+        // sketchy delay to make sure cancoder offsets are saveds
+        double finishTime = System.currentTimeMillis() + 200;
+        while (System.currentTimeMillis() < finishTime) {}
+        seedRelativeEncoder();
     }
 
-    public int getModPos(){
+    public ModulePosition getModPos(){
         return modPos;
     }
 
@@ -99,10 +105,19 @@ public class SwerveModule {
         return absEncoder.getPosition();
     }
     
+    public double getRelativePos(){
+        return steerEncoder.getPosition();
+    }
+
     public Transform2d getCenterTransform(){
         return transformationFromCenter;
     }
-    
+    public void setEncoderOffset(){
+        if(absEncoder.configMagnetOffset(canCoderOffset).value != 0){
+            System.out.println("CanCoder offset error for mod"+modPos.toString());
+        }
+    }
+
     public void seedRelativeEncoder(){
         steerEncoder.setPosition(absEncoder.getPosition());
     }
@@ -124,7 +139,7 @@ public class SwerveModule {
         driveMotor.setIdleMode(IdleMode.kCoast);
     }
     
-    public SwerveModuleState getCurrentState(){ // used for odometry
+    public SwerveModuleState getCurrentState(){ 
         return new SwerveModuleState(driveEncoder.getVelocity(),Rotation2d.fromDegrees(steerEncoder.getPosition()%360));
     }
     

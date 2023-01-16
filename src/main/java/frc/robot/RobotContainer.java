@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.XboxTeleopDrive;
 import frc.robot.subsystems.SwerveDrive;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -38,9 +39,11 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    drivetrain.setDefaultCommand(new XboxTeleopDrive(drivetrain,driverController));
+    drivetrain.setDefaultCommand(new XboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
     Trigger driverRightBumper = driverController.rightBumper();
     driverRightBumper.whileTrue(drivetrain.passiveBrake());
+    Trigger driverRightTrigger = driverController.rightTrigger();
+    driverRightTrigger.whileTrue(new InstantCommand(()->drivetrain.normalZeroModules(),drivetrain));
   }
 
   /**

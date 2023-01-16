@@ -38,15 +38,15 @@ public class XboxTeleopDrive extends CommandBase{
     See https://docs.wpilib.org/en/stable/docs/software/advanced-controls/geometry/coordinate-systems.html 
         The controller axes have x as left-right and y as up-down
         */
-        // boolean isRobotRelative = controller.leftBumper().getAsBoolean();
-        boolean isRobotRelative = true;
+         boolean isRobotRelative = controller.leftBumper().getAsBoolean();
+        //boolean isRobotRelative = true;
         
         // Get Controller Values
         // FIXME: xVel and yVel pull the wrong values? Flip them
         double xVel = controller.getLeftY(); 
         double yVel = controller.getLeftX();
         double thetaVel = controller.getRightX();
-        thetaVel = 0;
+        //thetaVel = 0;
 
          // apply deadbands
          xVel = (Math.abs(xVel) < Constants.Swerve.driverTranslationDeadband) ? 0.0 : xVel;
@@ -67,7 +67,7 @@ public class XboxTeleopDrive extends CommandBase{
         System.out.println(thetaVel);
 
         // maintain heading if there's no rotational input
-        /* if (Math.abs(thetaVel) < Constants.Swerve.driverThetaDeadband){
+         if (Math.abs(thetaVel) < Constants.Swerve.driverThetaDeadband){
             if (isHeadingSet == false){
                 headingPID.reset();
                 isHeadingSet = true;
@@ -79,15 +79,15 @@ public class XboxTeleopDrive extends CommandBase{
             }
         } else{
             isHeadingSet = false;
-        }*/
+        }
 
-        // drivetrain.drive(
-        //     isRobotRelative ? new ChassisSpeeds(xVel, yVel, thetaVel)
-        //     : ChassisSpeeds.fromFieldRelativeSpeeds(xVel, yVel, thetaVel,drivetrain.getPoseEstimate().getRotation())
-        //     ,false
-        // );
+         drivetrain.drive(
+             isRobotRelative ? new ChassisSpeeds(xVel, yVel, thetaVel)
+            : ChassisSpeeds.fromFieldRelativeSpeeds(xVel, yVel, thetaVel,drivetrain.getPoseEstimate().getRotation())
+            ,true
+        );
 
-        drivetrain.drive(new ChassisSpeeds(xVel, yVel, thetaVel), false);
+        //drivetrain.drive(new ChassisSpeeds(xVel, yVel, thetaVel), false);
     }
 
 }
