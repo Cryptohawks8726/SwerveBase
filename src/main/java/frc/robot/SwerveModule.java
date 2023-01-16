@@ -113,9 +113,10 @@ public class SwerveModule {
         return transformationFromCenter;
     }
     public void setEncoderOffset(){
-        if(absEncoder.configMagnetOffset(canCoderOffset).value != 0){
+        absEncoder.configMagnetOffset(canCoderOffset);
+        /*if(absEncoder.configMagnetOffset(canCoderOffset).value != 0){
             System.out.println("CanCoder offset error for mod"+modPos.toString());
-        }
+        }*/
     }
 
     public void seedRelativeEncoder(){
