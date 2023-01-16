@@ -39,6 +39,11 @@
         "open": true
       },
       "open": true
+    },
+    "transitory": {
+      "SmartDashboard": {
+        "open": true
+      }
     }
   },
   "Plot": {

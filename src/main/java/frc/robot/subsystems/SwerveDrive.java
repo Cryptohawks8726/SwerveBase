@@ -7,11 +7,6 @@ import java.util.function.DoubleSupplier;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.AHRS.SerialDataType;
-import edu.wpi.first.math.MatBuilder;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -31,10 +26,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.SwerveModule;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
+import static frc.robot.Constants.Swerve.ModulePosition.*;
 
 
 public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
@@ -42,77 +37,66 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
     private List<SwerveModule> modules;
 
     private SwerveModuleState[] modStates;
-    private SwerveModulePosition[] modPositions;
+    private SwerveModulePosition[] modPositionStates;
     private SwerveDriveKinematics kinematics;
     private SwerveDrivePoseEstimator odometry;
     private ChassisSpeeds lastSetChassisSpeeds;
     private AHRS gyro;
     private AnalogGyroSim simGyro;
-    private Matrix<N3,N1> initalVisionStDev;
-    //private Matrix<N3,N1> regularVisionStDev;
 
     private Field2d field; 
-    private FieldObject2d modNE,modSE,modSW,modNW;
     private FieldObject2d[] modPoses;
    
     public SwerveDrive(){
         modules = Arrays.asList(
-            new SwerveModule(Constants.Swerve.Module.NE),
-            new SwerveModule(Constants.Swerve.Module.SE),
-            new SwerveModule(Constants.Swerve.Module.SW),
-            new SwerveModule(Constants.Swerve.Module.NW)
+            new SwerveModule(Constants.Swerve.Module.FR),
+            new SwerveModule(Constants.Swerve.Module.BR),
+            new SwerveModule(Constants.Swerve.Module.BL),
+            new SwerveModule(Constants.Swerve.Module.FL)
         );
-       
-        modPositions = new SwerveModulePosition[]{
-            modules.get(0).getCurrentPosition(),
-            modules.get(1).getCurrentPosition(),
-            modules.get(2).getCurrentPosition(),
-            modules.get(3).getCurrentPosition()
+
+        modPositionStates = new SwerveModulePosition[]{
+            modules.get(FR.modPos).getCurrentPosition(),
+            modules.get(BR.modPos).getCurrentPosition(),
+            modules.get(BL.modPos).getCurrentPosition(),
+            modules.get(FL.modPos).getCurrentPosition()
         };
 
         kinematics = new SwerveDriveKinematics(
-            modules.get(0).getCenterTransform().getTranslation(),
-            modules.get(1).getCenterTransform().getTranslation(),
-            modules.get(2).getCenterTransform().getTranslation(),
-            modules.get(3).getCenterTransform().getTranslation()
+            modules.get(FR.modPos).getCenterTransform().getTranslation(),
+            modules.get(BR.modPos).getCenterTransform().getTranslation(),
+            modules.get(BL.modPos).getCenterTransform().getTranslation(),
+            modules.get(FL.modPos).getCenterTransform().getTranslation()
         );
         
         gyro = new AHRS(SerialPort.Port.kUSB1,SerialDataType.kRawData,(byte) 100);
         gyro.calibrate(); // possibly move to avoid the robot being moved during calibration
+        //
         simGyro = new AnalogGyroSim(0);
-       
         
-        odometry = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), modPositions, new Pose2d());
-        /*odometry = new SwerveDrivePoseEstimator(new Rotation2d(), 
-        new Pose2d(),
-        kinematics, 
-        new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), 
-        new MatBuilder<>(Nat.N1(), Nat.N1()).fill(0.02), 
-        initalVisionStDev); // TODO: Update to 2023 Constructor*/
-        
+        odometry = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), modPositionStates, new Pose2d()); 
         
         lastSetChassisSpeeds = new ChassisSpeeds();
         
         field = new Field2d();
         modPoses = new FieldObject2d[]{
-            field.getObject("modNE"),
-            field.getObject("modSE"),
-            field.getObject("modSW"),
-            field.getObject("modNW")
+            field.getObject("modFR"),
+            field.getObject("modBR"),
+            field.getObject("modBL"),
+            field.getObject("modFL")
         };
         SmartDashboard.putData("Field", field);
     }
 
     @Override
     public void periodic(){
-        
         odometry.update(
             gyro.getRotation2d(), 
             getSwerveModulePositions()
         );
-
-        field.setRobotPose(odometry.getEstimatedPosition());
         
+        // show estimated robot and mod poses on dashboard
+        field.setRobotPose(odometry.getEstimatedPosition());
         for (int i = 0;i<4;i++){
             modPoses[i].setPose(
                 odometry.getEstimatedPosition()
@@ -123,8 +107,11 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
                     )
             );
         }
+        
+        logValues();
+
     }
-    
+    /* 
     @Override
     public void simulationPeriodic(){
         
@@ -153,15 +140,15 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
         SmartDashboard.putNumber("ypos", estimatedPostition.getTranslation().getY());
         SmartDashboard.putNumber("setXVel", lastSetChassisSpeeds.vxMetersPerSecond);
         SmartDashboard.putNumber("setYVel", lastSetChassisSpeeds.vyMetersPerSecond);
-        SmartDashboard.putNumber("mod0vel", modules.get(0).getLastSetState().speedMetersPerSecond);
-        SmartDashboard.putNumber("mod1vel", modules.get(1).getLastSetState().speedMetersPerSecond);
-        SmartDashboard.putNumber("mod2vel", modules.get(2).getLastSetState().speedMetersPerSecond);
-        SmartDashboard.putNumber("mod3vel", modules.get(3).getLastSetState().speedMetersPerSecond);
-        SmartDashboard.putNumber("mod0deg", modules.get(0).getLastSetState().angle.getDegrees());
-        SmartDashboard.putNumber("mod1deg", modules.get(1).getLastSetState().angle.getDegrees());
-        SmartDashboard.putNumber("mod2deg", modules.get(2).getLastSetState().angle.getDegrees());
-        SmartDashboard.putNumber("mod3deg", modules.get(3).getLastSetState().angle.getDegrees());
-    };
+        SmartDashboard.putNumber("FRvel", modules.get(FR.modPos).getLastSetState().speedMetersPerSecond);
+        SmartDashboard.putNumber("BRvel", modules.get(BR.modPos).getLastSetState().speedMetersPerSecond);
+        SmartDashboard.putNumber("BLvel", modules.get(BL.modPos).getLastSetState().speedMetersPerSecond);
+        SmartDashboard.putNumber("FLvel", modules.get(FL.modPos).getLastSetState().speedMetersPerSecond);
+        SmartDashboard.putNumber("FRdeg", modules.get(FR.modPos).getLastSetState().angle.getDegrees());
+        SmartDashboard.putNumber("BRdeg", modules.get(BR.modPos).getLastSetState().angle.getDegrees());
+        SmartDashboard.putNumber("BLdeg", modules.get(BL.modPos).getLastSetState().angle.getDegrees());
+        SmartDashboard.putNumber("FLdeg", modules.get(FL.modPos).getLastSetState().angle.getDegrees());
+    };*/
 
 
 
@@ -169,34 +156,87 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
         lastSetChassisSpeeds = robotSpeeds;
         modStates = kinematics.toSwerveModuleStates(robotSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(modStates,Constants.Swerve.maxSpeed);
-        modules.forEach(mod -> {mod.closedLoopDrive(modStates[mod.getModPos()]);});
+       /* if (robotSpeeds.vxMetersPerSecond == 0.0 && robotSpeeds.vyMetersPerSecond == 0.0 && robotSpeeds.omegaRadiansPerSecond == 0.0){
+            
+            for (int i = 0; i<4;i++){
+                modStates[i] = new SwerveModuleState(modStates[i].speedMetersPerSecond,Rotation2d.fromDegrees(0));
+            }
+        }*/
+
+       /*if (robotSpeeds.vxMetersPerSecond == 0.0 && robotSpeeds.vyMetersPerSecond == 0.0){
+            
+            
+                modStates[1] = new SwerveModuleState(-modStates[1].speedMetersPerSecond,modStates[1].angle);
+                modStates[3] = new SwerveModuleState(-modStates[3].speedMetersPerSecond,modStates[3].angle);
+
+        
+        }*/
+        modules.forEach(mod -> {mod.closedLoopDrive(modStates[mod.getModPos().getVal()]);});
     }
 
     public StartEndCommand passiveBrake(){
         SwerveModuleState leftToRight = new SwerveModuleState(0.0,Rotation2d.fromDegrees(45));
         SwerveModuleState rightToLeft = new SwerveModuleState(0.0, Rotation2d.fromDegrees(135));
         return new StartEndCommand(
-            () -> modules.forEach(mod -> {mod.closedLoopDrive((mod.getModPos() %2 == 0) ? leftToRight : rightToLeft).setBrake();}), 
+            () -> modules.forEach(mod -> {mod.closedLoopDrive((mod.getModPos().getVal() %2 == 0) ? leftToRight : rightToLeft).setBrake();}), 
             () -> modules.forEach(mod -> {mod.setCoast();}), 
             this
         );
     }
 
-    //number 3
-    
+    public void jankyZeroModules(){
+        modules.get(FR.modPos).closedLoopDrive(new SwerveModuleState(0,Rotation2d.fromDegrees(Constants.Swerve.Module.FR.canCoderOffset)));
+        modules.get(BR.modPos).closedLoopDrive(new SwerveModuleState(0,Rotation2d.fromDegrees(Constants.Swerve.Module.BR.canCoderOffset)));
+        modules.get(BL.modPos).closedLoopDrive(new SwerveModuleState(0,Rotation2d.fromDegrees(Constants.Swerve.Module.BL.canCoderOffset)));
+        modules.get(FL.modPos).closedLoopDrive(new SwerveModuleState(0,Rotation2d.fromDegrees(Constants.Swerve.Module.FL.canCoderOffset)));
+
+        // modules.forEach(mod -> {mod.closedLoopDrive(new SwerveModuleState(0,Rotation2d.fromDegrees(0)));});
+    }
+
+    public void normalZeroModules(){
+        modules.forEach(mod -> {mod.closedLoopDrive(new SwerveModuleState(0,Rotation2d.fromDegrees(0)));});
+    }
+
     public Pose2d getPoseEstimate(){
         return odometry.getEstimatedPosition();
     }
 
     public SwerveModulePosition[] getSwerveModulePositions(){
         
-        if (RobotBase.isSimulation()){
-            modules.forEach(mod -> {modPositions[mod.getModPos()] = mod.getSimulatedPosition(0.02);});
-        } else {
-            modules.forEach(mod -> {modPositions[mod.getModPos()] = mod.getCurrentPosition();});
-        }
+       /*  if (RobotBase.isSimulation()){
+           modules.forEach(mod -> {modPositionStates[mod.getModPos().getVal()] = mod.getSimulatedPosition(0.02);});
+        } else {*/
+            modules.forEach(mod -> {modPositionStates[mod.getModPos().getVal()] = mod.getCurrentPosition();});
+       // }
         
-        return modPositions;
+        return modPositionStates;
+    }
+
+    public void setEncoderOffsets(){
+        modules.forEach(mod -> {mod.setEncoderOffset();});
+    }
+
+    public void logValues(){ 
+        Pose2d estimatedPostition = odometry.getEstimatedPosition();
+
+        SmartDashboard.putNumber("xpos", estimatedPostition.getTranslation().getX());
+        SmartDashboard.putNumber("ypos", estimatedPostition.getTranslation().getY());
+        SmartDashboard.putNumber("estimatedthetaPos",estimatedPostition.getRotation().getDegrees());
+        SmartDashboard.putNumber("gyroAngle", gyro.getAngle());//getRotation2d().getDegrees()%360
+        SmartDashboard.putBoolean("isGyroConnected", gyro.isConnected());
+        SmartDashboard.putNumber("setXVel", lastSetChassisSpeeds.vxMetersPerSecond);
+        SmartDashboard.putNumber("setYVel", lastSetChassisSpeeds.vyMetersPerSecond);
+        
+
+        for (SwerveModule module : modules) {
+            String modName = module.getModPos().toString();
+            SmartDashboard.putNumber(modName + "setvel", module.getLastSetState().speedMetersPerSecond);
+            SmartDashboard.putNumber(modName + "actvel", module.getCurrentState().speedMetersPerSecond);
+            SmartDashboard.putNumber(modName + "setdeg", module.getLastSetState().angle.getDegrees());
+            SmartDashboard.putNumber(modName + "actdeg", module.getCurrentState().angle.getDegrees());
+            SmartDashboard.putNumber(modName + "absdeg", module.getAbsPos());
+        }
+
     }
 
     @Log
