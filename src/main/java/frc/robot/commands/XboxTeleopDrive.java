@@ -49,8 +49,8 @@ public class XboxTeleopDrive extends CommandBase{
         //thetaVel = 0;
 
          // apply deadbands
-         xVel = (Math.abs(xVel) < Constants.Swerve.driverTranslationDeadband) ? 0.0 : xVel;
-         yVel = (Math.abs(yVel) < Constants.Swerve.driverTranslationDeadband) ? 0.0 : yVel;
+        //  xVel = (Math.abs(xVel) < Constants.Swerve.driverTranslationDeadband) ? 0.0 : xVel;
+        //  yVel = (Math.abs(yVel) < Constants.Swerve.driverTranslationDeadband) ? 0.0 : yVel;
          thetaVel = (Math.abs(thetaVel) < Constants.Swerve.driverTranslationDeadband) ? 0.0 : thetaVel* Constants.Swerve.maxAngularSpeed; 
         // Angular Velocity
         
@@ -59,12 +59,12 @@ public class XboxTeleopDrive extends CommandBase{
         yVel = Math.signum(yVel) * Math.pow(yVel,2) * Constants.Swerve.maxSpeed;
         
        
-        System.out.print("xVel");
-        System.out.println(xVel);
-        System.out.print("yVel");
-        System.out.println(yVel);
-        System.out.print("Theta");
-        System.out.println(thetaVel);
+        // System.out.print("xVel:   ");
+        // System.out.println(xVel);
+        // System.out.print("yVel:   ");
+        // System.out.println(yVel);
+        // System.out.print("Theta:   ");
+        // System.out.println(thetaVel);
 
         // maintain heading if there's no rotational input
          if (Math.abs(thetaVel) < Constants.Swerve.driverThetaDeadband){
@@ -80,7 +80,7 @@ public class XboxTeleopDrive extends CommandBase{
         } else{
             isHeadingSet = false;
         }
-
+        
          drivetrain.drive(
              isRobotRelative ? new ChassisSpeeds(xVel, yVel, thetaVel)
             : ChassisSpeeds.fromFieldRelativeSpeeds(xVel, yVel, thetaVel,drivetrain.getPoseEstimate().getRotation())

@@ -46,7 +46,7 @@ public final class Constants {
         public static final double kDriveD = 0.0;
         public static final double kDriveFF = 0.0;
 
-        public static final double kSteerP = 0.005;
+        public static final double kSteerP = 0.0025;
         public static final double kSteerI = 0.0;
         public static final double kSteerD = 0.0;
         public static final double kSteerFF = 0.0;
@@ -88,9 +88,9 @@ public final class Constants {
 
             //TODO: Define Forward
             FR(ModulePosition.FR,10,11,12,180.0,new Transform2d(new Translation2d(driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())), 
-            BR(ModulePosition.BR,20,21,22,0.0,new Transform2d(new Translation2d(-driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())),
-            BL(ModulePosition.BL,30,31,32,0.0,new Transform2d(new Translation2d(-driveBaseLength/2,driveBaseWidth/2),new Rotation2d())),
-            FL(ModulePosition.FL,40,41,42,180.0,new Transform2d(new Translation2d(driveBaseLength/2,driveBaseWidth/2),new Rotation2d())); 
+            BR(ModulePosition.BR,20,21,22,0.0+2.988281,new Transform2d(new Translation2d(-driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())),
+            BL(ModulePosition.BL,30,31,32,0.0+11.865234,new Transform2d(new Translation2d(-driveBaseLength/2,driveBaseWidth/2),new Rotation2d())),
+            FL(ModulePosition.FL,40,41,42,180.0-7.822266,new Transform2d(new Translation2d(driveBaseLength/2,driveBaseWidth/2),new Rotation2d())); 
             
             public final ModulePosition modPos;
             public final int driveMotorid;

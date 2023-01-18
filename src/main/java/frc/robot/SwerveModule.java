@@ -47,13 +47,16 @@ public class SwerveModule implements Loggable{
         steerMotor.setIdleMode(IdleMode.kCoast);
         
         //lower later
-        driveMotor.setSmartCurrentLimit(60); 
-        steerMotor.setSmartCurrentLimit(60);
+        driveMotor.setSmartCurrentLimit(40); 
+        steerMotor.setSmartCurrentLimit(40);
         
         // doesn't work for drive, needed for pure rot
         //if(modPos == 1 || modPos == 3){
        //     driveMotor.setInverted(true);
        // }
+        if(modPos.equals(ModulePosition.BL)){
+            driveMotor.setInverted(true);
+        }
         
         driveMotor.enableVoltageCompensation(12.0);
         steerMotor.enableVoltageCompensation(12.0);
@@ -126,10 +129,12 @@ public class SwerveModule implements Loggable{
     }
     
     public SwerveModule closedLoopDrive(SwerveModuleState setPoint){
-        setPoint = SwerveModuleState.optimize(setPoint, Rotation2d.fromDegrees(steerEncoder.getPosition()%360));
+        // setPoint = SwerveModuleState.optimize(setPoint, Rotation2d.fromDegrees(steerEncoder.getPosition()));
         lastSetState = setPoint;
         driveController.setReference(setPoint.speedMetersPerSecond, ControlType.kVelocity); // IDK if velocity control will work well
-        steerController.setReference(setPoint.angle.getDegrees(), ControlType.kPosition);
+        System.out.println(setPoint.angle.getDegrees());
+        steerController.setReference(setPoint.angle.getDegrees()%180, ControlType.kPosition);
+        System.out.println(setPoint.angle.getDegrees());
         
         return this;
     }

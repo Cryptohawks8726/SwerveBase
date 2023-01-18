@@ -230,6 +230,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
 
         for (SwerveModule module : modules) {
             String modName = module.getModPos().toString();
+            module.seedRelativeEncoder();
             SmartDashboard.putNumber(modName + "setvel", module.getLastSetState().speedMetersPerSecond);
             SmartDashboard.putNumber(modName + "actvel", module.getCurrentState().speedMetersPerSecond);
             SmartDashboard.putNumber(modName + "setdeg", module.getLastSetState().angle.getDegrees());

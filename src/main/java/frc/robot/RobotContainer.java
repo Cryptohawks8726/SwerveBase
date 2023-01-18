@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.XboxTeleopDrive;
 import frc.robot.subsystems.SwerveDrive;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -52,7 +53,7 @@ public class RobotContainer {
     Trigger driverRightBumper = driverController.rightBumper();
     driverRightBumper.whileTrue(drivetrain.passiveBrake());
     Trigger driverRightTrigger = driverController.rightTrigger();
-    driverRightTrigger.whileTrue(new InstantCommand(()->drivetrain.normalZeroModules(),drivetrain));
+    driverRightTrigger.whileTrue(new RepeatCommand(new InstantCommand(()->drivetrain.normalZeroModules(),drivetrain)));
   }
 
   /**
