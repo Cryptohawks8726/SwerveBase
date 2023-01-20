@@ -96,7 +96,7 @@ public class SwerveModule implements Loggable{
         simulatedPosition = new SwerveModulePosition();
         
         setEncoderOffset();
-        // sketchy delay to make sure cancoder offsets are saveds
+        // sketchy delay to make sure cancoder offsets are saved
         double finishTime = System.currentTimeMillis() + 200;
         while (System.currentTimeMillis() < finishTime) {}
         seedRelativeEncoder();
@@ -132,9 +132,9 @@ public class SwerveModule implements Loggable{
         // setPoint = SwerveModuleState.optimize(setPoint, Rotation2d.fromDegrees(steerEncoder.getPosition()));
         lastSetState = setPoint;
         driveController.setReference(setPoint.speedMetersPerSecond, ControlType.kVelocity); // IDK if velocity control will work well
-        System.out.println(setPoint.angle.getDegrees());
+        System.out.println(setPoint.angle.getDegrees()%180);
         steerController.setReference(setPoint.angle.getDegrees()%180, ControlType.kPosition);
-        System.out.println(setPoint.angle.getDegrees());
+        System.out.println(setPoint.angle.getDegrees()%180);
         
         return this;
     }
