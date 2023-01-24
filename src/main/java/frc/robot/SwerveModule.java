@@ -9,6 +9,7 @@ import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -27,6 +28,7 @@ public class SwerveModule implements Loggable{
     private RelativeEncoder driveEncoder, steerEncoder;
     private SwerveModuleState lastSetState;
     private SwerveModulePosition simulatedPosition;
+    private PIDController contSteerController;
 
     public SwerveModule(Constants.Swerve.Module modConstants){
         modPos = modConstants.modPos;
@@ -79,25 +81,27 @@ public class SwerveModule implements Loggable{
         steerEncoder.setVelocityConversionFactor(360.0 / Constants.Swerve.steerGearRatio / 60.0); // d/s
 
         driveController = driveMotor.getPIDController();
-        steerController = steerMotor.getPIDController();
-        
+        //steerController = steerMotor.getPIDController();
+        contSteerController = new PIDController(Constants.Swerve.kSteerP, Constants.Swerve.kSteerI, Constants.Swerve.kSteerD);
+        contSteerController.enableContinuousInput(0, 360);
+
         driveController.setP(Constants.Swerve.kDriveP);
         driveController.setI(Constants.Swerve.kDriveI);
         driveController.setD(Constants.Swerve.kDriveD);
         driveController.setFF(Constants.Swerve.kDriveFF);
-
+        /* 
         steerController.setP(Constants.Swerve.kSteerP);
         steerController.setI(Constants.Swerve.kSteerI);
         steerController.setD(Constants.Swerve.kSteerD);
         steerController.setFF(Constants.Swerve.kSteerFF);
         steerController.setPositionPIDWrappingMaxInput(180);
-        steerController.setPositionPIDWrappingMinInput(-180);
+        steerController.setPositionPIDWrappingMinInput(-180);*/
         if (modPos.equals(ModulePosition.FL)|| modPos.equals(ModulePosition.FR)){
             driveMotor.setInverted(true);
         }
         driveMotor.burnFlash();
         steerMotor.burnFlash();
-
+        
         // sim setup
         simulatedPosition = new SwerveModulePosition();
         
@@ -139,9 +143,10 @@ public class SwerveModule implements Loggable{
         setPoint = SwerveModuleState.optimize(setPoint, Rotation2d.fromDegrees(absEncoder.getAbsolutePosition()));
         lastSetState = setPoint;
         driveController.setReference(setPoint.speedMetersPerSecond, ControlType.kVelocity); // IDK if velocity control will work well
-        System.out.println(setPoint.angle.getDegrees()%180);
-        steerController.setReference(MathUtil.inputModulus(setPoint.angle.getDegrees(), 0, 360)%360, ControlType.kPosition);
-        System.out.println(setPoint.angle.getDegrees()%180);
+        //System.out.println(setPoint.angle.getDegrees()%180);
+        //steerController.setReference(MathUtil.inputModulus(setPoint.angle.getDegrees(), 0, 360)%360, ControlType.kPosition);
+        steerMotor.set(contSteerController.calculate(absEncoder.getAbsolutePosition(), MathUtil.inputModulus(setPoint.angle.getDegrees(), 0, 360)));
+        //ystem.out.println(setPoint.angle.getDegrees()%180);
         
         return this;
     }
@@ -154,6 +159,9 @@ public class SwerveModule implements Loggable{
         driveMotor.setIdleMode(IdleMode.kCoast);
     }
     
+    public void updateSteerPid(){
+        contSteerController.calculate(steerEncoder.getPosition());
+    }
     //number 2
     
     //number 2
@@ -184,7 +192,7 @@ public class SwerveModule implements Loggable{
 
     
     public double gettSetStateAngle(){
-        return MathUtil.inputModulus(lastSetState.angle.getDegrees(), 0, 360)%360;
+        return MathUtil.inputModulus(lastSetState.angle.getDegrees(), 0, 360);
     }
 
 }
