@@ -8,6 +8,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -33,7 +34,12 @@ public class SwerveModule implements Loggable{
         lastSetState = new SwerveModuleState();
         
         // config can coder
+       // absEncoder.configFactoryDefault();
         canCoderOffset = modConstants.canCoderOffset;
+       // absEncoder.configMagnetOffset(canCoderOffset);
+        absEncoder.setPositionToAbsolute(0);
+        
+        
         //absEncoder.setStatusFramePeriod(null, modPos)
         
         transformationFromCenter = modConstants.displacment;
@@ -84,8 +90,8 @@ public class SwerveModule implements Loggable{
         steerController.setI(Constants.Swerve.kSteerI);
         steerController.setD(Constants.Swerve.kSteerD);
         steerController.setFF(Constants.Swerve.kSteerFF);
-
-
+        steerController.setPositionPIDWrappingMaxInput(180);
+        steerController.setPositionPIDWrappingMinInput(-180);
         if (modPos.equals(ModulePosition.FL)|| modPos.equals(ModulePosition.FR)){
             driveMotor.setInverted(true);
         }
@@ -95,11 +101,12 @@ public class SwerveModule implements Loggable{
         // sim setup
         simulatedPosition = new SwerveModulePosition();
         
-        setEncoderOffset();
+        //setEncoderOffset();
         // sketchy delay to make sure cancoder offsets are saved
         double finishTime = System.currentTimeMillis() + 200;
         while (System.currentTimeMillis() < finishTime) {}
         seedRelativeEncoder();
+        
     }
 
     public ModulePosition getModPos(){
@@ -107,7 +114,7 @@ public class SwerveModule implements Loggable{
     }
 
     public double getAbsPos(){
-        return absEncoder.getPosition();
+        return absEncoder.getAbsolutePosition();
     }
     
     public double getRelativePos(){
@@ -125,15 +132,15 @@ public class SwerveModule implements Loggable{
     }
 
     public void seedRelativeEncoder(){
-        steerEncoder.setPosition(absEncoder.getPosition());
+        steerEncoder.setPosition(absEncoder.getAbsolutePosition());
     }
     
     public SwerveModule closedLoopDrive(SwerveModuleState setPoint){
-        // setPoint = SwerveModuleState.optimize(setPoint, Rotation2d.fromDegrees(steerEncoder.getPosition()));
+        setPoint = SwerveModuleState.optimize(setPoint, Rotation2d.fromDegrees(absEncoder.getAbsolutePosition()));
         lastSetState = setPoint;
         driveController.setReference(setPoint.speedMetersPerSecond, ControlType.kVelocity); // IDK if velocity control will work well
         System.out.println(setPoint.angle.getDegrees()%180);
-        steerController.setReference(setPoint.angle.getDegrees()%180, ControlType.kPosition);
+        steerController.setReference(MathUtil.inputModulus(setPoint.angle.getDegrees(), 0, 360)%360, ControlType.kPosition);
         System.out.println(setPoint.angle.getDegrees()%180);
         
         return this;
@@ -176,8 +183,8 @@ public class SwerveModule implements Loggable{
     }
 
     
-    public double getLastSetStateAngle(){
-        return lastSetState.angle.getDegrees();
+    public double gettSetStateAngle(){
+        return MathUtil.inputModulus(lastSetState.angle.getDegrees(), 0, 360)%360;
     }
 
 }

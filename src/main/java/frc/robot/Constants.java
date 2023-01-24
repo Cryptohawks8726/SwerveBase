@@ -29,7 +29,7 @@ public final class Constants {
         public static final double driveConversionFactor = wheelDiameterMeters * Math.PI / driveGearRatio;
 
         public static final double maxSpeed = 10.0; // m/s, I have no clue if this is realistic // TODO testing
-        public static final double maxAngularSpeed = 7.0; // rad/s
+        public static final double maxAngularSpeed = 3.0; // rad/s
         public static final double driverThetaDeadband = 0.05;
         public static final double driverTranslationDeadband = 1;
         // Electrical Constants
@@ -87,10 +87,10 @@ public final class Constants {
             */
 
             //TODO: Define Forward
-            FR(ModulePosition.FR,10,11,12,180.0,new Transform2d(new Translation2d(driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())), 
-            BR(ModulePosition.BR,20,21,22,0.0+2.988281,new Transform2d(new Translation2d(-driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())),
-            BL(ModulePosition.BL,30,31,32,0.0+11.865234,new Transform2d(new Translation2d(-driveBaseLength/2,driveBaseWidth/2),new Rotation2d())),
-            FL(ModulePosition.FL,40,41,42,180.0-7.822266,new Transform2d(new Translation2d(driveBaseLength/2,driveBaseWidth/2),new Rotation2d())); 
+            FR(ModulePosition.FR,10,11,12,-272.109375,new Transform2d(new Translation2d(driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())), 
+            BR(ModulePosition.BR,20,21,22,182.197266,new Transform2d(new Translation2d(-driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())),
+            BL(ModulePosition.BL,30,31,32,-7.734375,new Transform2d(new Translation2d(-driveBaseLength/2,driveBaseWidth/2),new Rotation2d())),
+            FL(ModulePosition.FL,40,41,42,-156.445312,new Transform2d(new Translation2d(driveBaseLength/2,driveBaseWidth/2),new Rotation2d())); 
             
             public final ModulePosition modPos;
             public final int driveMotorid;

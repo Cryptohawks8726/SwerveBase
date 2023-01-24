@@ -61,7 +61,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
             modules.get(BL.modPos).getCurrentPosition(),
             modules.get(FL.modPos).getCurrentPosition()
         };
-
+        
         kinematics = new SwerveDriveKinematics(
             modules.get(FR.modPos).getCenterTransform().getTranslation(),
             modules.get(BR.modPos).getCenterTransform().getTranslation(),
@@ -86,6 +86,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
             field.getObject("modFL")
         };
         SmartDashboard.putData("Field", field);
+        logValues();
     }
 
     @Override
@@ -233,7 +234,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
             module.seedRelativeEncoder();
             SmartDashboard.putNumber(modName + "setvel", module.getLastSetState().speedMetersPerSecond);
             SmartDashboard.putNumber(modName + "actvel", module.getCurrentState().speedMetersPerSecond);
-            SmartDashboard.putNumber(modName + "setdeg", module.getLastSetState().angle.getDegrees());
+            SmartDashboard.putNumber(modName + "setdeg", module.gettSetStateAngle());
             SmartDashboard.putNumber(modName + "actdeg", module.getCurrentState().angle.getDegrees());
             SmartDashboard.putNumber(modName + "absdeg", module.getAbsPos());
         }
