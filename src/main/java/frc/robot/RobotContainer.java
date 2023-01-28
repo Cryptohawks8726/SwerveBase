@@ -7,6 +7,7 @@ package frc.robot;
 import io.github.oblarg.oblog.Logger;
 import io.github.oblarg.oblog.annotations.Log;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.XboxTeleopDrive;
 import frc.robot.subsystems.SwerveDrive;
@@ -27,13 +28,20 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final SwerveDrive drivetrain;
-  private final CommandXboxController driverController;
+
+  // private final CommandXboxController driverController;
+  
+  private final Joystick driverController;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
     
     drivetrain = new SwerveDrive();
-    driverController = new CommandXboxController(0);
+    // driverController = new CommandXboxController(0);
+    
+    driverController = new Joystick(0);
+
     // Configure the button bindings
     configureButtonBindings();
 
@@ -51,10 +59,10 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     drivetrain.setDefaultCommand(new XboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
-    Trigger driverRightBumper = driverController.rightBumper();
-    driverRightBumper.whileTrue(drivetrain.passiveBrake());
-    Trigger driverRightTrigger = driverController.rightTrigger();
-    driverRightTrigger.whileTrue(new RepeatCommand(new InstantCommand(()->drivetrain.normalZeroModules(),drivetrain)));
+    // Trigger driverRightBumper = driverController.rightBumper();
+    // driverRightBumper.whileTrue(drivetrain.passiveBrake());
+    // Trigger driverRightTrigger = driverController.rightTrigger();
+    // driverRightTrigger.whileTrue(new RepeatCommand(new InstantCommand(()->drivetrain.normalZeroModules(),drivetrain)));
   }
 
   /**

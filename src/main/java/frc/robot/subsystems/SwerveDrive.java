@@ -69,9 +69,10 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
             modules.get(FL.modPos).getCenterTransform().getTranslation()
         );
         
-        gyro = new AHRS(SerialPort.Port.kUSB1,SerialDataType.kRawData,(byte) 100);
+        gyro = new AHRS(SerialPort.Port.kUSB1);
+        gyro.reset();
         gyro.calibrate(); // possibly move to avoid the robot being moved during calibration
-        //
+        
         // simGyro = new AnalogGyroSim(0);
         
         odometry = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), modPositionStates, new Pose2d()); 
@@ -110,10 +111,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
         }
         
         logValues();
-        System.out.print("Roll: ");
-        System.out.println(gyro.getRoll());
-        System.out.print("Pitch: ");
-        System.out.println(gyro.getPitch());
+        System.out.println("---------------");
         System.out.print("Yaw: ");
         System.out.println(gyro.getYaw());
     }
@@ -193,8 +191,6 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
         modules.get(BR.modPos).closedLoopDrive(new SwerveModuleState(0,Rotation2d.fromDegrees(Constants.Swerve.Module.BR.canCoderOffset)));
         modules.get(BL.modPos).closedLoopDrive(new SwerveModuleState(0,Rotation2d.fromDegrees(Constants.Swerve.Module.BL.canCoderOffset)));
         modules.get(FL.modPos).closedLoopDrive(new SwerveModuleState(0,Rotation2d.fromDegrees(Constants.Swerve.Module.FL.canCoderOffset)));
-
-        // modules.forEach(mod -> {mod.closedLoopDrive(new SwerveModuleState(0,Rotation2d.fromDegrees(0)));});
     }
 
     public void normalZeroModules(){
@@ -203,6 +199,10 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
 
     public Pose2d getPoseEstimate(){
         return odometry.getEstimatedPosition();
+    }
+
+    public Rotation2d getRobotAngle() {
+        return Rotation2d.fromDegrees(gyro.getYaw());
     }
 
     public SwerveModulePosition[] getSwerveModulePositions(){
