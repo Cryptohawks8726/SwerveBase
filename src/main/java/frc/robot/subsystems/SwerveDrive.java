@@ -70,8 +70,8 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
         );
         
         gyro = new AHRS(SerialPort.Port.kUSB1);
-        gyro.reset();
         gyro.calibrate(); // possibly move to avoid the robot being moved during calibration
+        gyro.reset();
         
         // simGyro = new AnalogGyroSim(0);
         
@@ -111,9 +111,10 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
         }
         
         logValues();
-        System.out.println("---------------");
-        System.out.print("Yaw: ");
-        System.out.println(gyro.getYaw());
+       // System.out.println("---------------");
+       // System.out.print("Yaw: ");
+       // System.out.println(gyro.getYaw());
+        //System.out.println(gyro.getRotation2d().getDegrees());
     }
     /* 
     @Override
