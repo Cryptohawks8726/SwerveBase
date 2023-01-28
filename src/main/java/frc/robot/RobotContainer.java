@@ -4,18 +4,28 @@
 
 package frc.robot;
 
-import io.github.oblarg.oblog.Logger;
-import io.github.oblarg.oblog.annotations.Log;
+import java.util.List;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.XboxTeleopDrive;
-import frc.robot.subsystems.SwerveDrive;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.XboxTeleopDrive;
+import frc.robot.subsystems.SwerveDrive;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -61,8 +71,51 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  /*public Command getAutonomousCommand() {
+  public  Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return m_autoCommand;
-  } */
+    
+    
+
+    //config
+    TrajectoryConfig config = new TrajectoryConfig(Constants.Swerve.kMaxSpeedMetersPerSecond, 
+    Constants.Swerve.kMaxAccelerationMetersPerSecondSquared)
+    .setKinematics(Constants.Swerve.kDriveKinematics);
+
+
+    //actual path to follow
+    Trajectory path1 = TrajectoryGenerator.generateTrajectory(
+      new Pose2d(0,0, new Rotation2d(0)), 
+      List.of(new Translation2d(1, 1), new Translation2d(2, -1)),  
+      new Pose2d(3, 0, new Rotation2d(0)), config);
+
+
+    //tracking path
+
+    PIDController xController = new PIDController(Constants.Swerve.kPXController, 0, 0);
+    PIDController yController = new PIDController(Constants.Swerve.kPYController, 0, 0);
+    ProfiledPIDController thetaController = new ProfiledPIDController(Constants.Swerve.kPThetaController, 0, 0, Constants.Swerve.kThetaControllerConstraints);
+
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+
+    //command to follow path
+    SwerveControllerCommand swervepath = new SwerveControllerCommand(
+      path1, 
+      drivetrain::getPoseEstimate,
+      Constants.Swerve.kDriveKinematics,
+      xController,
+      yController,
+      thetaController,
+      drivetrain::setModuleStates,
+      drivetrain);
+      
+    return new SequentialCommandGroup(
+      new InstantCommand(()->drivetrain.resetOdometry(path1.getInitialPose())),
+      swervepath,
+      new InstantCommand(()->drivetrain.stopModules())
+    );
+
+    
+    
+  } 
 }

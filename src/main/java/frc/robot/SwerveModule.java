@@ -4,9 +4,9 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -14,7 +14,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants.Swerve.ModulePosition;
 import io.github.oblarg.oblog.Loggable;
-import io.github.oblarg.oblog.annotations.Log;
 
 public class SwerveModule implements Loggable{
     private ModulePosition modPos;
@@ -147,9 +146,9 @@ public class SwerveModule implements Loggable{
         driveMotor.setIdleMode(IdleMode.kCoast);
     }
     
-    //number 2
-    
-    //number 2
+    public void stop(){
+        driveController.setReference(0, ControlType.kVelocity); // IDK if velocity control will work well
+    }
     
     public SwerveModuleState getCurrentState(){ 
         return new SwerveModuleState(driveEncoder.getVelocity(),Rotation2d.fromDegrees(steerEncoder.getPosition()%360));
