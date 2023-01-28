@@ -42,7 +42,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
     private SwerveDrivePoseEstimator odometry;
     private ChassisSpeeds lastSetChassisSpeeds;
     private AHRS gyro;
-    private AnalogGyroSim simGyro;
+    // private AnalogGyroSim simGyro;
 
     private Field2d field; 
     private FieldObject2d[] modPoses;
@@ -72,7 +72,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
         gyro = new AHRS(SerialPort.Port.kUSB1,SerialDataType.kRawData,(byte) 100);
         gyro.calibrate(); // possibly move to avoid the robot being moved during calibration
         //
-        simGyro = new AnalogGyroSim(0);
+        // simGyro = new AnalogGyroSim(0);
         
         odometry = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), modPositionStates, new Pose2d()); 
         
@@ -110,7 +110,12 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
         }
         
         logValues();
-
+        System.out.print("Roll: ");
+        System.out.println(gyro.getRoll());
+        System.out.print("Pitch: ");
+        System.out.println(gyro.getPitch());
+        System.out.print("Yaw: ");
+        System.out.println(gyro.getYaw());
     }
     /* 
     @Override
@@ -150,8 +155,6 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
         SmartDashboard.putNumber("BLdeg", modules.get(BL.modPos).getLastSetState().angle.getDegrees());
         SmartDashboard.putNumber("FLdeg", modules.get(FL.modPos).getLastSetState().angle.getDegrees());
     };*/
-
-
 
     public void drive(ChassisSpeeds robotSpeeds, boolean isClosedLoop){  
         lastSetChassisSpeeds = robotSpeeds;

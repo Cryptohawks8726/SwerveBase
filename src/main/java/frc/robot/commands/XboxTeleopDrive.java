@@ -67,25 +67,25 @@ public class XboxTeleopDrive extends CommandBase{
         // System.out.println(thetaVel);
 
         // maintain heading if there's no rotational input
-         if (Math.abs(thetaVel) < Constants.Swerve.driverThetaDeadband){
-            if (isHeadingSet == false){
-                headingPID.reset();
-                isHeadingSet = true;
-                lastHeading = drivetrain.getPoseEstimate().getRotation();
-                headingPID.setSetpoint(lastHeading.getDegrees()%360);
-                thetaVel = headingPID.calculate(drivetrain.getPoseEstimate().getRotation().getDegrees()%360);
-            }else{
-                thetaVel = headingPID.calculate(drivetrain.getPoseEstimate().getRotation().getDegrees()%360);
-            }
-        } else{
-            isHeadingSet = false;
-        }
+        //  if (Math.abs(thetaVel) < Constants.Swerve.driverThetaDeadband){
+        //     if (isHeadingSet == false){
+        //         headingPID.reset();
+        //         isHeadingSet = true;
+        //         lastHeading = drivetrain.getPoseEstimate().getRotation();
+        //         headingPID.setSetpoint(lastHeading.getDegrees()%360);
+        //         thetaVel = headingPID.calculate(drivetrain.getPoseEstimate().getRotation().getDegrees()%360);
+        //     }else{
+        //         thetaVel = headingPID.calculate(drivetrain.getPoseEstimate().getRotation().getDegrees()%360);
+        //     }
+        // } else{
+        //     isHeadingSet = false;
+        // }
         
-         drivetrain.drive(
-             isRobotRelative ? new ChassisSpeeds(xVel, yVel, thetaVel)
-            : ChassisSpeeds.fromFieldRelativeSpeeds(xVel, yVel, thetaVel,drivetrain.getPoseEstimate().getRotation())
-            ,true
-        );
+        // drivetrain.drive(
+        //      isRobotRelative ? new ChassisSpeeds(xVel, yVel, thetaVel)
+        //     : ChassisSpeeds.fromFieldRelativeSpeeds(xVel, yVel, thetaVel,drivetrain.getPoseEstimate().getRotation())
+        //     ,true
+        // );
 
         //drivetrain.drive(new ChassisSpeeds(xVel, yVel, thetaVel), false);
     }

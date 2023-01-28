@@ -38,7 +38,7 @@ public class SwerveModule implements Loggable{
         // config can coder
        // absEncoder.configFactoryDefault();
         canCoderOffset = modConstants.canCoderOffset;
-       // absEncoder.configMagnetOffset(canCoderOffset);
+       absEncoder.configMagnetOffset(canCoderOffset);
         absEncoder.setPositionToAbsolute(0);
         
         
