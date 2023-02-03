@@ -48,8 +48,8 @@ public final class Constants {
         public static final double kTrackwidthMeters = 0;
 
         //"trackwidthmeters" =  public static final double driveBaseWidth = 0.762;
-        public static final double kMaxSpeedMetersPerSecond = .01;
-        public static final double kMaxAccelerationMetersPerSecondSquared = .05;
+        public static final double kMaxSpeedMetersPerSecond = 25.0;
+        public static final double kMaxAccelerationMetersPerSecondSquared = 5;
 
         //autoconstants
         public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(

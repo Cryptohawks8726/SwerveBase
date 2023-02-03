@@ -220,7 +220,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
 
     public void setModuleStates(SwerveModuleState[] updatedstates){
         SwerveDriveKinematics.desaturateWheelSpeeds(updatedstates, Constants.Swerve.maxSpeed);
-        modules.forEach(mod -> {mod.closedLoopDrive(modStates[mod.getModPos().getVal()]);});
+        modules.forEach(mod -> {mod.closedLoopDrive(updatedstates[mod.getModPos().getVal()]);});
 
     }
 
