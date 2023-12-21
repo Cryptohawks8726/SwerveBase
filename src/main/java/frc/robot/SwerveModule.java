@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
@@ -14,6 +15,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.Swerve.ModulePosition;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
@@ -30,8 +32,16 @@ public class SwerveModule implements Loggable{
     private SwerveModulePosition simulatedPosition;
     private PIDController contSteerController;
 
+    private double drivekV; // voltage
+    private double drivekS; // voltage
+    public double wantedVoltage; //wanted voltage
+
     public SwerveModule(Constants.Swerve.Module modConstants){
         modPos = modConstants.modPos;
+        drivekV = modConstants.kV;
+        drivekS = modConstants.kS;
+        wantedVoltage = 0;
+
         absEncoder = new CANCoder(modConstants.canCoderid);
         lastSetState = new SwerveModuleState();
         
@@ -88,7 +98,9 @@ public class SwerveModule implements Loggable{
         driveController.setP(Constants.Swerve.kDriveP);
         driveController.setI(Constants.Swerve.kDriveI);
         driveController.setD(Constants.Swerve.kDriveD);
-        driveController.setFF(Constants.Swerve.kDriveFF);
+        driveController.setFF(drivekV);
+
+        SmartDashboard.putNumber("FF", drivekV);
         /* 
         steerController.setP(Constants.Swerve.kSteerP);
         steerController.setI(Constants.Swerve.kSteerI);
@@ -142,7 +154,7 @@ public class SwerveModule implements Loggable{
     public SwerveModule closedLoopDrive(SwerveModuleState setPoint){
         setPoint = SwerveModuleState.optimize(setPoint, Rotation2d.fromDegrees(absEncoder.getAbsolutePosition()));
         lastSetState = setPoint;
-        driveController.setReference(setPoint.speedMetersPerSecond, ControlType.kVelocity); // IDK if velocity control will work well
+        driveController.setReference(setPoint.speedMetersPerSecond, ControlType.kVelocity, 0, drivekS, ArbFFUnits.kVoltage); // IDK if velocity control will work well
         //System.out.println(setPoint.angle.getDegrees()%180);
         //steerController.setReference(MathUtil.inputModulus(setPoint.angle.getDegrees(), 0, 360)%360, ControlType.kPosition);
         steerMotor.set(contSteerController.calculate(absEncoder.getAbsolutePosition(), MathUtil.inputModulus(setPoint.angle.getDegrees(), 0, 360)));
@@ -153,6 +165,25 @@ public class SwerveModule implements Loggable{
     
     public void setBrake(){
         driveMotor.setIdleMode(IdleMode.kBrake); // angle motor will always be in brake
+    }
+
+    public void increaseVoltage()
+    {
+        driveMotor.setVoltage(wantedVoltage);
+    }
+
+    public void decreaseVoltage()
+    {
+        driveMotor.setVoltage(wantedVoltage);
+    }
+
+    public double getVelocity(){
+        return driveEncoder.getVelocity();
+    }
+
+    public void noVoltage(){
+        wantedVoltage = 0;
+        driveMotor.setVoltage(0);
     }
 
     public void setCoast(){
@@ -184,7 +215,7 @@ public class SwerveModule implements Loggable{
         return lastSetState;
     }
 
-
+    
     
     public double getLastSetStateSpeed(){
         return lastSetState.speedMetersPerSecond;

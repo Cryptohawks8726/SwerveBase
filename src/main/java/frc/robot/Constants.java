@@ -87,10 +87,10 @@ public final class Constants {
             */
 
             //TODO: Define Forward
-            FR(ModulePosition.FR,10,11,12,-92.109375,new Transform2d(new Translation2d(driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())), 
-            BR(ModulePosition.BR,20,21,22,182.197266,new Transform2d(new Translation2d(-driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())),
-            BL(ModulePosition.BL,30,31,32,-187.734375,new Transform2d(new Translation2d(-driveBaseLength/2,driveBaseWidth/2),new Rotation2d())),
-            FL(ModulePosition.FL,40,41,42,23.554688,new Transform2d(new Translation2d(driveBaseLength/2,driveBaseWidth/2),new Rotation2d())); 
+            FR(ModulePosition.FR,10,11,12,-92.109375,new Transform2d(new Translation2d(driveBaseLength/2,-driveBaseWidth/2),new Rotation2d()),0.0,0.0), 
+            BR(ModulePosition.BR,20,21,22,182.197266,new Transform2d(new Translation2d(-driveBaseLength/2,-driveBaseWidth/2),new Rotation2d()),0.0,0.0),
+            BL(ModulePosition.BL,30,31,32,-187.734375,new Transform2d(new Translation2d(-driveBaseLength/2,driveBaseWidth/2),new Rotation2d()),0.0,0.0),
+            FL(ModulePosition.FL,40,41,42,23.554688,new Transform2d(new Translation2d(driveBaseLength/2,driveBaseWidth/2),new Rotation2d()),0.0,0.0); 
             
             public final ModulePosition modPos;
             public final int driveMotorid;
@@ -98,14 +98,18 @@ public final class Constants {
             public final int canCoderid;
             public final double canCoderOffset;
             public final Transform2d displacment; // from robot origin
+            public final double kV;
+            public final double kS;
             
-            private Module(ModulePosition modPos, int driveMotorid, int steerMotorid, int canCoderid,double canCoderOffset, Transform2d displacment){
+            private Module(ModulePosition modPos, int driveMotorid, int steerMotorid, int canCoderid,double canCoderOffset, Transform2d displacment, double kV, double kS){
                 this.modPos = modPos;
                 this.driveMotorid = driveMotorid;
                 this.steerMotorid = steerMotorid;
                 this.canCoderid = canCoderid;
                 this.canCoderOffset = canCoderOffset;
                 this.displacment = displacment;
+                this.kV = kV;
+                this.kS = kS;
             }
 
         }

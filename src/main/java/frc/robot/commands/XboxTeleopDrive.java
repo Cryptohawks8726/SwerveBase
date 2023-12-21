@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 import frc.robot.subsystems.SwerveDrive;
@@ -12,7 +13,7 @@ import java.lang.Math;
 
 public class XboxTeleopDrive extends CommandBase{
     // private final CommandXboxController controller;
-    private final Joystick controller;
+    private final CommandJoystick controller;
     
     private final SwerveDrive drivetrain;
     private Rotation2d lastHeading;
@@ -21,7 +22,7 @@ public class XboxTeleopDrive extends CommandBase{
 
     // TODO: Implement Optimization
     
-    public XboxTeleopDrive(SwerveDrive drivetrain, /*CommandXboxController controller*/ Joystick controller){
+    public XboxTeleopDrive(SwerveDrive drivetrain, /*CommandXboxController controller*/ CommandJoystick controller){
         this.drivetrain = drivetrain;
         this.controller = controller;
         addRequirements(drivetrain);
@@ -42,7 +43,7 @@ public class XboxTeleopDrive extends CommandBase{
         */
         // boolean isRobotRelative = controller.leftBumper().getAsBoolean();
 
-        boolean isRobotRelative = controller.getTrigger();
+        boolean isRobotRelative = controller.trigger().getAsBoolean();
         isRobotRelative=false;
     
         // Get Controller Values

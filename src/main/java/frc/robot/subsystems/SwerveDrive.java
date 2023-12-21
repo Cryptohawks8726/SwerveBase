@@ -34,7 +34,7 @@ import static frc.robot.Constants.Swerve.ModulePosition.*;
 
 public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
     
-    private List<SwerveModule> modules;
+    public List<SwerveModule> modules;
 
     private SwerveModuleState[] modStates;
     private SwerveModulePosition[] modPositionStates;
@@ -49,10 +49,10 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
    
     public SwerveDrive(){
         modules = Arrays.asList(
-            new SwerveModule(Constants.Swerve.Module.FR),
-            new SwerveModule(Constants.Swerve.Module.BR),
-            new SwerveModule(Constants.Swerve.Module.BL),
-            new SwerveModule(Constants.Swerve.Module.FL)
+            new SwerveModule(Constants.Swerve.Module.FR), // 0
+            new SwerveModule(Constants.Swerve.Module.BR), // 1
+            new SwerveModule(Constants.Swerve.Module.BL), // 2
+            new SwerveModule(Constants.Swerve.Module.FL)  // 3
         );
 
         modPositionStates = new SwerveModulePosition[]{
@@ -96,7 +96,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
             gyro.getRotation2d(), 
             getSwerveModulePositions()
         );
-        
+
         // show estimated robot and mod poses on dashboard
         field.setRobotPose(odometry.getEstimatedPosition());
         for (int i = 0;i<4;i++){
