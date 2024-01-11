@@ -92,6 +92,18 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
 
     @Override
     public void periodic(){
+        //SmartDashboard.putNumber("xpos", estimatedPostition.getTranslation().getX());
+        //SmartDashboard.putNumber("ypos", estimatedPostition.getTranslation().getY());
+        //SmartDashboard.putNumber("setXVel", lastSetChassisSpeeds.vxMetersPerSecond);
+        //SmartDashboard.putNumber("setYVel", lastSetChassisSpeeds.vyMetersPerSecond);
+        SmartDashboard.putNumber("FRvel", modules.get(FR.modPos).getVelocity());
+        SmartDashboard.putNumber("BRvel", modules.get(BR.modPos).getVelocity());
+        SmartDashboard.putNumber("BLvel", modules.get(BL.modPos).getVelocity());
+        SmartDashboard.putNumber("FLvel", modules.get(FL.modPos).getVelocity());
+        SmartDashboard.putNumber("FRdeg", modules.get(FR.modPos).getLastSetState().angle.getDegrees());
+        SmartDashboard.putNumber("BRdeg", modules.get(BR.modPos).getLastSetState().angle.getDegrees());
+        SmartDashboard.putNumber("BLdeg", modules.get(BL.modPos).getLastSetState().angle.getDegrees());
+        SmartDashboard.putNumber("FLdeg", modules.get(FL.modPos).getLastSetState().angle.getDegrees());
         odometry.update(
             gyro.getRotation2d(), 
             getSwerveModulePositions()
@@ -141,19 +153,9 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
                     )
             );
         }
-        SmartDashboard.putNumber("xpos", estimatedPostition.getTranslation().getX());
-        SmartDashboard.putNumber("ypos", estimatedPostition.getTranslation().getY());
-        SmartDashboard.putNumber("setXVel", lastSetChassisSpeeds.vxMetersPerSecond);
-        SmartDashboard.putNumber("setYVel", lastSetChassisSpeeds.vyMetersPerSecond);
-        SmartDashboard.putNumber("FRvel", modules.get(FR.modPos).getLastSetState().speedMetersPerSecond);
-        SmartDashboard.putNumber("BRvel", modules.get(BR.modPos).getLastSetState().speedMetersPerSecond);
-        SmartDashboard.putNumber("BLvel", modules.get(BL.modPos).getLastSetState().speedMetersPerSecond);
-        SmartDashboard.putNumber("FLvel", modules.get(FL.modPos).getLastSetState().speedMetersPerSecond);
-        SmartDashboard.putNumber("FRdeg", modules.get(FR.modPos).getLastSetState().angle.getDegrees());
-        SmartDashboard.putNumber("BRdeg", modules.get(BR.modPos).getLastSetState().angle.getDegrees());
-        SmartDashboard.putNumber("BLdeg", modules.get(BL.modPos).getLastSetState().angle.getDegrees());
-        SmartDashboard.putNumber("FLdeg", modules.get(FL.modPos).getLastSetState().angle.getDegrees());
+        
     };*/
+    
 
     public void drive(ChassisSpeeds robotSpeeds, boolean isClosedLoop){  
         lastSetChassisSpeeds = robotSpeeds;
@@ -174,7 +176,14 @@ public class SwerveDrive extends SubsystemBase implements Loggable, Sendable{
 
         
         }*/
-        modules.forEach(mod -> {mod.closedLoopDrive(modStates[mod.getModPos().getVal()]);});
+
+        if (isClosedLoop){
+            modules.forEach(mod -> {mod.closedLoopDrive(modStates[mod.getModPos().getVal()]);});
+        } 
+        else if(!isClosedLoop){
+            modules.forEach(mod -> {mod.openLoopDrive(modStates[mod.getModPos().getVal()]);});
+        }
+        
     }
 
     public StartEndCommand passiveBrake(){

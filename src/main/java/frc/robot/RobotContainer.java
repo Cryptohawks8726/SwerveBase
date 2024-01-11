@@ -61,25 +61,7 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    ///drivetrain.setDefaultCommand(new XboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
-    
-    SmartDashboard.putNumber("FRVoltage", 0);
-
-    Trigger trigger = driverController.button(1); // the "trigger" on the joystick increases voltage
-    trigger.onTrue(new InstantCommand(()->{
-      while(drivetrain.modules.get(0).wantedVoltage <= 2.5){
-        drivetrain.modules.get(0).wantedVoltage += .0001;
-        drivetrain.modules.get(0).increaseVoltage();
-        SmartDashboard.putNumber("FRVoltage", drivetrain.modules.get(0).wantedVoltage);
-        SmartDashboard.putNumber("encoderVelocity", drivetrain.modules.get(0).getVelocity());
-      }
-      ;}));
-    trigger.whileFalse(new InstantCommand(()->{
-      drivetrain.modules.get(0).wantedVoltage = 0;
-      drivetrain.modules.get(0).noVoltage();
-      SmartDashboard.putNumber("FRVoltage", drivetrain.modules.get(0).wantedVoltage);
-      SmartDashboard.putNumber("encoderVelocity", drivetrain.modules.get(0).getVelocity());
-      ;}));
+    drivetrain.setDefaultCommand(new XboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
     
     
     /*Trigger sideButton = driverController.button(2); // the "side button" on the joystick decreases voltage

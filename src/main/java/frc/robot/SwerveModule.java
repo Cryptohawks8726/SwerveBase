@@ -95,9 +95,15 @@ public class SwerveModule implements Loggable{
         contSteerController = new PIDController(Constants.Swerve.kSteerP, Constants.Swerve.kSteerI, Constants.Swerve.kSteerD);
         contSteerController.enableContinuousInput(0, 360);
 
-        driveController.setP(Constants.Swerve.kDriveP);
-        driveController.setI(Constants.Swerve.kDriveI);
-        driveController.setD(Constants.Swerve.kDriveD);
+        driveController.setP(Constants.Swerve.kDriveP,0);
+        driveController.setI(Constants.Swerve.kDriveI,0);
+        driveController.setD(Constants.Swerve.kDriveD,0);
+
+        driveController.setP(0,1);
+        driveController.setI(0,1);
+        driveController.setD(0,1);
+
+
         driveController.setFF(drivekV);
 
         SmartDashboard.putNumber("FF", drivekV);
@@ -162,17 +168,24 @@ public class SwerveModule implements Loggable{
         
         return this;
     }
+
+    public SwerveModule openLoopDrive(SwerveModuleState setPoint){
+        setPoint = SwerveModuleState.optimize(setPoint, Rotation2d.fromDegrees(absEncoder.getAbsolutePosition()));
+        lastSetState = setPoint;
+        driveController.setReference(setPoint.speedMetersPerSecond, ControlType.kVelocity, 1, drivekS, ArbFFUnits.kVoltage); // IDK if velocity control will work well
+        //System.out.println(setPoint.angle.getDegrees()%180);
+        //steerController.setReference(MathUtil.inputModulus(setPoint.angle.getDegrees(), 0, 360)%360, ControlType.kPosition);
+        steerMotor.set(contSteerController.calculate(absEncoder.getAbsolutePosition(), MathUtil.inputModulus(setPoint.angle.getDegrees(), 0, 360)));
+        //ystem.out.println(setPoint.angle.getDegrees()%180);
+        
+        return this;
+    }
     
     public void setBrake(){
         driveMotor.setIdleMode(IdleMode.kBrake); // angle motor will always be in brake
     }
 
-    public void increaseVoltage()
-    {
-        driveMotor.setVoltage(wantedVoltage);
-    }
-
-    public void decreaseVoltage()
+    public void updateVoltage()
     {
         driveMotor.setVoltage(wantedVoltage);
     }
