@@ -17,7 +17,10 @@ import edu.wpi.first.math.geometry.Translation2d;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    
+    public enum DriveBase{
+        Comp2024(),PracticeBot();
+    }
+    public static final DriveBase driveBase = DriveBase.PracticeBot;
     public static final class Swerve {
         
         // Physical Constants
@@ -28,8 +31,8 @@ public final class Constants {
         public static final double wheelDiameterMeters = 0.098; // Measure and check later. Compensating for tread wear over comp could be cool
         public static final double driveConversionFactor = wheelDiameterMeters * Math.PI / driveGearRatio;
 
-        public static final double maxSpeed = 15.0; // m/s, I have no clue if this is realistic // TODO testing
-        public static final double maxAngularSpeed = 10.0; // rad/s
+        public static final double maxSpeed = 3.5; // m/s
+        public static final double maxAngularSpeed = 2.5; // rad/s
         public static final double driverThetaDeadband = 0.05;
         public static final double driverTranslationDeadband = 1;
         // Electrical Constants
@@ -40,7 +43,6 @@ public final class Constants {
 
         
         // Controller Gains
-        // TODO: Tune PID + FF constants
         public static final double kDriveP = 0.025;
         public static final double kDriveI = 0.0;
         public static final double kDriveD = 0.0;
@@ -51,7 +53,7 @@ public final class Constants {
         public static final double kSteerD = 0.0;
         public static final double kSteerFF = 0.0;
 
-        public static final double kHeadingP = 0.5;
+        public static final double kHeadingP = 0.04;
         public static final double kHeadingI = 0.0;
         public static final double kHeadingD = 0.0;
         public static final double kHeadingFF = 0.0;
@@ -85,12 +87,12 @@ public final class Constants {
             -47.549
             228.340
             */
-
             //TODO: Define Forward
-            FR(ModulePosition.FR,10,11,12,-92.109375,new Transform2d(new Translation2d(driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())), 
-            BR(ModulePosition.BR,20,21,22,182.197266,new Transform2d(new Translation2d(-driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())),
-            BL(ModulePosition.BL,30,31,32,-187.734375,new Transform2d(new Translation2d(-driveBaseLength/2,driveBaseWidth/2),new Rotation2d())),
-            FL(ModulePosition.FL,40,41,42,23.554688,new Transform2d(new Translation2d(driveBaseLength/2,driveBaseWidth/2),new Rotation2d())); 
+            
+            FR(ModulePosition.FR,10,11,12,(driveBase.equals(DriveBase.PracticeBot)) ? -92.109375 :-256.5,new Transform2d(new Translation2d(driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())), 
+            BR(ModulePosition.BR,20,21,22,(driveBase.equals(DriveBase.PracticeBot)) ? 182.197266 :-29.61914,new Transform2d(new Translation2d(-driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())),
+            BL(ModulePosition.BL,30,31,32,(driveBase.equals(DriveBase.PracticeBot)) ? -187.734375 :-111.5332,new Transform2d(new Translation2d(-driveBaseLength/2,driveBaseWidth/2),new Rotation2d())),
+            FL(ModulePosition.FL,40,41,42,(driveBase.equals(DriveBase.PracticeBot)) ? 23.554688 :-238.008,new Transform2d(new Translation2d(driveBaseLength/2,driveBaseWidth/2),new Rotation2d())); 
             
             public final ModulePosition modPos;
             public final int driveMotorid;
