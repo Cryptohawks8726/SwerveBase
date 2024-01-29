@@ -74,6 +74,8 @@ public class SwerveModule{
         
         steerEncoder.setPositionConversionFactor(360.0 / Constants.Swerve.steerGearRatio); // degrees
         steerEncoder.setVelocityConversionFactor(360.0 / Constants.Swerve.steerGearRatio / 60.0); // d/s
+        
+        
 
         driveController = driveMotor.getPIDController();
         //steerController = steerMotor.getPIDController();

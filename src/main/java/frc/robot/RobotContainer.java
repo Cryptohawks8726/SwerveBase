@@ -6,7 +6,11 @@ package frc.robot;
 
 import com.ctre.phoenix.unmanaged.UnmanagedJNI;
 import com.ctre.phoenix6.unmanaged.Unmanaged;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -16,6 +20,8 @@ import frc.robot.commands.XboxTeleopDrive;
 import frc.robot.subsystems.SwerveDrive;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -46,6 +52,8 @@ public class RobotContainer {
     // driverController = new CommandXboxController(0);
     
     driverController = new CommandXboxController(0);
+
+    
 
     // Configure the button bindings
     configureButtonBindings();
@@ -83,8 +91,13 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  /*public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
-    return m_autoCommand;
-  } */
+  public Command getAutonomousCommand() {
+    // An ExampleCommand will run in autonomou`s
+    PathPlannerPath path = PathPlannerPath.fromPathFile("Test1");
+
+    // Create a path following command using AutoBuilder. This will also trigger event markers.
+    return new InstantCommand(()->drivetrain.drive(new ChassisSpeeds(2, 0, 0), false),drivetrain)
+    .andThen(new WaitCommand(1))
+    .andThen(()->drivetrain.drive(new ChassisSpeeds(0, 0, 0), false),drivetrain);
+  } 
 }
