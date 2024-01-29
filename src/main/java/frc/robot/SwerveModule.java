@@ -1,13 +1,16 @@
 package frc.robot;
 
-import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.ControlType;
-import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.SparkPIDController.ArbFFUnits;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -15,33 +18,35 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.Swerve.ModulePosition;
-import io.github.oblarg.oblog.Loggable;
-import io.github.oblarg.oblog.annotations.Log;
 
-public class SwerveModule implements Loggable{
+public class SwerveModule{
     private ModulePosition modPos;
     private CANSparkMax driveMotor, steerMotor;
-    private CANCoder absEncoder;
+    private CANcoder absEncoder;
     private double canCoderOffset;
     private Transform2d transformationFromCenter;
-    private SparkMaxPIDController driveController;
+    private SparkPIDController driveController,steerController;
     private RelativeEncoder driveEncoder, steerEncoder;
     private SwerveModuleState lastSetState;
     private SwerveModulePosition simulatedPosition;
     private PIDController contSteerController;
-    private SimpleMotorFeedforward velFF;
+    MagnetSensorConfigs magnetSensorConfigs = new MagnetSensorConfigs();
+
+    private SimpleMotorFeedforward driveFeedforward;
+    public double wantedVoltage; //wanted voltage
 
     public SwerveModule(Constants.Swerve.Module modConstants){
         modPos = modConstants.modPos;
+        driveFeedforward = new SimpleMotorFeedforward(modConstants.kS, modConstants.kV);
+        wantedVoltage = 0;
+
+        absEncoder = new CANcoder(modConstants.canCoderid);
         lastSetState = new SwerveModuleState();
-        
-        absEncoder = new CANCoder(modConstants.canCoderid);
-        absEncoder.configFactoryDefault();
+      
         canCoderOffset = modConstants.canCoderOffset;
-        absEncoder.setPositionToAbsolute(0);
-        absEncoder.configMagnetOffset(canCoderOffset);        
-        //absEncoder.setStatusFramePeriod(null, modPos)
+        absEncoder.getConfigurator().apply(magnetSensorConfigs.withMagnetOffset(canCoderOffset/360.0).withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1).withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
         
         transformationFromCenter = modConstants.displacment;
 
@@ -54,8 +59,8 @@ public class SwerveModule implements Loggable{
         steerMotor.setIdleMode(IdleMode.kCoast);
         
         //lower later
-        driveMotor.setSmartCurrentLimit(40); 
-        steerMotor.setSmartCurrentLimit(30);
+        driveMotor.setSmartCurrentLimit(Constants.Swerve.driveMotorStallCurrentLimit,Constants.Swerve.driveMotorFreeCurrentLimit); 
+        steerMotor.setSmartCurrentLimit(Constants.Swerve.steerMotorFreeCurrentLimit);
         
         driveMotor.enableVoltageCompensation(12.0);
         steerMotor.enableVoltageCompensation(12.0);
@@ -71,15 +76,26 @@ public class SwerveModule implements Loggable{
         steerEncoder.setVelocityConversionFactor(360.0 / Constants.Swerve.steerGearRatio / 60.0); // d/s
 
         driveController = driveMotor.getPIDController();
-        velFF = new SimpleMotorFeedforward(0.0, 2.4);
+        //steerController = steerMotor.getPIDController();
+        //steerController.setPositionPIDWrappingEnabled(true);
+        //steerController.setPositionPIDWrappingMaxInput(360);
+        //steerController.setPositionPIDWrappingMinInput(0);
+        //steerController.setP(Constants.Swerve.kSteerP);
         contSteerController = new PIDController(Constants.Swerve.kSteerP, Constants.Swerve.kSteerI, Constants.Swerve.kSteerD);
         contSteerController.enableContinuousInput(0, 360);
 
-        driveController.setP(Constants.Swerve.kDriveP);
+        driveController.setP(Constants.Swerve.kDriveP,0);
+        driveController.setP(0.0,1);
         driveController.setI(Constants.Swerve.kDriveI);
         driveController.setD(Constants.Swerve.kDriveD);
-        driveController.setFF(Constants.Swerve.kDriveFF);       
-        driveMotor.setInverted(true);
+        //driveController.setFF(Constants.Swerve.kDriveFF);
+        /* 
+        steerController.setP(Constants.Swerve.kSteerP);
+        steerController.setI(Constants.Swerve.kSteerI);
+        steerController.setD(Constants.Swerve.kSteerD);
+        steerController.setFF(Constants.Swerve.kSteerFF);
+        steerController.setPositionPIDWrappingMaxInput(180);
+        steerController.setPositionPIDWrappingMinInput(-180);*/
 
         driveMotor.burnFlash();
         steerMotor.burnFlash();
@@ -99,7 +115,7 @@ public class SwerveModule implements Loggable{
     }
 
     public double getAbsPos(){
-        return absEncoder.getAbsolutePosition();
+        return absEncoder.getAbsolutePosition().getValueAsDouble();
     }
     
     public double getRelativePos(){
@@ -123,22 +139,26 @@ public class SwerveModule implements Loggable{
     }
 
     public void setEncoderOffset(){
-        absEncoder.configMagnetOffset(canCoderOffset);
-        /*if(absEncoder.configMagnetOffset(canCoderOffset).value != 0){
-            System.out.println("CanCoder offset error for mod"+modPos.toString());
-        }*/
+        absEncoder.getConfigurator().apply(magnetSensorConfigs.withMagnetOffset(canCoderOffset/360.0));
     }
 
     public void seedRelativeEncoder(){
-        steerEncoder.setPosition(absEncoder.getAbsolutePosition());
+        steerEncoder.setPosition(absEncoder.getAbsolutePosition().getValueAsDouble());
     }
     
     public SwerveModule closedLoopDrive(SwerveModuleState setPoint){
-        SwerveModuleState newSetPoint = SwerveModuleState.optimize(setPoint, Rotation2d.fromDegrees(absEncoder.getAbsolutePosition()));
-        lastSetState = newSetPoint;
-        driveController.setReference(newSetPoint.speedMetersPerSecond, ControlType.kVelocity,0,velFF.calculate(newSetPoint.speedMetersPerSecond),ArbFFUnits.kVoltage); // IDK if velocity control will work well
-        steerMotor.set(contSteerController.calculate(absEncoder.getAbsolutePosition(), MathUtil.inputModulus(newSetPoint.angle.getDegrees(), 0, 360)));
-        
+        setPoint = SwerveModuleState.optimize(setPoint, Rotation2d.fromDegrees(getAngle()));
+        lastSetState = setPoint;
+        driveController.setReference(setPoint.speedMetersPerSecond, ControlType.kVelocity,0,driveFeedforward.calculate(setPoint.speedMetersPerSecond),ArbFFUnits.kVoltage);
+        steerMotor.set(contSteerController.calculate(getAngle(), MathUtil.inputModulus(setPoint.angle.getDegrees(), 0, 360)));
+        return this;
+    }
+
+     public SwerveModule openLoopDrive(SwerveModuleState setPoint){
+        setPoint = SwerveModuleState.optimize(setPoint, Rotation2d.fromDegrees(getAngle()));
+        lastSetState = setPoint;
+        driveController.setReference(setPoint.speedMetersPerSecond, ControlType.kVelocity,1,driveFeedforward.calculate(setPoint.speedMetersPerSecond),ArbFFUnits.kVoltage);
+        steerMotor.set(contSteerController.calculate(getAngle(), MathUtil.inputModulus(setPoint.angle.getDegrees(), 0, 360)));
         return this;
     }
     
@@ -155,15 +175,18 @@ public class SwerveModule implements Loggable{
     }
     
     public void updateSteerPid(){
-        steerMotor.set(contSteerController.calculate(absEncoder.getAbsolutePosition()));
+        steerMotor.set(contSteerController.calculate(getAngle()));
     }
     
+    public double getAngle(){
+        return absEncoder.getAbsolutePosition().getValueAsDouble()*360;
+    }
     public SwerveModuleState getCurrentState(){ 
-        return new SwerveModuleState(driveEncoder.getVelocity(),Rotation2d.fromDegrees(steerEncoder.getPosition()%360));
+        return new SwerveModuleState(driveEncoder.getVelocity(),Rotation2d.fromDegrees(getAngle()));
     }
     
     public SwerveModulePosition getCurrentPosition(){ // used for odometry
-        return new SwerveModulePosition(driveEncoder.getPosition(),Rotation2d.fromDegrees(steerEncoder.getPosition()%360));
+        return new SwerveModulePosition(driveEncoder.getPosition(),Rotation2d.fromDegrees(getAngle()));
     }
 
     public SwerveModulePosition getSimulatedPosition(double timeStep){

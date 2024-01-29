@@ -28,17 +28,17 @@ public final class Constants {
         public static final double driveBaseLength = 0.762; //meters
         public static final double driveGearRatio = 6.12; // L3
         public static final double steerGearRatio = 12.8; 
-        public static final double wheelDiameterMeters = 0.098; // Measure and check later. Compensating for tread wear over comp could be cool
+        public static final double wheelDiameterMeters = 0.1016;//0.098; // Measure and check later. Compensating for tread wear over comp could be cool
         public static final double driveConversionFactor = wheelDiameterMeters * Math.PI / driveGearRatio;
 
-        public static final double maxSpeed = 3.5; // m/s
+        public static final double maxSpeed = 4.8; // m/s
         public static final double maxAngularSpeed = 2.5; // rad/s
         public static final double driverThetaDeadband = 0.05;
         public static final double driverTranslationDeadband = 1;
         // Electrical Constants
-        public static final int  driveMotorFreeCurrentLimit = 30;
+        public static final int  driveMotorFreeCurrentLimit = 40;
         public static final int  driveMotorStallCurrentLimit = 30;
-        public static final int  driveMotorfreeCurrentLimit = 30;
+        public static final int  steerMotorFreeCurrentLimit = 30;
 
 
         
@@ -46,12 +46,10 @@ public final class Constants {
         public static final double kDriveP = 0.025;
         public static final double kDriveI = 0.0;
         public static final double kDriveD = 0.0;
-        public static final double kDriveFF = 0.0;
 
         public static final double kSteerP = 0.004;//0.0025;
         public static final double kSteerI = 0.0;
         public static final double kSteerD = 0.0;
-        public static final double kSteerFF = 0.0;
 
         public static final double kHeadingP = 0.04;
         public static final double kHeadingI = 0.0;
@@ -80,19 +78,12 @@ public final class Constants {
             When the robot is placed on the origin, facing toward the X direction, 
             moving forward increases the X, whereas moving to the left increases the Y.
 
-            Mod{modPos,driveMotorid,steerMotorid,cancoderid,displacment(x,y)}
-
-            126.826
-            43.418
-            -47.549
-            228.340
+            Mod{modPos,driveMotorid,steerMotorid,cancoderid,displacment(x,y),drive kV, drive kS}
             */
-            //TODO: Define Forward
-            
-            FR(ModulePosition.FR,10,11,12,(driveBase.equals(DriveBase.PracticeBot)) ? -92.109375 :-256.5,new Transform2d(new Translation2d(driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())), 
-            BR(ModulePosition.BR,20,21,22,(driveBase.equals(DriveBase.PracticeBot)) ? 182.197266 :-29.61914,new Transform2d(new Translation2d(-driveBaseLength/2,-driveBaseWidth/2),new Rotation2d())),
-            BL(ModulePosition.BL,30,31,32,(driveBase.equals(DriveBase.PracticeBot)) ? -187.734375 :-111.5332,new Transform2d(new Translation2d(-driveBaseLength/2,driveBaseWidth/2),new Rotation2d())),
-            FL(ModulePosition.FL,40,41,42,(driveBase.equals(DriveBase.PracticeBot)) ? 23.554688 :-238.008,new Transform2d(new Translation2d(driveBaseLength/2,driveBaseWidth/2),new Rotation2d())); 
+            FR(ModulePosition.FR,10,11,12,(driveBase.equals(DriveBase.PracticeBot)) ? -7.029375 :-256.5,new Transform2d(new Translation2d(driveBaseLength/2,-driveBaseWidth/2),new Rotation2d()),(driveBase.equals(DriveBase.PracticeBot)) ? 2.443 : 2.4,(driveBase.equals(DriveBase.PracticeBot)) ?.25:0.0), 
+            BR(ModulePosition.BR,20,21,22,(driveBase.equals(DriveBase.PracticeBot)) ? 86.302734 :-29.61914,new Transform2d(new Translation2d(-driveBaseLength/2,-driveBaseWidth/2),new Rotation2d()),(driveBase.equals(DriveBase.PracticeBot)) ? 2.409: 2.4,(driveBase.equals(DriveBase.PracticeBot)) ? .15 : 0),
+            BL(ModulePosition.BL,30,31,32,(driveBase.equals(DriveBase.PracticeBot)) ? -103.614375 :-111.5332,new Transform2d(new Translation2d(-driveBaseLength/2,driveBaseWidth/2),new Rotation2d()),(driveBase.equals(DriveBase.PracticeBot)) ? 2.413 : 2.4,(driveBase.equals(DriveBase.PracticeBot)) ? .25 : 0.0),
+            FL(ModulePosition.FL,40,41,42,(driveBase.equals(DriveBase.PracticeBot)) ? 112.154688 :-238.008,new Transform2d(new Translation2d(driveBaseLength/2,driveBaseWidth/2),new Rotation2d()),(driveBase.equals(DriveBase.PracticeBot)) ? 2.387 : 2.4,(driveBase.equals(DriveBase.PracticeBot)) ?.23 : 0.0); 
             
             public final ModulePosition modPos;
             public final int driveMotorid;
@@ -100,14 +91,18 @@ public final class Constants {
             public final int canCoderid;
             public final double canCoderOffset;
             public final Transform2d displacment; // from robot origin
+            public final double kV;
+            public final double kS;
             
-            private Module(ModulePosition modPos, int driveMotorid, int steerMotorid, int canCoderid,double canCoderOffset, Transform2d displacment){
+            private Module(ModulePosition modPos, int driveMotorid, int steerMotorid, int canCoderid,double canCoderOffset, Transform2d displacment, double kV, double kS){
                 this.modPos = modPos;
                 this.driveMotorid = driveMotorid;
                 this.steerMotorid = steerMotorid;
                 this.canCoderid = canCoderid;
                 this.canCoderOffset = canCoderOffset;
                 this.displacment = displacment;
+                this.kV = kV;
+                this.kS = kS;
             }
 
         }

@@ -4,19 +4,24 @@
 
 package frc.robot;
 
-import io.github.oblarg.oblog.Logger;
-import io.github.oblarg.oblog.annotations.Log;
+import com.ctre.phoenix.unmanaged.UnmanagedJNI;
+import com.ctre.phoenix6.unmanaged.Unmanaged;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.commands.ActualXboxTeleopDrive;
 import frc.robot.commands.XboxTeleopDrive;
 import frc.robot.subsystems.SwerveDrive;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.SwerveModule;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Com
@@ -31,16 +36,16 @@ public class RobotContainer {
 
   // private final CommandXboxController driverController;
   
-  private final Joystick driverController;
+  private final CommandXboxController driverController;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
-    
+    Unmanaged.setPhoenixDiagnosticsStartTime(-1);
     drivetrain = new SwerveDrive();
     // driverController = new CommandXboxController(0);
     
-    driverController = new Joystick(0);
+    driverController = new CommandXboxController(0);
 
     // Configure the button bindings
     configureButtonBindings();
@@ -58,7 +63,15 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    drivetrain.setDefaultCommand(new XboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+    drivetrain.setDefaultCommand(new ActualXboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+    
+    
+    /*Trigger sideButton = driverController.button(2); // the "side button" on the joystick decreases voltage
+    sideButton.True(new InstantCommand(()->{
+      drivetrain.modules.get(0).noVoltage();
+      SmartDashboard.putNumber("FRVoltage", drivetrain.modules.get(0).wantedVoltage);
+      ;}));*/
+
     // Trigger driverRightBumper = driverController.rightBumper();
     // driverRightBumper.whileTrue(drivetrain.passiveBrake());
     // Trigger driverRightTrigger = driverController.rightTrigger();

@@ -4,15 +4,17 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 import frc.robot.subsystems.SwerveDrive;
 import java.lang.Math;
 
-public class XboxTeleopDrive extends CommandBase{
+public class XboxTeleopDrive extends Command{
     // private final CommandXboxController controller;
-    private final Joystick controller;
+    private final CommandJoystick controller;
     
     private final SwerveDrive drivetrain;
     private Rotation2d lastHeading;
@@ -21,7 +23,7 @@ public class XboxTeleopDrive extends CommandBase{
 
     // TODO: Implement Optimization
     
-    public XboxTeleopDrive(SwerveDrive drivetrain, /*CommandXboxController controller*/ Joystick controller){
+    public XboxTeleopDrive(SwerveDrive drivetrain, /*CommandXboxController controller*/ CommandJoystick controller){
         this.drivetrain = drivetrain;
         this.controller = controller;
         addRequirements(drivetrain);
@@ -42,7 +44,7 @@ public class XboxTeleopDrive extends CommandBase{
         */
         // boolean isRobotRelative = controller.leftBumper().getAsBoolean();
 
-        boolean isRobotRelative = controller.getTrigger();
+        boolean isRobotRelative = controller.trigger().getAsBoolean();
         isRobotRelative=false;
     
         // Get Controller Values
@@ -50,17 +52,19 @@ public class XboxTeleopDrive extends CommandBase{
         // double xVel = (Math.abs(controller.getLeftY()) > 0.1 ? controller.getLeftY() : 0.0); 
         // double yVel = (Math.abs(controller.getLeftX()) > 0.1 ? controller.getLeftX() : 0.0);
         // double thetaVel = (Math.abs(controller.getRightX()) > 0.1 ? controller.getRightX() * Constants.Swerve.maxAngularSpeed : 0.0);
-        
-        double xVel = (Math.abs(controller.getY()) > 0.1 ? controller.getY() : 0.0); 
-        double yVel = (Math.abs(controller.getX()) > 0.1 ? controller.getX() : 0.0);
-        double thetaVel = (Math.abs(controller.getZ()) > 0.1 ? controller.getZ() * Constants.Swerve.maxAngularSpeed : 0.0);
-        thetaVel = 0.0;
+        double xVel = controller.getY();
+        double yVel = controller.getX();
+        double thetaVel = controller.getZ();
+         xVel = (Math.abs(xVel) > 0.18 ? Math.signum(xVel) * Math.pow(xVel,2) * Constants.Swerve.maxSpeed : 0.0); 
+         yVel = (Math.abs(yVel) > 0.18 ? Math.signum(yVel) * Math.pow(yVel,2) * Constants.Swerve.maxSpeed : 0.0);
+         thetaVel = (Math.abs(thetaVel) > 0.18 ? thetaVel * Constants.Swerve.maxAngularSpeed : 0.0);
+        //thetaVel = 0.0;
 
-        xVel = Math.signum(xVel) * Math.pow(xVel,2) * Constants.Swerve.maxSpeed; //square input while preserving sign
-        yVel = Math.signum(yVel) * Math.pow(yVel,2) * Constants.Swerve.maxSpeed;
+       // xVel = Math.signum(xVel) * Math.pow(xVel,2) * Constants.Swerve.maxSpeed; //square input while preserving sign
+       // yVel = Math.signum(yVel) * Math.pow(yVel,2) * Constants.Swerve.maxSpeed;
 
         // maintain heading if there's no rotational input
-         if (Math.abs(thetaVel) < 0.1){
+         /*  if (Math.abs(thetaVel) < 0.1){
             if (isHeadingSet == false){
                 headingPID.reset();
                 isHeadingSet = true;
@@ -72,8 +76,8 @@ public class XboxTeleopDrive extends CommandBase{
             }
         } else{
             isHeadingSet = false;
-        }
-        
+        }*/
+        SmartDashboard.putString("DriveOut", xVel + " " + yVel + " " + thetaVel);
         drivetrain.drive(
              isRobotRelative ? new ChassisSpeeds(xVel, yVel, thetaVel)
             : ChassisSpeeds.fromFieldRelativeSpeeds(xVel, yVel, thetaVel, drivetrain.getRobotAngle())

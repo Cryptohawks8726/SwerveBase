@@ -2,12 +2,13 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.Swerve;
 import frc.robot.subsystems.SwerveDrive;
 
-public class ActualXboxTeleopDrive extends CommandBase {
+public class ActualXboxTeleopDrive extends Command {
     private CommandXboxController controller;
     private SwerveDrive drivetrain;
     private double lastHeading;
@@ -19,7 +20,7 @@ public class ActualXboxTeleopDrive extends CommandBase {
         this.drivetrain = drivetrain;
         this.controller = controller;
         addRequirements(drivetrain);
-        headingPID = new PIDController(-Swerve.kHeadingP, Swerve.kHeadingI, Swerve.kHeadingD, 20);
+        headingPID = new PIDController(Swerve.kHeadingP, Swerve.kHeadingI, Swerve.kHeadingD, 20);
         headingPID.enableContinuousInput(0, 360);
     }
     @Override
@@ -47,7 +48,7 @@ public class ActualXboxTeleopDrive extends CommandBase {
         yVel = -Math.signum(yVel) * Math.pow(yVel,2) * translationalSpeed ;
 
         // maintain heading if there's no rotational input
-         if (thetaVel == 0.0 && ((Math.abs(xVel)>0.2) ||(Math.abs(yVel)>0.2))){
+        /*if (thetaVel == 0.0 && ((Math.abs(xVel)>0.2) ||(Math.abs(yVel)>0.2))){
             if (isHeadingSet == false){
                 headingPID.reset();
                 isHeadingSet = true;
@@ -59,8 +60,9 @@ public class ActualXboxTeleopDrive extends CommandBase {
             }
         } else{
             isHeadingSet = false;
-        }
-        
+        }*/
+        SmartDashboard.putString("DriveOut", xVel + " " + yVel + " " + thetaVel);
+
         drivetrain.drive(
              isRobotRelative ? new ChassisSpeeds(xVel, yVel, thetaVel)
             : ChassisSpeeds.fromFieldRelativeSpeeds(xVel, yVel, thetaVel, drivetrain.getRobotAngle())
