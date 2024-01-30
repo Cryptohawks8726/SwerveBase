@@ -82,6 +82,7 @@ public class SwerveDrive extends SubsystemBase{
         //gyro.calibrate(); // possibly move to avoid the robot being moved during calibration
         gyro.reset();
         
+        
         // simGyro = new AnalogGyroSim(0);
         
         odometry = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), modPositionStates, new Pose2d()); 
@@ -105,7 +106,7 @@ public class SwerveDrive extends SubsystemBase{
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
                     new PIDConstants(0, 0.0, 0.0), // Translation PID constants
                     new PIDConstants(0, 0.0, 0.0), // Rotation PID constants
-                    4.5, // Max module speed, in m/s
+                    4.5, // Mgax module speed, in m/s
                     Constants.Swerve.driveBaseLength/2, // Drive base radius in meters. Distance from robot center to furthest module.
                     new ReplanningConfig() // Default path replanning config. See the API for the options here
             ),
@@ -262,7 +263,7 @@ public class SwerveDrive extends SubsystemBase{
         SmartDashboard.putNumber("xpos", estimatedPostition.getTranslation().getX());
         SmartDashboard.putNumber("ypos", estimatedPostition.getTranslation().getY());
         SmartDashboard.putNumber("estimatedthetaPos",estimatedPostition.getRotation().getDegrees());
-        SmartDashboard.putNumber("gyroAngle", gyro.getAngle());//getRotation2d().getDegrees()%360
+        SmartDashboard.putNumber("gyroAngle", gyro.getRotation2d().getDegrees());//getRotation2d().getDegrees()%360
         SmartDashboard.putBoolean("isGyroConnected", gyro.isConnected());
        // SmartDashboard.putNumber("setXVel", lastSetChassisSpeeds.vxMetersPerSecond);
         //SmartDashboard.putNumber("setYVel", lastSetChassisSpeeds.vyMetersPerSecond);

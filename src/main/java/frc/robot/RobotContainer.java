@@ -7,9 +7,12 @@ package frc.robot;
 import com.ctre.phoenix.unmanaged.UnmanagedJNI;
 import com.ctre.phoenix6.unmanaged.Unmanaged;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
@@ -96,7 +99,11 @@ public class RobotContainer {
     PathPlannerPath path = PathPlannerPath.fromPathFile("Test1");
 
     // Create a path following command using AutoBuilder. This will also trigger event markers.
-    return new InstantCommand(()->drivetrain.drive(new ChassisSpeeds(2, 0, 0), false),drivetrain)
+
+    drivetrain.setOdometryPosition(new Pose2d(2.027172327041626,6.881656646728516,new Rotation2d(0)));
+    //PathPlannerPath exampleChoreoTraj = PathPlannerPath.fromChoreoTrajectory("Test2");
+    //return AutoBuilder.followPath(exampleChoreoTraj);
+    return new InstantCommand(()->drivetrain.drive(new ChassisSpeeds(0, 0, 0.1), false),drivetrain)
     .andThen(new WaitCommand(1))
     .andThen(()->drivetrain.drive(new ChassisSpeeds(0, 0, 0), false),drivetrain);
   } 
