@@ -4,6 +4,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.internal.DriverStationModeThread;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -41,6 +42,8 @@ public class ActualXboxTeleopDrive extends Command {
         */
 
         boolean isRobotRelative = controller.leftTrigger().getAsBoolean();
+        SmartDashboard.putBoolean("robotRelative", isRobotRelative);
+        SmartDashboard.putNumber("robotRotation", drivetrain.getGyro().getAngle());
         translationalSpeed = controller.rightTrigger().getAsBoolean() ? Swerve.maxSpeed : 2.5;
         thetaSpeed = controller.rightTrigger().getAsBoolean() ? Swerve.maxAngularSpeed : 2.0;
         // Get Controller Values

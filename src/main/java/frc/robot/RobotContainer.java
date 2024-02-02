@@ -95,6 +95,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    if(!Constants.demoMode){
     // An ExampleCommand will run in autonomou`s
     PathPlannerPath path = PathPlannerPath.fromPathFile("Test1");
 
@@ -106,5 +107,6 @@ public class RobotContainer {
     //return new InstantCommand(()->drivetrain.drive(new ChassisSpeeds(1, 0, 0.1), false),drivetrain)
     //.andThen(new WaitCommand(5))
     //.andThen(()->drivetrain.drive(new ChassisSpeeds(0, 0, 0), false),drivetrain);
-  } 
+  } else{ return null;}
+}
 }

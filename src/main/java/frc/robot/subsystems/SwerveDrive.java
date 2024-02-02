@@ -79,10 +79,7 @@ public class SwerveDrive extends SubsystemBase{
         
         gyro = new AHRS(SerialPort.Port.kUSB1);
         // TODO: check for 2024 version
-        //gyro.calibrate(); // possibly move to avoid the robot being moved during calibration
-        gyro.reset();
-        
-        
+        //gyro.calibrate(); // possibly move to avoid the robot being moved during calibration        
         // simGyro = new AnalogGyroSim(0);
         
         odometry = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), modPositionStates, new Pose2d()); 
@@ -229,7 +226,7 @@ public class SwerveDrive extends SubsystemBase{
 
     public void resetOdometry(Pose2d pose) {
         odometry.resetPosition(Rotation2d.fromDegrees(0.0), getSwerveModulePositions(), pose);
-        gyro.reset();
+        //gyro.reset();
     }
 
     public Rotation2d getRobotAngle() {

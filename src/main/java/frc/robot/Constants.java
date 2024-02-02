@@ -20,6 +20,7 @@ public final class Constants {
     public enum DriveBase{
         Comp2024(),PracticeBot();
     }
+    public static final boolean demoMode = true;
     public static final DriveBase driveBase = DriveBase.PracticeBot;
     public static final class Swerve {
         
@@ -31,8 +32,8 @@ public final class Constants {
         public static final double wheelDiameterMeters = 0.1016;//0.098; // Measure and check later. Compensating for tread wear over comp could be cool
         public static final double driveConversionFactor = wheelDiameterMeters * Math.PI / driveGearRatio;
 
-        public static final double maxSpeed = 4.8; // m/s
-        public static final double maxAngularSpeed = 2.5; // rad/s
+        public static final double maxSpeed = (demoMode ? 1.5 : 4.8); // m/s
+        public static final double maxAngularSpeed = (demoMode ? 1.0 : 2.5); // rad/s
         public static final double driverThetaDeadband = 0.05;
         public static final double driverTranslationDeadband = 1;
         // Electrical Constants
