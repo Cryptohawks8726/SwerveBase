@@ -104,8 +104,8 @@ public class SwerveDrive extends SubsystemBase{
             this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             this::drive, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                    new PIDConstants(0, 0.0, 0.0), // Translation PID constants
-                    new PIDConstants(0, 0.0, 0.0), // Rotation PID constants
+                    new PIDConstants(2, 0.0, 0.0), // Translation PID constants
+                    new PIDConstants(0.5, 0.0, 0.0), // Rotation PID constants
                     4.5, // Mgax module speed, in m/s
                     Constants.Swerve.driveBaseLength/2, // Drive base radius in meters. Distance from robot center to furthest module.
                     new ReplanningConfig() // Default path replanning config. See the API for the options here
@@ -182,6 +182,10 @@ public class SwerveDrive extends SubsystemBase{
     public void drive(ChassisSpeeds robotSpeeds, boolean isClosedLoop){  
         modStates = kinematics.toSwerveModuleStates(robotSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(modStates,Constants.Swerve.maxSpeed);
+        SmartDashboard.putNumber("expectedRotation", robotSpeeds.omegaRadiansPerSecond);
+        SmartDashboard.putNumber("actualRotation", getRobotRelativeSpeeds().omegaRadiansPerSecond);
+        SmartDashboard.putNumber("chassisX", robotSpeeds.vxMetersPerSecond);
+        SmartDashboard.putNumber("actualX", getRobotRelativeSpeeds().vxMetersPerSecond);
         if (isClosedLoop){
             modules.forEach(mod -> {mod.closedLoopDrive(modStates[mod.getModPos().getVal()]);});
         } 
@@ -193,9 +197,8 @@ public class SwerveDrive extends SubsystemBase{
 
     
     public void drive(ChassisSpeeds robotSpeeds){
-        modStates = kinematics.toSwerveModuleStates(robotSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(modStates,Constants.Swerve.maxSpeed);
-        modules.forEach(mod -> {mod.openLoopDrive(modStates[mod.getModPos().getVal()]);});
+        drive(robotSpeeds,false);
+        
     }
 
     public StartEndCommand passiveBrake(){
@@ -241,6 +244,7 @@ public class SwerveDrive extends SubsystemBase{
 
     public SwerveModuleState[] getSwerveModuleStates(){
         modules.forEach(mod -> {currentModState[mod.getModPos().getVal()] = mod.getCurrentState();});
+        
         return currentModState;
     }
 
@@ -265,6 +269,7 @@ public class SwerveDrive extends SubsystemBase{
         SmartDashboard.putNumber("estimatedthetaPos",estimatedPostition.getRotation().getDegrees());
         SmartDashboard.putNumber("gyroAngle", gyro.getRotation2d().getDegrees());//getRotation2d().getDegrees()%360
         SmartDashboard.putBoolean("isGyroConnected", gyro.isConnected());
+        SmartDashboard.putNumber("CalcThetaVel", getRobotRelativeSpeeds().omegaRadiansPerSecond);
        // SmartDashboard.putNumber("setXVel", lastSetChassisSpeeds.vxMetersPerSecond);
         //SmartDashboard.putNumber("setYVel", lastSetChassisSpeeds.vyMetersPerSecond);
         if(moduleLevel){
@@ -275,6 +280,7 @@ public class SwerveDrive extends SubsystemBase{
                 SmartDashboard.putNumber(modName + "actvel", module.getCurrentState().speedMetersPerSecond);
                 SmartDashboard.putNumber(modName + "setdeg", module.getSetStateAngle());
                 SmartDashboard.putNumber(modName + "actdeg", module.getCurrentState().angle.getDegrees());
+                
             // SmartDashboard.putNumber(modName + "absdeg", module.getAbsPos());
             //  SmartDashboard.putNumber(modName + "built in steer", module.getRelativePos());
             // SmartDashboard.putNumber(modName + "built in drive", module.getRelativeVel());

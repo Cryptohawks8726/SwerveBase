@@ -100,11 +100,11 @@ public class RobotContainer {
 
     // Create a path following command using AutoBuilder. This will also trigger event markers.
 
-    drivetrain.setOdometryPosition(new Pose2d(2.027172327041626,6.881656646728516,new Rotation2d(0)));
-    //PathPlannerPath exampleChoreoTraj = PathPlannerPath.fromChoreoTrajectory("Test2");
-    //return AutoBuilder.followPath(exampleChoreoTraj);
-    return new InstantCommand(()->drivetrain.drive(new ChassisSpeeds(0, 0, 0.1), false),drivetrain)
-    .andThen(new WaitCommand(1))
-    .andThen(()->drivetrain.drive(new ChassisSpeeds(0, 0, 0), false),drivetrain);
+    drivetrain.setOdometryPosition(new Pose2d(2.8405020236968994,7.009701728820801, new Rotation2d(0)));
+    PathPlannerPath exampleChoreoTraj = PathPlannerPath.fromChoreoTrajectory("NewPath");
+    return AutoBuilder.followPath(exampleChoreoTraj);
+    //return new InstantCommand(()->drivetrain.drive(new ChassisSpeeds(1, 0, 0.1), false),drivetrain)
+    //.andThen(new WaitCommand(5))
+    //.andThen(()->drivetrain.drive(new ChassisSpeeds(0, 0, 0), false),drivetrain);
   } 
 }
