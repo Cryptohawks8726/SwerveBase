@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -97,12 +98,12 @@ public class SwerveDrive extends SubsystemBase{
         // Configure AutoBuilder last
         AutoBuilder.configureHolonomic(
             this::getPoseEstimate, // Robot pose supplier
-            this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+            this::setOdometryPosition, // Method to reset odometry (will be called if your auto has a starting pose)
             this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             this::drive, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                    new PIDConstants(2, 0.0, 0.0), // Translation PID constants
-                    new PIDConstants(0.5, 0.0, 0.0), // Rotation PID constants
+                    new PIDConstants(5, 0.0, 0), // Translation PID constants
+                    new PIDConstants(3, 0, 0), // Rotation PID constants
                     4.5, // Mgax module speed, in m/s
                     Constants.Swerve.driveBaseLength/2, // Drive base radius in meters. Distance from robot center to furthest module.
                     new ReplanningConfig() // Default path replanning config. See the API for the options here
@@ -114,7 +115,7 @@ public class SwerveDrive extends SubsystemBase{
 
               var alliance = DriverStation.getAlliance();
               if (alliance.isPresent()) {
-                return alliance.get() == DriverStation.Alliance.Red;
+                return alliance.get() == DriverStation.Alliance.Blue;
               }
               return false;
             },
@@ -177,12 +178,33 @@ public class SwerveDrive extends SubsystemBase{
 
     
     public void drive(ChassisSpeeds robotSpeeds, boolean isClosedLoop){  
+        robotSpeeds = ChassisSpeeds.discretize(robotSpeeds, 0.2);
         modStates = kinematics.toSwerveModuleStates(robotSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(modStates,Constants.Swerve.maxSpeed);
-        SmartDashboard.putNumber("expectedRotation", robotSpeeds.omegaRadiansPerSecond);
-        SmartDashboard.putNumber("actualRotation", getRobotRelativeSpeeds().omegaRadiansPerSecond);
-        SmartDashboard.putNumber("chassisX", robotSpeeds.vxMetersPerSecond);
-        SmartDashboard.putNumber("actualX", getRobotRelativeSpeeds().vxMetersPerSecond);
+        //SmartDashboard.putNumber("expectedRotation", robotSpeeds.omegaRadiansPerSecond);
+        //SmartDashboard.putNumber("actualRotation", getRobotRelativeSpeeds().omegaRadiansPerSecond);
+        //SmartDashboard.putNumber("chassisX", robotSpeeds.vxMetersPerSecond);
+        //SmartDashboard.putNumber("actualX", getRobotRelativeSpeeds().vxMetersPerSecond);
+        double endPointX = 9.88353157043457; //in meters
+        double startPointX = 2.889869213104248;
+        
+        double endPointY = 7.009701728820801;
+        double startPointY = 7.009701728820801;
+
+        //SmartDashboard.putNumber("supposedDistance", endPointX - startPointX);
+        //SmartDashboard.putNumber("rotationPosition", gyro.getAngle());
+        //SmartDashboard.putNumber("relativeSpeed", getRobotRelativeSpeeds().omegaRadiansPerSecond);
+        SmartDashboard.putNumber("estimatedPositionX", endPointX - odometry.getEstimatedPosition().getX());
+        SmartDashboard.putNumber("estimatedAngle", getRobotAngle().getDegrees() - 180);
+        SmartDashboard.putNumber("estimatedPositionY", 7.009701728820801 - odometry.getEstimatedPosition().getY());
+        SmartDashboard.putNumber("Gyro angle:", getRobotAngle().getDegrees()%360);
+        
+        SmartDashboard.putNumber("moduleSpeed0", modules.get(0).getRelativeVel());
+        SmartDashboard.putNumber("moduleSpeed1", modules.get(1).getRelativeVel());
+        SmartDashboard.putNumber("moduleSpeed2", modules.get(2).getRelativeVel());
+        SmartDashboard.putNumber("moduleSpeed3", modules.get(3).getRelativeVel());
+
+        SmartDashboard.putNumber("", 0);
         if (isClosedLoop){
             modules.forEach(mod -> {mod.closedLoopDrive(modStates[mod.getModPos().getVal()]);});
         } 
@@ -222,10 +244,15 @@ public class SwerveDrive extends SubsystemBase{
 
     public void setOdometryPosition(Pose2d setPosition){
         odometry.resetPosition(getRobotAngle(), getSwerveModulePositions(), setPosition);
+        gyro.setAngleAdjustment(setPosition.getRotation().getDegrees()-(gyro.getRotation2d().getDegrees()%360));
     }
 
     public void resetOdometry(Pose2d pose) {
         odometry.resetPosition(Rotation2d.fromDegrees(0.0), getSwerveModulePositions(), pose);
+        SmartDashboard.putNumber("resetOdometryAngle",gyro.getRotation2d().getDegrees()%360);
+
+        gyro.setAngleAdjustment(gyro.getRotation2d().getDegrees()%360);
+ 
         //gyro.reset();
     }
 
@@ -258,15 +285,20 @@ public class SwerveDrive extends SubsystemBase{
         modules.forEach(mod -> {mod.setEncoderOffset();});
     }
 
+    public InstantCommand resetGyroAngle(){
+        return new InstantCommand(() -> resetOdometry(new Pose2d()));
+    }
+
     public void logValues(boolean moduleLevel){ 
         Pose2d estimatedPostition = odometry.getEstimatedPosition();
 
         SmartDashboard.putNumber("xpos", estimatedPostition.getTranslation().getX());
         SmartDashboard.putNumber("ypos", estimatedPostition.getTranslation().getY());
-        SmartDashboard.putNumber("estimatedthetaPos",estimatedPostition.getRotation().getDegrees());
-        SmartDashboard.putNumber("gyroAngle", gyro.getRotation2d().getDegrees());//getRotation2d().getDegrees()%360
+        //SmartDashboard.putNumber("estimatedthetaPos",estimatedPostition.getRotation().getDegrees());
+        //SmartDashboard.putNumber("gyroAngle", gyro.getRotation2d().getDegrees());//getRotation2d().getDegrees()%360
         SmartDashboard.putBoolean("isGyroConnected", gyro.isConnected());
-        SmartDashboard.putNumber("CalcThetaVel", getRobotRelativeSpeeds().omegaRadiansPerSecond);
+        //SmartDashboard.putNumber("CalcThetaVel", getRobotRelativeSpeeds().omegaRadiansPerSecond);
+        SmartDashboard.putNumber("e", 0);
        // SmartDashboard.putNumber("setXVel", lastSetChassisSpeeds.vxMetersPerSecond);
         //SmartDashboard.putNumber("setYVel", lastSetChassisSpeeds.vyMetersPerSecond);
         if(moduleLevel){

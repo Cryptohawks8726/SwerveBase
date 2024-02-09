@@ -5,9 +5,6 @@
         "open": true
       },
       "SmartDashboard": {
-        "Field": {
-          "open": true
-        },
         "open": true
       }
     },
@@ -30,6 +27,9 @@
     }
   },
   "NetworkTables Info": {
+    "Clients": {
+      "open": true
+    },
     "Connections": {
       "open": true
     },

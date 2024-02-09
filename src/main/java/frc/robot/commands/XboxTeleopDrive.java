@@ -55,8 +55,8 @@ public class XboxTeleopDrive extends Command{
         double xVel = controller.getY();
         double yVel = controller.getX();
         double thetaVel = controller.getZ();
-         xVel = (Math.abs(xVel) > 0.18 ? Math.signum(xVel) * Math.pow(xVel,2) * Constants.Swerve.maxSpeed : 0.0); 
-         yVel = (Math.abs(yVel) > 0.18 ? Math.signum(yVel) * Math.pow(yVel,2) * Constants.Swerve.maxSpeed : 0.0);
+         yVel = (Math.abs(xVel) > 0.18 ? Math.signum(xVel) * Math.pow(xVel,2) * Constants.Swerve.maxSpeed : 0.0); 
+         xVel = (Math.abs(yVel) > 0.18 ? Math.signum(yVel) * Math.pow(yVel,2) * Constants.Swerve.maxSpeed : 0.0);
          thetaVel = (Math.abs(thetaVel) > 0.18 ? thetaVel * Constants.Swerve.maxAngularSpeed : 0.0);
         //thetaVel = 0.0;
 

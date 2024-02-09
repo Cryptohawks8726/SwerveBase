@@ -76,7 +76,8 @@ public class RobotContainer {
   private void configureButtonBindings() {
     drivetrain.setDefaultCommand(new ActualXboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
     
-    
+    driverController.a().onTrue(drivetrain.resetGyroAngle());
+
     /*Trigger sideButton = driverController.button(2); // the "side button" on the joystick decreases voltage
     sideButton.True(new InstantCommand(()->{
       drivetrain.modules.get(0).noVoltage();
@@ -101,8 +102,11 @@ public class RobotContainer {
 
     // Create a path following command using AutoBuilder. This will also trigger event markers.
 
-    drivetrain.setOdometryPosition(new Pose2d(2.8405020236968994,7.009701728820801, new Rotation2d(0)));
-    PathPlannerPath exampleChoreoTraj = PathPlannerPath.fromChoreoTrajectory("NewPath");
+    SmartDashboard.putNumber("e", 1);
+    drivetrain.setOdometryPosition(new Pose2d(2.659489631652832, 7.026157379150391, new Rotation2d(0)));
+    SmartDashboard.putNumber("Gyro angle:", drivetrain.getRobotAngle().getDegrees()%360);
+    PathPlannerPath exampleChoreoTraj = PathPlannerPath.fromChoreoTrajectory("Path4");
+    
     return AutoBuilder.followPath(exampleChoreoTraj);
     //return new InstantCommand(()->drivetrain.drive(new ChassisSpeeds(1, 0, 0.1), false),drivetrain)
     //.andThen(new WaitCommand(5))
