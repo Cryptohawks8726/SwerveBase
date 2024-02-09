@@ -1,49 +1,65 @@
 package frc.robot.subsystems;
 
-import java.time.Instant;
 import java.util.function.BooleanSupplier;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ArmSubsystem extends SubsystemBase implements BooleanSupplier {
 
-    int deviceId = 0;
+    int deviceId = 7;
+    int deviceId2 = 0; // TODO: get the device ID for the secondary motor
     int shooterOffset = 135; // TODO: get real offset angle (around 135)
     double intakeAngle = 10; // TODO: get real angles to intake/shoot
     double shootAngle = 45; // at subwoofer
+    double initVel = 10; // TODO: get initial velocity of shooter
+    double speakerHeight = 1.9812; // in meters
 
-    double kp = 0;
+    // TODO: get constants
+    double kp = 1;
     double ki = 0;
     double kd = 0;
 
+    double ks = 0;
+    double kg = 0;
+    double kv = 0;
+    double ka = 0;
+
     CANSparkMax motorController = new CANSparkMax(deviceId, MotorType.kBrushless); // motor controller
-    // TODO: is this the right type???
+    CANSparkMax motorController2 = new CANSparkMax(deviceId2, MotorType.kBrushless); // secondary motor
     SparkAbsoluteEncoder absoluteEncoder = motorController.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
 
     Constraints constraints = new Constraints(10, 5); // TODO: find good constraints (in degrees/s)
     ProfiledPIDController pidController = new ProfiledPIDController(kp, ki, kd, constraints); // degrees
+    ArmFeedforward armFF = new ArmFeedforward(ks, kg, kv, ka);
 
     State intakeState = new State(intakeAngle, 0);
     State shootState = new State(shootAngle, 0);
     State calculateAngleState = new State(shootAngle, 0); // will be changed based on calculated angle
 
     public ArmSubsystem() {
-
+        absoluteEncoder.setPositionConversionFactor(360); // "192 rotations per 1 rotation"
     }
 
     @Override
     public void periodic() {
-        //motorController.set(0);
-    }
+        double pidOutput = pidController.calculate(toRad(getArmAngle()));
+        double ff = armFF.calculate(toRad(pidController.getSetpoint().position), toRad(pidController.getSetpoint().velocity));
+        motorController.setVoltage(pidOutput+ff);
+        motorController2.setVoltage(pidOutput+ff);
 
+        SmartDashboard.putNumber("armDeg", getArmAngle());
+        SmartDashboard.putNumber("Applied Voltage", pidOutput+ff);
+    }
 
     @Override
     public boolean getAsBoolean() { // will check if the arm angle is at the setpoint periodically
@@ -54,27 +70,48 @@ public class ArmSubsystem extends SubsystemBase implements BooleanSupplier {
         }
     }
 
+    public double toRad(double degrees) {
+        return degrees * Math.PI / 180;
+    }
+
+    /**
+     * in degrees
+     */
     public double getArmAngle() {
         return absoluteEncoder.getPosition();
     }
 
+    /**
+     * in degrees
+     */
     public double getShooterAngle() {
         return 180-(getArmAngle()+shooterOffset);
     }
 
+    /**
+     * in degrees
+     */
     public InstantCommand rotateToIntake() { // sets the set point, angle to intake @ ground
         return new InstantCommand(() -> pidController.setGoal(intakeState)); // in degrees
     }
 
+    /**
+     * in degrees
+     */
     public InstantCommand rotateToShoot() { // angle to shoot @ subwoofer
         return new InstantCommand(() -> pidController.setGoal(shootState)); // in degrees
     }
 
-    // calculates the angle to shoot to the speaker at any field pos and rotates it
+    /**
+     * calculates the angle to shoot to the speaker at any field pos
+     * @param posX the field position of the robot relative to the speaker
+     * @return angle (in degrees)
+     */
     double calculateAngle(double posX, double posY) { // position relative to subwoofer
-        double dist2D = Math.sqrt(posX*posX+posY*posY);
+        double horDist = Math.sqrt(posX*posX+posY*posY);
 
-        double shooterAngle = Math.atan(1.9812/dist2D) * (180/Math.PI); // the angle that the shooter should be
+        // the angle that the shooter should be
+        double shooterAngle = Math.atan(initVel + Math.sqrt(Math.pow(initVel, 4) - 9.81*(9.81*horDist*horDist + 2*speakerHeight*initVel*initVel)) / (9.81*horDist));
         
         double armAngle = 180 - shooterAngle - shooterOffset;
         
@@ -82,8 +119,11 @@ public class ArmSubsystem extends SubsystemBase implements BooleanSupplier {
         return armAngle;
     }
 
-    public InstantCommand rotateToCalculatedAngle() {
-        calculateAngleState.position = calculateAngle(1, 1); // TODO: get real field pos values
+    /**
+     * calculates the angle to shoot to the speaker at any field pos and rotates the arm
+     */
+    public InstantCommand rotateToCalculatedAngle(double posX, double posY) {
+        calculateAngleState.position = calculateAngle(posX, posY);
 
         return new InstantCommand(() -> pidController.setGoal(calculateAngleState)); // in degrees
     }

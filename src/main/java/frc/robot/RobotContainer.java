@@ -24,7 +24,8 @@ public class RobotContainer {
     operatorController.a().onTrue(armSubsystem.rotateToIntake());
     operatorController.b().onTrue(armSubsystem.rotateToShoot());
 
-    operatorController.leftBumper().onTrue(armSubsystem.rotateToCalculatedAngle());
+    // TODO: get real field positions from swerve drive
+    operatorController.leftBumper().onTrue(armSubsystem.rotateToCalculatedAngle(1,1));
   }
 
   public Command getAutonomousCommand() {
