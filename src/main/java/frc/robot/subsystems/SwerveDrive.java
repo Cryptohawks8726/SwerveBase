@@ -103,7 +103,7 @@ public class SwerveDrive extends SubsystemBase{
             this::drive, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
                     new PIDConstants(5, 0.0, 0), // Translation PID constants
-                    new PIDConstants(3, 0, 0), // Rotation PID constants
+                    new PIDConstants(5, 0, 1), // Rotation PID constants
                     4.5, // Mgax module speed, in m/s
                     Constants.Swerve.driveBaseLength/2, // Drive base radius in meters. Distance from robot center to furthest module.
                     new ReplanningConfig() // Default path replanning config. See the API for the options here
@@ -195,7 +195,7 @@ public class SwerveDrive extends SubsystemBase{
         //SmartDashboard.putNumber("rotationPosition", gyro.getAngle());
         //SmartDashboard.putNumber("relativeSpeed", getRobotRelativeSpeeds().omegaRadiansPerSecond);
         SmartDashboard.putNumber("estimatedPositionX", endPointX - odometry.getEstimatedPosition().getX());
-        SmartDashboard.putNumber("estimatedAngle", getRobotAngle().getDegrees() - 180);
+        SmartDashboard.putNumber("estimatedAngle",  270 - getRobotAngle().getDegrees());
         SmartDashboard.putNumber("estimatedPositionY", 7.009701728820801 - odometry.getEstimatedPosition().getY());
         SmartDashboard.putNumber("Gyro angle:", getRobotAngle().getDegrees()%360);
         
