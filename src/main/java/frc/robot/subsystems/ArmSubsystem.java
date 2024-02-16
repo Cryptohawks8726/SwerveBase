@@ -4,6 +4,7 @@ import java.util.function.BooleanSupplier;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -16,29 +17,30 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ArmSubsystem extends SubsystemBase implements BooleanSupplier {
 
-    int deviceId = 7;
-    int deviceId2 = 0; // TODO: get the device ID for the secondary motor
+    int deviceId = 50;
+    int deviceId2 = 51; // TODO: get the device ID for the secondary motor
     int shooterOffset = 135; // TODO: get real offset angle (around 135)
-    double intakeAngle = 10; // TODO: get real angles to intake/shoot
-    double shootAngle = 45; // at subwoofer
-    double initVel = 10; // TODO: get initial velocity of shooter
+    double intakeAngle = toRad(2.98); // TODO: get real angles to intake/shoot
+    double shootAngle = toRad(45); // at subwoofer
+    double initVel = toRad(10); // TODO: get initial velocity of shooter
+    double maxAmpAngle = 117.5;
     double speakerHeight = 1.9812; // in meters
-
+    double absEncoderOffset = 128.7233920;
     // TODO: get constants
     double kp = 1;
     double ki = 0;
     double kd = 0;
 
     double ks = 0;
-    double kg = 0;
+    double kg = 0.5;
     double kv = 0;
     double ka = 0;
 
     CANSparkMax motorController = new CANSparkMax(deviceId, MotorType.kBrushless); // motor controller
     CANSparkMax motorController2 = new CANSparkMax(deviceId2, MotorType.kBrushless); // secondary motor
     SparkAbsoluteEncoder absoluteEncoder = motorController.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
-
-    Constraints constraints = new Constraints(10, 5); // TODO: find good constraints (in degrees/s)
+    
+    Constraints constraints = new Constraints(10/180*Math.PI, 5/180*Math.PI); // TODO: find good constraints (in degrees/s)
     ProfiledPIDController pidController = new ProfiledPIDController(kp, ki, kd, constraints); // degrees
     ArmFeedforward armFF = new ArmFeedforward(ks, kg, kv, ka);
 
@@ -48,17 +50,27 @@ public class ArmSubsystem extends SubsystemBase implements BooleanSupplier {
 
     public ArmSubsystem() {
         absoluteEncoder.setPositionConversionFactor(360); // "192 rotations per 1 rotation"
+        absoluteEncoder.setZeroOffset(absEncoderOffset);
+        absoluteEncoder.setInverted(true);
+
+        motorController.setIdleMode(IdleMode.kBrake);
+        motorController2.setIdleMode(IdleMode.kBrake);
+
+        motorController.setInverted(true);
+        motorController2.setInverted(false);
     }
 
     @Override
     public void periodic() {
         double pidOutput = pidController.calculate(toRad(getArmAngle()));
-        double ff = armFF.calculate(toRad(pidController.getSetpoint().position), toRad(pidController.getSetpoint().velocity));
+        double ff = armFF.calculate(toRad(pidController.getSetpoint().position-10.0), toRad(pidController.getSetpoint().velocity));
         motorController.setVoltage(pidOutput+ff);
         motorController2.setVoltage(pidOutput+ff);
 
         SmartDashboard.putNumber("armDeg", getArmAngle());
         SmartDashboard.putNumber("Applied Voltage", pidOutput+ff);
+        SmartDashboard.putNumber("error",pidController.getPositionError()*180/Math.PI);
+        //SmartDashboard.putNumber("calculatedAngle", calculateAngle(pidOutput, ff))
     }
 
     @Override
