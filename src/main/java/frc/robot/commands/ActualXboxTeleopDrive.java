@@ -43,13 +43,19 @@ public class ActualXboxTeleopDrive extends Command {
 
         boolean isRobotRelative = controller.leftTrigger().getAsBoolean();
         SmartDashboard.putBoolean("robotRelative", isRobotRelative);
-        SmartDashboard.putNumber("robotRotation", drivetrain.getGyro().getAngle());
-        translationalSpeed = controller.rightTrigger().getAsBoolean() ? Swerve.maxSpeed : 2.5;
-        thetaSpeed = controller.rightTrigger().getAsBoolean() ? Swerve.maxAngularSpeed : 2.0;
+
+        boolean slowMode = controller.rightTrigger().getAsBoolean();
+        double leftX = controller.getLeftX();
+        double leftY = controller.getLeftY();
+        double rightX = controller.getRightX();
+
+        translationalSpeed = slowMode ? 2.5: Swerve.maxSpeed;
+        thetaSpeed = slowMode ? 2.0 : Swerve.maxAngularSpeed;
+        
         // Get Controller Values
-        double xVel = (Math.abs(controller.getLeftY()) > 0.15 ? controller.getLeftY() : 0.0); 
-        double yVel = (Math.abs(controller.getLeftX()) > 0.15 ? controller.getLeftX() : 0.0);
-        double thetaVel = (Math.abs(controller.getRightX()) > 0.20 ? -controller.getRightX() * thetaSpeed : 0.0);
+        double xVel = (Math.abs(leftY) > 0.15 ? leftY : 0.0); 
+        double yVel = (Math.abs(leftX) > 0.15 ? leftX : 0.0);
+        double thetaVel = (Math.abs(rightX) > 0.20 ? -rightX * thetaSpeed : 0.0);
         xVel = -Math.signum(xVel) * Math.pow(xVel,2) * translationalSpeed ;//square input while preserving sign
         yVel = -Math.signum(yVel) * Math.pow(yVel,2) * translationalSpeed ;
 
@@ -67,8 +73,6 @@ public class ActualXboxTeleopDrive extends Command {
         } else{
             isHeadingSet = false;
         }*/
-        SmartDashboard.putString("DriveOut", xVel + " " + yVel + " " + thetaVel);
-
         drivetrain.drive(
              isRobotRelative ? new ChassisSpeeds(xVel, yVel, thetaVel)
             : ChassisSpeeds.fromFieldRelativeSpeeds(xVel, yVel, thetaVel, drivetrain.getRobotAngle())

@@ -194,7 +194,7 @@ public class SwerveDrive extends SubsystemBase{
         //SmartDashboard.putNumber("supposedDistance", endPointX - startPointX);
         //SmartDashboard.putNumber("rotationPosition", gyro.getAngle());
         //SmartDashboard.putNumber("relativeSpeed", getRobotRelativeSpeeds().omegaRadiansPerSecond);
-        SmartDashboard.putNumber("estimatedPositionX", endPointX - odometry.getEstimatedPosition().getX());
+        /*SmartDashboard.putNumber("estimatedPositionX", endPointX - odometry.getEstimatedPosition().getX());
         SmartDashboard.putNumber("estimatedAngle", getRobotAngle().getDegrees() - 180);
         SmartDashboard.putNumber("estimatedPositionY", 7.009701728820801 - odometry.getEstimatedPosition().getY());
         SmartDashboard.putNumber("Gyro angle:", getRobotAngle().getDegrees()%360);
@@ -202,7 +202,7 @@ public class SwerveDrive extends SubsystemBase{
         SmartDashboard.putNumber("moduleSpeed0", modules.get(0).getRelativeVel());
         SmartDashboard.putNumber("moduleSpeed1", modules.get(1).getRelativeVel());
         SmartDashboard.putNumber("moduleSpeed2", modules.get(2).getRelativeVel());
-        SmartDashboard.putNumber("moduleSpeed3", modules.get(3).getRelativeVel());
+        SmartDashboard.putNumber("moduleSpeed3", modules.get(3).getRelativeVel());*/
 
         SmartDashboard.putNumber("", 0);
         if (isClosedLoop){
@@ -298,7 +298,6 @@ public class SwerveDrive extends SubsystemBase{
         //SmartDashboard.putNumber("gyroAngle", gyro.getRotation2d().getDegrees());//getRotation2d().getDegrees()%360
         SmartDashboard.putBoolean("isGyroConnected", gyro.isConnected());
         //SmartDashboard.putNumber("CalcThetaVel", getRobotRelativeSpeeds().omegaRadiansPerSecond);
-        SmartDashboard.putNumber("e", 0);
        // SmartDashboard.putNumber("setXVel", lastSetChassisSpeeds.vxMetersPerSecond);
         //SmartDashboard.putNumber("setYVel", lastSetChassisSpeeds.vyMetersPerSecond);
         if(moduleLevel){

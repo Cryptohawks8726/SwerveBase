@@ -21,12 +21,12 @@ public final class Constants {
         Comp2024(),PracticeBot();
     }
     public static final boolean demoMode = false;
-    public static final DriveBase driveBase = DriveBase.PracticeBot;
+    public static final DriveBase driveBase = DriveBase.Comp2024;
     public static final class Swerve {
         
         // Physical Constants
-        public static final double driveBaseWidth = 0.762;
-        public static final double driveBaseLength = 0.762; //meters
+        public static final double driveBaseWidth = (driveBase.equals(DriveBase.PracticeBot)) ? 0.762 : 0.4445;
+        public static final double driveBaseLength = (driveBase.equals(DriveBase.PracticeBot)) ? 0.762 : 0.4445; //meters
         public static final double driveGearRatio = 6.12; // L3
         public static final double steerGearRatio = 12.8; 
         public static final double wheelDiameterMeters = 0.1016;//0.098; // Measure and check later. Compensating for tread wear over comp could be cool
@@ -81,10 +81,46 @@ public final class Constants {
 
             Mod{modPos,driveMotorid,steerMotorid,cancoderid,displacment(x,y),drive kV, drive kS}
             */
-            FR(ModulePosition.FR,10,11,12,(driveBase.equals(DriveBase.PracticeBot)) ? -7.029375 :-256.5,new Transform2d(new Translation2d(driveBaseLength/2,-driveBaseWidth/2),new Rotation2d()),(driveBase.equals(DriveBase.PracticeBot)) ? 2.443 : 2.4,(driveBase.equals(DriveBase.PracticeBot)) ?.25:0.0), 
-            BR(ModulePosition.BR,20,21,22,(driveBase.equals(DriveBase.PracticeBot)) ? 86.302734 :-29.61914,new Transform2d(new Translation2d(-driveBaseLength/2,-driveBaseWidth/2),new Rotation2d()),(driveBase.equals(DriveBase.PracticeBot)) ? 2.409: 2.4,(driveBase.equals(DriveBase.PracticeBot)) ? .15 : 0),
-            BL(ModulePosition.BL,30,31,32,(driveBase.equals(DriveBase.PracticeBot)) ? -103.614375 :-111.5332,new Transform2d(new Translation2d(-driveBaseLength/2,driveBaseWidth/2),new Rotation2d()),(driveBase.equals(DriveBase.PracticeBot)) ? 2.413 : 2.4,(driveBase.equals(DriveBase.PracticeBot)) ? .25 : 0.0),
-            FL(ModulePosition.FL,40,41,42,(driveBase.equals(DriveBase.PracticeBot)) ? 112.154688 :-238.008,new Transform2d(new Translation2d(driveBaseLength/2,driveBaseWidth/2),new Rotation2d()),(driveBase.equals(DriveBase.PracticeBot)) ? 2.387 : 2.4,(driveBase.equals(DriveBase.PracticeBot)) ?.23 : 0.0); 
+            FR(ModulePosition.FR,
+            (driveBase.equals(DriveBase.PracticeBot)) ? 10 : 20,
+            (driveBase.equals(DriveBase.PracticeBot)) ? 11 : 21,
+            (driveBase.equals(DriveBase.PracticeBot)) ? 12 : 22,
+            (driveBase.equals(DriveBase.PracticeBot)) ? -7.029375 :180-29.61914,
+            new Transform2d(new Translation2d(driveBaseLength/2,-driveBaseWidth/2),
+            new Rotation2d()),
+            (driveBase.equals(DriveBase.PracticeBot)) ? 2.443 : 2.4,
+            (driveBase.equals(DriveBase.PracticeBot)) ?.25:0.0
+            ), 
+            BR(ModulePosition.BR,
+            (driveBase.equals(DriveBase.PracticeBot)) ? 20 : 10,
+            (driveBase.equals(DriveBase.PracticeBot)) ? 21 : 11,
+            (driveBase.equals(DriveBase.PracticeBot)) ? 22 : 12,
+            (driveBase.equals(DriveBase.PracticeBot)) ? 86.302734 :270-256.5,
+            new Transform2d(new Translation2d(-driveBaseLength/2,-driveBaseWidth/2),
+            new Rotation2d()),
+            (driveBase.equals(DriveBase.PracticeBot)) ? 2.409: 2.4,
+            (driveBase.equals(DriveBase.PracticeBot)) ? .15 : 0
+            ),
+            BL(ModulePosition.BL,
+            (driveBase.equals(DriveBase.PracticeBot)) ? 30 : 40,
+            (driveBase.equals(DriveBase.PracticeBot)) ? 31 : 41,
+            (driveBase.equals(DriveBase.PracticeBot)) ? 32 : 42,
+            (driveBase.equals(DriveBase.PracticeBot)) ? -103.614375 :-238.008+180 ,
+            new Transform2d(new Translation2d(-driveBaseLength/2,driveBaseWidth/2),
+            new Rotation2d()),
+            (driveBase.equals(DriveBase.PracticeBot)) ? 2.413 : 2.4,
+            (driveBase.equals(DriveBase.PracticeBot)) ? .25 : 0.0
+            ),
+            FL(ModulePosition.FL,
+            (driveBase.equals(DriveBase.PracticeBot)) ? 40 : 30,
+            (driveBase.equals(DriveBase.PracticeBot)) ? 41 : 31,
+            (driveBase.equals(DriveBase.PracticeBot)) ? 42 : 32,
+            (driveBase.equals(DriveBase.PracticeBot)) ? 112.154688 :-111.5332,
+            new Transform2d(new Translation2d(driveBaseLength/2,driveBaseWidth/2),
+            new Rotation2d()),
+            (driveBase.equals(DriveBase.PracticeBot)) ? 2.387 : 2.4,
+            (driveBase.equals(DriveBase.PracticeBot)) ?.23 : 0.0
+            ); 
             
             public final ModulePosition modPos;
             public final int driveMotorid;
