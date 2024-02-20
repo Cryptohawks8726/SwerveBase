@@ -27,14 +27,14 @@ public class ArmSubsystem extends SubsystemBase implements BooleanSupplier {
     double speakerHeight = 1.9812; // in meters
     double absEncoderOffset = 128.7233920;
     // TODO: get constants
-    double kp = 1;
+    double kp = 0.0;
     double ki = 0;
     double kd = 0;
 
     double ks = 0;
-    double kg = 0.5;
-    double kv = 0;
-    double ka = 0;
+    double kg = 0.33;
+    double kv = 3.62;
+    double ka = 0.02;
 
     CANSparkMax motorController = new CANSparkMax(deviceId, MotorType.kBrushless); // motor controller
     CANSparkMax motorController2 = new CANSparkMax(deviceId2, MotorType.kBrushless); // secondary motor
