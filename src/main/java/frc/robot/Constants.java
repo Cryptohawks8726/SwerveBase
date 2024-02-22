@@ -145,4 +145,16 @@ public final class Constants {
         }
       
     }
+
+    public final class Arm{
+        public static final int leftMotorId = 51;
+        public static final int rightMotorId = 50;
+    }
+
+    public final class Climber{
+        public static final int winchMotorId = 52;
+        public static final int freeCurrentLimit = 80;
+        public static final int stallCurrentLimit = 50; //Survives 160s test https://cdn11.bigcommerce.com/s-t3eo8vwp22/product_images/uploaded_images/neo-stall-data-at-50a-limit.png
+        public static final double currentSenseLimit = 0.0;
+    }
 }
