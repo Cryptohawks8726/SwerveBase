@@ -60,6 +60,7 @@ public class ArmSubsystem extends SubsystemBase implements BooleanSupplier {
 
         motorController.setInverted(true);
         motorController2.setInverted(false);
+
         pidController.setGoal(toRads(getArmAngle()));
     }
 
@@ -89,7 +90,7 @@ public class ArmSubsystem extends SubsystemBase implements BooleanSupplier {
 
     @Override
     public boolean getAsBoolean() { // will check if the arm angle is at the setpoint periodically
-        if (Math.abs(getArmAngle()-pidController.getGoal().position) < 5) {
+        if (Math.abs(getArmAngleRad()-pidController.getGoal().position) < toRads(5)) {
             return true;
         } else {
             return false;
@@ -105,6 +106,10 @@ public class ArmSubsystem extends SubsystemBase implements BooleanSupplier {
      */
     public double getArmAngle() {
         return absoluteEncoder.getPosition();
+    }
+
+    public double getArmAngleRad() {
+        return toRads(absoluteEncoder.getPosition());
     }
 
     /**
