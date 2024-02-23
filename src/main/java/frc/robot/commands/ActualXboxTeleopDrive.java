@@ -54,20 +54,20 @@ public class ActualXboxTeleopDrive extends Command {
         yVel = -Math.signum(yVel) * Math.pow(yVel,2) * translationalSpeed ;
 
         // maintain heading if there's no rotational input
-        /*if (thetaVel == 0.0 && ((Math.abs(xVel)>0.2) ||(Math.abs(yVel)>0.2))){
+        /*if (Math.abs(thetaVel) <0.05 && ((Math.abs(xVel)>0.2) ||(Math.abs(yVel)>0.2))){
             if (isHeadingSet == false){
                 headingPID.reset();
                 isHeadingSet = true;
                 lastHeading = drivetrain.gyro.getYaw()+180%360;
                 headingPID.setSetpoint(lastHeading);
-                thetaVel = headingPID.calculate(drivetrain.gyro.getYaw()+180%360);
+                thetaVel = headingPID.calculate(drivetrain.gyro.getYaw()+180%360);  
              }else{
                 thetaVel = headingPID.calculate(drivetrain.gyro.getYaw()+180%360);
             }
         } else{
             isHeadingSet = false;
-        }*/
-        SmartDashboard.putString("DriveOut", xVel + " " + yVel + " " + thetaVel);
+        }
+        SmartDashboard.putString("DriveOut", xVel + " " + yVel + " " + thetaVel);*/
 
         drivetrain.drive(
              isRobotRelative ? new ChassisSpeeds(xVel, yVel, thetaVel)

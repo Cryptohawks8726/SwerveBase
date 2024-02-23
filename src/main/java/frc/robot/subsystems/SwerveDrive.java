@@ -33,6 +33,11 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.util.datalog.StringLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 
 
 public class SwerveDrive extends SubsystemBase{
@@ -45,6 +50,21 @@ public class SwerveDrive extends SubsystemBase{
     private SwerveDriveKinematics kinematics;
     public SwerveDrivePoseEstimator odometry;
     public AHRS gyro;
+    private DoubleLogEntry log;
+    private DoubleLogEntry setModuleAngle0;
+    private DoubleLogEntry setModuleAngle1;
+    private DoubleLogEntry setModuleAngle2;
+    private DoubleLogEntry setModuleAngle3;
+    private DoubleLogEntry getModuleAngle0;
+    private DoubleLogEntry getModuleAngle1;
+    private DoubleLogEntry getModuleAngle2;
+    private DoubleLogEntry getModuleAngle3;
+    private DoubleLogEntry odometryAngle;
+    private DoubleLogEntry getModuleSpeed;
+    private DoubleLogEntry setModuleSpeed0;
+    private DoubleLogEntry setModuleSpeed1;
+    private DoubleLogEntry setModuleSpeed2;
+    private DoubleLogEntry setModuleSpeed3;
 
     private Field2d field; 
     private FieldObject2d[] modPoses;
@@ -82,6 +102,26 @@ public class SwerveDrive extends SubsystemBase{
         // TODO: check for 2024 version
         //gyro.calibrate(); // possibly move to avoid the robot being moved during calibration        
         // simGyro = new AnalogGyroSim(0);
+
+        DataLogManager.start();
+
+        // Set up custom log entries
+        DataLog logs = DataLogManager.getLog();
+        /*setModuleAngle0 = new DoubleLogEntry(log, "setModuleAngle0");
+        setModuleAngle1 = new DoubleLogEntry(log, "setModuleAngle1");
+        setModuleAngle2 = new DoubleLogEntry(log, "setModuleAngle2");
+        setModuleAngle3 = new DoubleLogEntry(log, "setModuleAngle3");
+        getModuleAngle0 = new DoubleLogEntry(log, "getModuleAngle0");
+        getModuleAngle1 = new DoubleLogEntry(log, "getModuleAngle1");
+        getModuleAngle2 = new DoubleLogEntry(log, "getModuleAngle2");
+        getModuleAngle3 = new DoubleLogEntry(log, "getModuleAngle3");
+        odometryAngle = new DoubleLogEntry(log, "odometryAngle");
+        getModuleSpeed = new DoubleLogEntry(log, "getModuleSpeed");
+        setModuleSpeed0 = new DoubleLogEntry(log, "setModuleSpeed0");
+        setModuleSpeed1 = new DoubleLogEntry(log, "setModuleSpeed1");
+        setModuleSpeed2 = new DoubleLogEntry(log, "setModuleSpeed2");
+        setModuleSpeed3 = new DoubleLogEntry(log, "setModuleSpeed3");*/
+        log = new DoubleLogEntry(logs, "loggings");
         
         odometry = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), modPositionStates, new Pose2d()); 
         
@@ -103,7 +143,7 @@ public class SwerveDrive extends SubsystemBase{
             this::drive, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
                     new PIDConstants(5, 0.0, 0), // Translation PID constants
-                    new PIDConstants(5, 0, 1), // Rotation PID constants
+                    new PIDConstants(4, 0, 0), // Rotation PID constants
                     4.5, // Mgax module speed, in m/s
                     Constants.Swerve.driveBaseLength/2, // Drive base radius in meters. Distance from robot center to furthest module.
                     new ReplanningConfig() // Default path replanning config. See the API for the options here
@@ -146,6 +186,24 @@ public class SwerveDrive extends SubsystemBase{
         }*/
         
         logValues(true);
+
+        
+        SmartDashboard.putNumber("estimatedRobotAngle", getRobotAngle().getDegrees());
+        SmartDashboard.putNumber("module0Angle", modules.get(0).getAngle());
+        SmartDashboard.putNumber("module1Angle", modules.get(1).getAngle());
+        SmartDashboard.putNumber("module2Angle", modules.get(2).getAngle());
+        SmartDashboard.putNumber("module3Angle", modules.get(3).getAngle());
+        SmartDashboard.putNumber("module0EstAngle", modules.get(0).getSetStateAngle());
+        SmartDashboard.putNumber("module1EstAngle", modules.get(1).getSetStateAngle());
+        SmartDashboard.putNumber("module2EstAngle", modules.get(2).getSetStateAngle());
+        SmartDashboard.putNumber("module3EstAngle", modules.get(3).getSetStateAngle());
+        SmartDashboard.putNumber("module0RelVel", modules.get(0).getRelativeVel());
+        SmartDashboard.putNumber("module1RelVel", modules.get(1).getRelativeVel());
+        SmartDashboard.putNumber("module2RelVel", modules.get(2).getRelativeVel());
+        SmartDashboard.putNumber("module3RelVel", modules.get(3).getRelativeVel());
+        SmartDashboard.putNumber("relativeSpeed", getRobotRelativeSpeeds().omegaRadiansPerSecond);
+        SmartDashboard.putNumber("actualRobotAngle", -gyro.getAngle());//gyro.getRotation2d().getDegrees()
+        SmartDashboard.putNumber("angleError", gyro.getAngle() + 180);
 
     }
     /* 
@@ -191,18 +249,51 @@ public class SwerveDrive extends SubsystemBase{
         double endPointY = 7.009701728820801;
         double startPointY = 7.009701728820801;
 
-        //SmartDashboard.putNumber("supposedDistance", endPointX - startPointX);
-        //SmartDashboard.putNumber("rotationPosition", gyro.getAngle());
-        //SmartDashboard.putNumber("relativeSpeed", getRobotRelativeSpeeds().omegaRadiansPerSecond);
-        SmartDashboard.putNumber("estimatedPositionX", endPointX - odometry.getEstimatedPosition().getX());
-        SmartDashboard.putNumber("estimatedAngle",  270 - getRobotAngle().getDegrees());
-        SmartDashboard.putNumber("estimatedPositionY", 7.009701728820801 - odometry.getEstimatedPosition().getY());
-        SmartDashboard.putNumber("Gyro angle:", getRobotAngle().getDegrees()%360);
+
+
+        //SmartDashboard.putNumber("OdometryAngle", ));
+        /*SmartDashboard.putNumber("Gyro angle:", getRobotAngle().getDegrees()%360);
+        SmartDashboard.putNumber("AngleModule0", modules.get(0).getAngle());
+        SmartDashboard.putNumber("AngleModule1", modules.get(1).getAngle());
+        SmartDashboard.putNumber("AngleModule2", modules.get(2).getAngle());
+        SmartDashboard.putNumber("AngleModule3", modules.get(3).getAngle());
+        SmartDashboard.putNumber("setAngleModule0", modules.get(0).getSetStateAngle());
+        SmartDashboard.putNumber("setAngleModule1", modules.get(1).getSetStateAngle());
+        SmartDashboard.putNumber("setAngleModule2", modules.get(2).getSetStateAngle());
+        SmartDashboard.putNumber("setAngleModule3", modules.get(3).getSetStateAngle());
         
+
+        SmartDashboard.putNumber("estimatedModuleSpeed", getRobotRelativeSpeeds().omegaRadiansPerSecond);
         SmartDashboard.putNumber("moduleSpeed0", modules.get(0).getRelativeVel());
         SmartDashboard.putNumber("moduleSpeed1", modules.get(1).getRelativeVel());
         SmartDashboard.putNumber("moduleSpeed2", modules.get(2).getRelativeVel());
-        SmartDashboard.putNumber("moduleSpeed3", modules.get(3).getRelativeVel());
+        SmartDashboard.putNumber("moduleSpeed3", modules.get(3).getRelativeVel());*/
+
+
+        /*odometryAngle.append(odometry.getEstimatedPosition().getRotation().getDegrees());
+        getModuleAngle0.append(modules.get(0).getAngle());
+        getModuleAngle1.append(modules.get(1).getAngle());
+        getModuleAngle2.append(modules.get(2).getAngle());
+        getModuleAngle3.append(modules.get(3).getAngle());
+        setModuleAngle0.append(modules.get(0).getSetStateAngle());
+        setModuleAngle1.append(modules.get(1).getSetStateAngle());
+        setModuleAngle2.append(modules.get(2).getSetStateAngle());
+        setModuleAngle3.append(modules.get(3).getSetStateAngle());
+        setModuleSpeed0.append(modules.get(0).getRelativeVel());
+        setModuleSpeed1.append(modules.get(1).getRelativeVel());
+        setModuleSpeed2.append(modules.get(2).getRelativeVel());
+        setModuleSpeed3.append(modules.get(3).getRelativeVel());
+        getModuleSpeed.append(getRobotRelativeSpeeds().omegaRadiansPerSecond);*/
+
+        //SmartDashboard.putNumber("supposedDistance", endPointX - startPointX);
+        //SmartDashboard.putNumber("rotationPosition", gyro.getAngle());
+        //SmartDashboard.putNumber("expectedGyroAngle", odometry.getEstimatedPosition().getRotation().getDegrees());
+        //SmartDashboard.putNumber("relativeSpeed", getRobotRelativeSpeeds().omegaRadiansPerSecond);
+        //SmartDashboard.putNumber("estimatedPositionX", endPointX - odometry.getEstimatedPosition().getX());
+        //SmartDashboard.putNumber("actualAngleError",  180 - getRobotAngle().getDegrees());        
+        //SmartDashboard.putNumber("estimatedAngleError",  180 - odometry.getEstimatedPosition().getRotation().getDegrees());
+        //SmartDashboard.putNumber("estimatedPositionY", 7.009701728820801 - odometry.getEstimatedPosition().getY());
+
 
         SmartDashboard.putNumber("", 0);
         if (isClosedLoop){
@@ -249,7 +340,7 @@ public class SwerveDrive extends SubsystemBase{
 
     public void resetOdometry(Pose2d pose) {
         odometry.resetPosition(Rotation2d.fromDegrees(0.0), getSwerveModulePositions(), pose);
-        SmartDashboard.putNumber("resetOdometryAngle",gyro.getRotation2d().getDegrees()%360);
+        //SmartDashboard.putNumber("resetOdometryAngle",gyro.getRotation2d().getDegrees()%360);
 
         gyro.setAngleAdjustment(gyro.getRotation2d().getDegrees()%360);
  
@@ -292,23 +383,26 @@ public class SwerveDrive extends SubsystemBase{
     public void logValues(boolean moduleLevel){ 
         Pose2d estimatedPostition = odometry.getEstimatedPosition();
 
-        SmartDashboard.putNumber("xpos", estimatedPostition.getTranslation().getX());
-        SmartDashboard.putNumber("ypos", estimatedPostition.getTranslation().getY());
+
+        
+
+        //SmartDashboard.putNumber("xpos", estimatedPostition.getTranslation().getX());
+        //SmartDashboard.putNumber("ypos", estimatedPostition.getTranslation().getY());
         //SmartDashboard.putNumber("estimatedthetaPos",estimatedPostition.getRotation().getDegrees());
         //SmartDashboard.putNumber("gyroAngle", gyro.getRotation2d().getDegrees());//getRotation2d().getDegrees()%360
-        SmartDashboard.putBoolean("isGyroConnected", gyro.isConnected());
+        //SmartDashboard.putBoolean("isGyroConnected", gyro.isConnected());
         //SmartDashboard.putNumber("CalcThetaVel", getRobotRelativeSpeeds().omegaRadiansPerSecond);
-        SmartDashboard.putNumber("e", 0);
+        //SmartDashboard.putNumber("e", 0);
        // SmartDashboard.putNumber("setXVel", lastSetChassisSpeeds.vxMetersPerSecond);
         //SmartDashboard.putNumber("setYVel", lastSetChassisSpeeds.vyMetersPerSecond);
         if(moduleLevel){
             for (SwerveModule module : modules) {
                 String modName = module.getModPos().toString();
                 module.seedRelativeEncoder();
-                SmartDashboard.putNumber(modName + "setvel", module.getLastSetState().speedMetersPerSecond);
-                SmartDashboard.putNumber(modName + "actvel", module.getCurrentState().speedMetersPerSecond);
-                SmartDashboard.putNumber(modName + "setdeg", module.getSetStateAngle());
-                SmartDashboard.putNumber(modName + "actdeg", module.getCurrentState().angle.getDegrees());
+                //SmartDashboard.putNumber(modName + "setvel", module.getLastSetState().speedMetersPerSecond);
+                //SmartDashboard.putNumber(modName + "actvel", module.getCurrentState().speedMetersPerSecond);
+                //SmartDashboard.putNumber(modName + "setdeg", module.getSetStateAngle());
+                //SmartDashboard.putNumber(modName + "actdeg", module.getCurrentState().angle.getDegrees());
                 
             // SmartDashboard.putNumber(modName + "absdeg", module.getAbsPos());
             //  SmartDashboard.putNumber(modName + "built in steer", module.getRelativePos());
