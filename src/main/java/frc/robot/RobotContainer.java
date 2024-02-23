@@ -95,11 +95,10 @@ public class RobotContainer {
 
     // Create a path following command using AutoBuilder. This will also trigger event markers.
 
-    SmartDashboard.putNumber("e", 1);
-    drivetrain.setOdometryPosition(new Pose2d(3.3835394382476807, 7.026157379150391, new Rotation2d(0)));
+    drivetrain.setOdometryPosition(new Pose2d(3.3835394382476807, 7.026157379150391, new Rotation2d(0))); //the starting position of the robot
     SmartDashboard.putNumber("Gyro angle:", drivetrain.getRobotAngle().getDegrees()%360);
     PathPlannerPath exampleChoreoTraj = PathPlannerPath.fromChoreoTrajectory("Path4");
-
+  
     
     return AutoBuilder.followPath(exampleChoreoTraj);
 
