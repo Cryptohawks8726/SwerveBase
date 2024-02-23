@@ -16,13 +16,13 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
-import frc.robot.Constants;
+import frc.robot.Constants.Shooter;
 
-public class Shooter extends SubsystemBase {
+public class ShooterSubsystem extends SubsystemBase {
     
-    private final CANSparkMax conveyorMotor = new CANSparkMax(Constants.Shooter.conveyorMotorId, MotorType.kBrushless);
-    public final CANSparkMax topFlywheelMotor = new CANSparkMax(Constants.Shooter.topMotorId, MotorType.kBrushless);
-    public final CANSparkMax bottomFlywheelMotor = new CANSparkMax(Constants.Shooter.bottomMotorId, MotorType.kBrushless);
+    private final CANSparkMax conveyorMotor = new CANSparkMax(Shooter.conveyorMotorId, MotorType.kBrushless);
+    public final CANSparkMax topFlywheelMotor = new CANSparkMax(Shooter.topMotorId, MotorType.kBrushless);
+    public final CANSparkMax bottomFlywheelMotor = new CANSparkMax(Shooter.bottomMotorId, MotorType.kBrushless);
     private final RelativeEncoder topFlywheelEncoder = topFlywheelMotor.getEncoder();
     private final RelativeEncoder bottomFlywheelEncoder = bottomFlywheelMotor.getEncoder();
 
@@ -45,7 +45,7 @@ public class Shooter extends SubsystemBase {
     SparkPIDController topPID = topFlywheelMotor.getPIDController();
     SparkPIDController bottomPID = bottomFlywheelMotor.getPIDController();
 
-    private DigitalInput beamBreakSensor = new DigitalInput(Constants.Shooter.beamBreakReceiverPort); // TODO: Wire the emitter to signal - ground to allow
+    private DigitalInput beamBreakSensor = new DigitalInput(Shooter.beamBreakReceiverPort); // TODO: Wire the emitter to signal - ground to allow
                                                                 // for self-tests of the sensor
 
     // Enum for potential motor states, used when modifying motor states via
@@ -65,7 +65,7 @@ public class Shooter extends SubsystemBase {
      */
 
     // Configures flywheel motors
-    public Shooter() {
+    public ShooterSubsystem() {
 
         topPID.setFF(kV);
         bottomPID.setFF(kV);

@@ -10,9 +10,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
-import frc.robot.Constants;
+import frc.robot.Constants.Climber;;
 
-public class Climber extends SubsystemBase {
+public class ClimberSubsystem extends SubsystemBase {
     private CANSparkMax winchMotor;
     private RelativeEncoder winchEncoder;
     private double startRev;
@@ -22,10 +22,10 @@ public class Climber extends SubsystemBase {
      * 
      * @return The climber subsystem
      */
-    public Climber() {
-        winchMotor = new CANSparkMax(Constants.Climber.winchMotorId, MotorType.kBrushless);
+    public ClimberSubsystem() {
+        winchMotor = new CANSparkMax(Climber.winchMotorId, MotorType.kBrushless);
         winchMotor.enableVoltageCompensation(12.0);
-        winchMotor.setSmartCurrentLimit(Constants.Climber.stallCurrentLimit, Constants.Climber.freeCurrentLimit);
+        winchMotor.setSmartCurrentLimit(Climber.stallCurrentLimit, Climber.freeCurrentLimit);
 
         winchEncoder = winchMotor.getEncoder();
     }

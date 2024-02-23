@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -149,7 +150,25 @@ public final class Constants {
     public final class Arm{
         public static final int leftMotorId = 51;
         public static final int rightMotorId = 50;
-        // TODO: add gains and current limits after verification
+        public static final double absEncoderOffset = 124.7233920;
+        // TODO: add gains and current limits after verification    
+        public static final double kP = 0.0;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+
+        public static final double kS = 0.0;
+        public static final double kG = 0.0;
+        public static final double kV = 0.0;
+        public static final double kA = 0.0;
+
+        public static final double maxVelRads = 0.3;
+        public static final double maxAccelRads = 0.085;
+
+
+
+        public static final State intakeState = new State(Math.toRadians(6.98), 0);
+        public static final State ampState = new State(Math.toRadians(113), 0);//No clue if this is accurate
+        public static final State sourceState = new State(Math.toRadians(120),0);//Also no clue
     }
 
     public final class Climber{
@@ -166,6 +185,11 @@ public final class Constants {
         public static final int beamBreakReceiverPort = 3;
         public static final int beamBreakEmitterPort = 5;
         // TODO: add gains and current limits after verification
+    }
+
+    public final class Field{
+        public static final double speakerHeight = 5.9812; // in meters
+
     }
 }
 

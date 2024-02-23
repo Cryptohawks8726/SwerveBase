@@ -13,25 +13,29 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.Arm;
 import frc.robot.commands.ActualXboxTeleopDrive;
 import frc.robot.subsystems.SwerveDrive;
-import frc.robot.subsystems.Climber;
-import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.ArmSubsystem;
 
 public class RobotContainer {
 
   private final CommandXboxController driverController;
   private final CommandXboxController operatorController;
   private final SwerveDrive drivetrain;
-  private final Shooter shooterSubsystem;
-  private final Climber climberSubsytem;
+  private final ShooterSubsystem shooter;
+  private final ClimberSubsystem climber;
+  private final ArmSubsystem arm;
 
   public RobotContainer() {
 
     Unmanaged.setPhoenixDiagnosticsStartTime(-1);
     drivetrain = new SwerveDrive();
-    shooterSubsystem = new Shooter();
-    climberSubsytem = new Climber();
+    shooter = new ShooterSubsystem();
+    climber = new ClimberSubsystem();
+    arm = new ArmSubsystem();
     
     driverController = new CommandXboxController(0);
     operatorController = new CommandXboxController(1);
@@ -43,12 +47,16 @@ public class RobotContainer {
 
     drivetrain.setDefaultCommand(new ActualXboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
     
-    operatorController.a().onTrue(shooterSubsystem.startIntake());
-    operatorController.x().onTrue(shooterSubsystem.fireNote(false));//TODO pass in arm state check
-    operatorController.b().onTrue(shooterSubsystem.fireNote(true));
+    operatorController.leftTrigger().onTrue(shooter.startIntake());
+    operatorController.rightTrigger().onTrue(shooter.fireNote(arm.atStatePos(Arm.ampState)));
 
-    operatorController.back().onTrue(climberSubsytem.releaseClimber());
-    operatorController.start().onTrue(climberSubsytem.climb());
+
+    operatorController.a().onTrue(arm.rotateToState(Arm.intakeState));
+    operatorController.b().onTrue(arm.rotateToState(Arm.ampState));
+    operatorController.y().onTrue(arm.rotateToState(Arm.sourceState));
+
+    operatorController.back().onTrue(climber.releaseClimber());
+    operatorController.start().onTrue(climber.climb());
     
   }
 
