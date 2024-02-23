@@ -4,71 +4,49 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.unmanaged.UnmanagedJNI;
 import com.ctre.phoenix6.unmanaged.Unmanaged;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.FollowPathHolonomic;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.commands.ActualXboxTeleopDrive;
-import frc.robot.subsystems.SwerveDrive;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
-import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.SwerveModule;
+import frc.robot.commands.ActualXboxTeleopDrive;
+import frc.robot.subsystems.SwerveDrive;
+import frc.robot.subsystems.Shooter;
 
 public class RobotContainer {
 
-  private final SwerveDrive drivetrain;
   private final CommandXboxController driverController;
+  private final CommandXboxController operatorController;
+  private final SwerveDrive drivetrain;
+  private Shooter shooterSubsystem;
 
   public RobotContainer() {
 
     Unmanaged.setPhoenixDiagnosticsStartTime(-1);
     drivetrain = new SwerveDrive();
+    shooterSubsystem = new Shooter();
     driverController = new CommandXboxController(0);
+    operatorController = new CommandXboxController(1);
 
-    configureButtonBindings();
+    configureBindings();
   }
 
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureButtonBindings() {
+  private void configureBindings() {
+
     drivetrain.setDefaultCommand(new ActualXboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
     
-    driverController.a().onTrue(drivetrain.resetGyroAngle());
-
-    // Trigger driverRightBumper = driverController.rightBumper();
-    // driverRightBumper.whileTrue(drivetrain.passiveBrake());
-
+    operatorController.a().onTrue(shooterSubsystem.startIntake());
+    operatorController.x().onTrue(shooterSubsystem.fireNote(false));//TODO pass in arm state check
+    operatorController.b().onTrue(shooterSubsystem.fireNote(true));
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
   public Command getAutonomousCommand() {
     if(!Constants.demoMode){
-    // An ExampleCommand will run in autonomou`s
+    // An ExampleCommand will run in autonomous
     PathPlannerPath path = PathPlannerPath.fromPathFile("Test1");
 
     // Create a path following command using AutoBuilder. This will also trigger event markers.

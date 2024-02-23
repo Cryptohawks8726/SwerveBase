@@ -149,6 +149,7 @@ public final class Constants {
     public final class Arm{
         public static final int leftMotorId = 51;
         public static final int rightMotorId = 50;
+        // TODO: add gains and current limits after verification
     }
 
     public final class Climber{
@@ -157,4 +158,15 @@ public final class Constants {
         public static final int stallCurrentLimit = 50; //Survives 160s test https://cdn11.bigcommerce.com/s-t3eo8vwp22/product_images/uploaded_images/neo-stall-data-at-50a-limit.png
         public static final double currentSenseLimit = 0.0;
     }
+
+    public final class Shooter{
+        public static final int topMotorId = 62;
+        public static final int bottomMotorId = 61;
+        public static final int conveyorMotorId = 60;
+        public static final int beamBreakReceiverPort = 3;
+        public static final int beamBreakEmitterPort = 5;
+        // TODO: add gains and current limits after verification
+    }
 }
+
+
