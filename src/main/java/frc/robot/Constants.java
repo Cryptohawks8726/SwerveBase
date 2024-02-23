@@ -37,7 +37,7 @@ public final class Constants {
         public static final double driverThetaDeadband = 0.05;
         public static final double driverTranslationDeadband = 1;
         // Electrical Constants
-        public static final int  driveMotorFreeCurrentLimit = 40;
+        public static final int  driveMotorFreeCurrentLimit = 40; // TODO raise these and observe max speed differences
         public static final int  driveMotorStallCurrentLimit = 30;
         public static final int  steerMotorFreeCurrentLimit = 30;
 
@@ -153,7 +153,7 @@ public final class Constants {
 
     public final class Climber{
         public static final int winchMotorId = 52;
-        public static final int freeCurrentLimit = 80;
+        public static final int freeCurrentLimit = 80; //TODO Check current draw and adjust limits as needed
         public static final int stallCurrentLimit = 50; //Survives 160s test https://cdn11.bigcommerce.com/s-t3eo8vwp22/product_images/uploaded_images/neo-stall-data-at-50a-limit.png
         public static final double currentSenseLimit = 0.0;
     }
