@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.ActualXboxTeleopDrive;
 import frc.robot.subsystems.SwerveDrive;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Shooter;
 
 public class RobotContainer {
@@ -22,13 +23,16 @@ public class RobotContainer {
   private final CommandXboxController driverController;
   private final CommandXboxController operatorController;
   private final SwerveDrive drivetrain;
-  private Shooter shooterSubsystem;
+  private final Shooter shooterSubsystem;
+  private final Climber climberSubsytem;
 
   public RobotContainer() {
 
     Unmanaged.setPhoenixDiagnosticsStartTime(-1);
     drivetrain = new SwerveDrive();
     shooterSubsystem = new Shooter();
+    climberSubsytem = new Climber();
+    
     driverController = new CommandXboxController(0);
     operatorController = new CommandXboxController(1);
 
@@ -42,6 +46,10 @@ public class RobotContainer {
     operatorController.a().onTrue(shooterSubsystem.startIntake());
     operatorController.x().onTrue(shooterSubsystem.fireNote(false));//TODO pass in arm state check
     operatorController.b().onTrue(shooterSubsystem.fireNote(true));
+
+    operatorController.back().onTrue(climberSubsytem.releaseClimber());
+    operatorController.start().onTrue(climberSubsytem.climb());
+    
   }
 
   public Command getAutonomousCommand() {
