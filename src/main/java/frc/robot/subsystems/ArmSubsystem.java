@@ -25,12 +25,12 @@ public class ArmSubsystem extends SubsystemBase{
     double shooterVel = 14; // TODO: get initial velocity of shooter
     double maxAmpAngle = 121.5;
    
-    double kp = 0.5;//
+    double kp = 2.0;//
     double ki = 0;
     double kd = 0;
 
     double ks = 0.135;
-    double kg = 0.33; //0.33
+    double kg = 0.22; //0.33
     double kv = 3.62; //3.62
     double ka = 0; //0.02
     private final double DEG_TO_RAD = 0.017453292519943295; 
@@ -46,7 +46,7 @@ public class ArmSubsystem extends SubsystemBase{
 
     private State calculateAngleState = new State(0, 0); // will be changed based on calculated angle
     private State goal = new State(); // will be changed to reflect current goal
-    
+    private double t;
 
     public ArmSubsystem() {
         absoluteEncoder.setPositionConversionFactor(360);
@@ -54,23 +54,25 @@ public class ArmSubsystem extends SubsystemBase{
         absoluteEncoder.setZeroOffset(Arm.absEncoderOffset);
         absoluteEncoder.setInverted(true);
 
-        motorController.setIdleMode(IdleMode.kBrake); 
-        motorController2.setIdleMode(IdleMode.kBrake);
+        motorController.setIdleMode(IdleMode.kCoast); 
+        motorController2.setIdleMode(IdleMode.kCoast);
 
         motorController.setInverted(true);
         motorController2.setInverted(false);
         
         goal = new State(getArmRad(),0);
         pidController.setSetpoint(getArmRad());
+        t = 0.0;
     }
 
     @Override
     public void periodic() {
-        
-        pidController.setSetpoint(goal.position);
+        SmartDashboard.putBoolean("isAtAmp", this.atStatePos(Arm.ampState));
+        t+=0.02;
+        State setpoint = trapezoidProfile.calculate(t, new State(getArmRad(),toRads(absoluteEncoder.getVelocity())), goal);
+        double ff = armFF.calculate(setpoint.position-toRads(17.5), setpoint.velocity);//14 degrees accounts for offset from parallel 
+        pidController.setSetpoint(setpoint.position);
         double pidOutput = pidController.calculate(getArmRad());
-        State setpoint = trapezoidProfile.calculate(0.02, new State(getArmRad(),toRads(absoluteEncoder.getVelocity())), goal);
-        double ff = armFF.calculate(setpoint.position-toRads(14), setpoint.velocity);//14 degrees accounts for offset from parallel 
 
         motorController.setVoltage(pidOutput+ff);
         motorController2.setVoltage(pidOutput+ff);
@@ -94,7 +96,7 @@ public class ArmSubsystem extends SubsystemBase{
      * @param True if the current angle is within 5 degrees of the goal
      */
     public boolean atStatePos(State goal) { // will check if the arm angle is at the setpoint periodically
-        if (Math.abs(getArmRad()-goal.position) < toRads(5)) {
+        if (Math.abs(getArmRad()-goal.position) < toRads(20)) {
             return true;
         } else {
             return false;
@@ -125,7 +127,10 @@ public class ArmSubsystem extends SubsystemBase{
 
     private Command rotateToIntake() { // sets the set point, angle to intake @ ground
         return new 
-        InstantCommand(() -> goal = Arm.intakeState);
+        InstantCommand(() -> {
+            goal = Arm.intakeState; 
+            t=0.0;
+                    });
         /*
         .andThen(new WaitUntilCommand(()->this.atStatePos(goal)))
         .andThen(new InstantCommand(()->{
@@ -140,7 +145,8 @@ public class ArmSubsystem extends SubsystemBase{
         if(goal == Arm.intakeState){
             return rotateToIntake();
         }else{
-            return new InstantCommand(() -> this.goal = goal);
+            return new InstantCommand(() -> {this.goal = goal;
+            t=0.0;});
         }
     }
 

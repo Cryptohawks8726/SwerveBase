@@ -161,14 +161,14 @@ public final class Constants {
         public static final double kV = 0.0;
         public static final double kA = 0.0;
 
-        public static final double maxVelRads = 0.3;
-        public static final double maxAccelRads = 0.085;
+        public static final double maxVelRads = 0.5;
+        public static final double maxAccelRads = 0.2;
 
 
 
-        public static final State intakeState = new State(Math.toRadians(6.98), 0);
-        public static final State ampState = new State(Math.toRadians(113), 0);//No clue if this is accurate
-        public static final State sourceState = new State(Math.toRadians(120),0);//Also no clue
+        public static final State intakeState = new State(Math.toRadians(10.0), 0);
+        public static final State ampState = new State(Math.toRadians(117), 0);//No clue if this is accurate
+        public static final State sourceState = new State(Math.toRadians(81),0);//Also no clue
     }
 
     public final class Climber{
