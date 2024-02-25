@@ -26,7 +26,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final RelativeEncoder topFlywheelEncoder = topFlywheelMotor.getEncoder();
     private final RelativeEncoder bottomFlywheelEncoder = bottomFlywheelMotor.getEncoder();
 
-    private double conveyorSetpoint = 7; // TODO: Since this and flywheelSetpoint change during operation, they should
+    private double conveyorSetpoint = 8; // TODO: Since this and flywheelSetpoint change during operation, they should
                                          // be initalized at the end of the constructor to make their inital values
                                          // clear.
 
@@ -140,9 +140,9 @@ public class ShooterSubsystem extends SubsystemBase {
     // ring to the flywheel and firing it
     // Only fires if the flywheel is up to speed
     public Command fireNote(boolean isAmp) {
-        return startFlywheels(isAmp ? 1000.0 : 5700.0)
-                .andThen(new WaitUntilCommand(() -> Math.abs(topFlywheelEncoder.getVelocity() - flywheelSetpoint) < 500
-                        && Math.abs(bottomFlywheelEncoder.getVelocity() - flywheelSetpoint) < 500)) // Lower tolerance
+        return startFlywheels(isAmp ? 1800 : 5300.0)//amp was 1000
+                .andThen(new WaitUntilCommand(() -> Math.abs(topFlywheelEncoder.getVelocity() - flywheelSetpoint) < 350
+                        && Math.abs(bottomFlywheelEncoder.getVelocity() - flywheelSetpoint) < 350)) // Lower tolerance
                                                                                                     // range in the
                                                                                                     // future
                 .andThen(new InstantCommand(() -> {
@@ -156,9 +156,10 @@ public class ShooterSubsystem extends SubsystemBase {
                                                                                               // the intended logic?
                 .andThen(new WaitUntilCommand(() -> !isBeamBroken()))
                 .andThen(new InstantCommand(() -> {
-                    conveyorSetpoint = 6;
+                    conveyorSetpoint = 8;
                     conveyorMotor.setSmartCurrentLimit(25);
                 }))
+                .andThen(new WaitCommand(0.5))
                 .andThen(toggleMotors(toggleMotorsStates.disable, toggleMotorsStates.disable))
                 .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
     }
@@ -167,6 +168,7 @@ public class ShooterSubsystem extends SubsystemBase {
         return new InstantCommand(() -> {
             if (activateConveyor == toggleMotorsStates.enable) {
                 conveyorMotor.setVoltage(conveyorSetpoint);
+                
             } else if (activateConveyor == toggleMotorsStates.disable) {
                 conveyorMotor.setVoltage(0);
             }
@@ -179,6 +181,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 topPID.setReference(0, ControlType.kVoltage, 0, 0, ArbFFUnits.kVoltage);
                 bottomPID.setReference(0, ControlType.kVoltage, 0, 0, ArbFFUnits.kVoltage);
             }
+            SmartDashboard.putNumber("IntakeRunning", conveyorSetpoint);
         });
     }
 
