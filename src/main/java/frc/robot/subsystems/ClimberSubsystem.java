@@ -2,8 +2,10 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -26,6 +28,7 @@ public class ClimberSubsystem extends SubsystemBase {
         winchMotor = new CANSparkMax(Climber.winchMotorId, MotorType.kBrushless);
         winchMotor.enableVoltageCompensation(12.0);
         winchMotor.setSmartCurrentLimit(Climber.stallCurrentLimit, Climber.freeCurrentLimit);
+        winchMotor.setIdleMode(IdleMode.kBrake);
 
         winchEncoder = winchMotor.getEncoder();
     }
@@ -56,10 +59,10 @@ public class ClimberSubsystem extends SubsystemBase {
      */
     public Command smartReleaseClimber() {
         return new InstantCommand(() -> {
-            winchMotor.setVoltage(-1.5); // TODO verify voltage is high enough and direction is correct
+            winchMotor.setVoltage(-6.0); // TODO verify voltage is high enough and direction is correct
             this.startRevCount();
         })
-                .andThen(new WaitUntilCommand(() -> this.passedRevGoal(5))) // TODO verify goal works
+                .andThen(new WaitUntilCommand(() -> this.passedRevGoal(5000))) // TODO verify goal works
                 .finallyDo(() -> winchMotor.setVoltage(0.0))
                 .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
                 .withName("Smart Release Climber");
@@ -72,7 +75,7 @@ public class ClimberSubsystem extends SubsystemBase {
      * @returns The climb command
      */
     public Command climb() {
-        return new InstantCommand(() -> winchMotor.setVoltage(6.0))// TODO verify voltage is sufficient
+        return new InstantCommand(() -> winchMotor.setVoltage(8.0))// TODO verify voltage is sufficient
                 .andThen(new WaitCommand(0.8))
                 .andThen(new WaitUntilCommand(() -> winchEncoder.getVelocity() < 0.25))// TODO verify velocity limit
                                                                                        // works
@@ -81,6 +84,29 @@ public class ClimberSubsystem extends SubsystemBase {
                 .withName("Climb");
     }
 
+  
+    
+    /**
+     * Releases the climber via waiting for the motor to move a set number of
+     * revolutions.
+     * Warning: Untested.
+     * 
+     * @return A command to release the climber
+     */
+    public Command smartClimb() {
+        return new InstantCommand(() -> {
+            winchMotor.setVoltage(8.0); // TODO verify voltage is high enough and direction is correct
+            this.startRevCount();
+        })
+                .andThen(new WaitUntilCommand(() -> this.passedRevGoal(5000))) // TODO verify goal works
+                .finallyDo(() -> winchMotor.setVoltage(0.0))
+                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
+                .withName("Smart Climb");
+    }
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("StartRev", startRev);
+    }
     /*
      * Records the encoder position at the time of calling
      */
@@ -97,7 +123,7 @@ public class ClimberSubsystem extends SubsystemBase {
      * @return True if the number of revolutions passed is >= to the goal
      */
     private boolean passedRevGoal(double goal) {
-        return (startRev - winchEncoder.getPosition()) >= goal;
+        return (Math.abs(startRev - winchEncoder.getPosition())) >= goal;
     }
 
 }

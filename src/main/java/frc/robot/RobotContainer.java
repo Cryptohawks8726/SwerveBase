@@ -50,13 +50,12 @@ public class RobotContainer {
     operatorController.leftTrigger().onTrue(shooter.startIntake());
     operatorController.rightTrigger().onTrue(shooter.fireNote(arm.atStatePos(Arm.ampState)));
 
-
     operatorController.a().onTrue(arm.rotateToState(Arm.intakeState));
     operatorController.b().onTrue(arm.rotateToState(Arm.ampState));
     operatorController.y().onTrue(arm.rotateToState(Arm.sourceState));
 
-    operatorController.back().onTrue(climber.releaseClimber());
-    operatorController.start().onTrue(climber.climb());
+    operatorController.back().onTrue(climber.smartReleaseClimber());
+    operatorController.start().onTrue(climber.smartClimb());
     
   }
 
