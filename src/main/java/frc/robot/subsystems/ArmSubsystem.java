@@ -100,7 +100,7 @@ public class ArmSubsystem extends SubsystemBase{
         SmartDashboard.putNumber("armVelRad", toRads(absoluteEncoder.getVelocity()));
         
         SmartDashboard.putNumber("error",pidController.getPositionError());
-        SmartDashboard.putNumber("Setpoint diff",Math.abs(getArmRad()-goal.position) );
+        SmartDashboard.putNumber("Setpoint diff", Math.abs(getArmRad() - goal.position) );
     }
 
     /*
@@ -109,7 +109,7 @@ public class ArmSubsystem extends SubsystemBase{
      * @param True if the current angle is within 5 degrees of the goal
      */
     public boolean atStatePos(State goal) { // will check if the arm angle is at the setpoint periodically
-        if (Math.abs(getArmRad()-goal.position) < toRads(10)) {
+        if (Math.abs(getArmRad() - goal.position) < toRads(10)) {
             return true;
         } else {
             return false;
@@ -135,18 +135,17 @@ public class ArmSubsystem extends SubsystemBase{
      * in degrees
      */
     public double getShooterAngle() {
-        return 180-(getArmDeg()+shooterOffset);
+        return 180 - (getArmDeg() + shooterOffset);
     }
 
     private Command rotateToIntake() { // sets the set point, angle to intake @ ground
-        return new 
-        InstantCommand(() -> {
+        return new InstantCommand(() -> {
             goal = Arm.intakeState; 
-            t=0.0;
-                    })
+            t = 0.0;
+        })
         .andThen(new WaitUntilCommand(()->this.atStatePos(new State(toRads(75),0))))
         .andThen(new InstantCommand(()->{
-            zeroVoltage=true;
+            zeroVoltage = true;
             SmartDashboard.putString("At zero", "true");
         })); 
     }

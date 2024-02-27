@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.robot.Constants.Shooter;
 
 public class ShooterSubsystem extends SubsystemBase {
@@ -33,19 +32,26 @@ public class ShooterSubsystem extends SubsystemBase {
                                          // clear.
 
     // Feedforward control
-    private double flywheelSetpoint = 5700; // Theoretical, get experimental value
+    private double flywheelSetpoint = 1800; // Theoretical, get experimental value top 5570, bottom 5400
     private final double kSTop = 0.0;
     private final double ksBottom = 0.0;
     private double testSetpoint = 0;
-    private final double kV = 1.0 / 5700.0;
+    private final double kVTop = 1.0 / 5570.0;
+    private final double kVBottom = 1.0 / 5400.0;
+    private final double kVConveyor = 1;
 
     // Feedback control
     private final double kP = 0.0001;
     private final double kI = 0;
     private final double kD = 0; // 0.05 works, but causes the motors to tick. This could be resolved by a
                                  // bang-bang controller.;
+    private final double kPConveyor = 0;
+    private final double kIConveyor = 0;
+    private final double kDConveyor = 0;
+
     SparkPIDController topPID = topFlywheelMotor.getPIDController();
     SparkPIDController bottomPID = bottomFlywheelMotor.getPIDController();
+    SparkPIDController conveyorPID = conveyorMotor.getPIDController();
 
     private DigitalInput beamBreakSensor = new DigitalInput(Shooter.beamBreakReceiverPort); // TODO: Wire the emitter to signal - ground to allow
                                                                 // for self-tests of the sensor
@@ -68,9 +74,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Configures flywheel motors
     public ShooterSubsystem() {
-
-        topPID.setFF(kV);
-        bottomPID.setFF(kV);
+        topPID.setFF(kVTop);
+        bottomPID.setFF(kVBottom);
 
         topPID.setP(kP);
         topPID.setI(kI);
@@ -78,6 +83,9 @@ public class ShooterSubsystem extends SubsystemBase {
         bottomPID.setP(kP);
         bottomPID.setI(kI);
         bottomPID.setD(kD);
+        conveyorPID.setP(kPConveyor);
+        conveyorPID.setI(kIConveyor);
+        conveyorPID.setD(kDConveyor);
 
         topFlywheelMotor.setInverted(false);
         bottomFlywheelMotor.setInverted(false);
@@ -96,6 +104,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Top Flywheel Vel", topFlywheelEncoder.getVelocity());
         SmartDashboard.putNumber("Bottom Flywheel Vel", bottomFlywheelEncoder.getVelocity());
+        SmartDashboard.putNumber("Conveyor Vel", conveyorMotor.getEncoder().getVelocity());
         SmartDashboard.putBoolean("Beam Broken", !beamBreakSensor.get());
     }
 
@@ -142,7 +151,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // ring to the flywheel and firing it
     // Only fires if the flywheel is up to speed
     public Command fireNote(boolean isAmp) {
-        return startFlywheels(isAmp ? 1800 : 5300.0)//amp was 1000
+        return startFlywheels(isAmp ? 1800 : 5400)//amp was 1000
                 .andThen(new WaitUntilCommand(() -> Math.abs(topFlywheelEncoder.getVelocity() - flywheelSetpoint) < 350
                         && Math.abs(bottomFlywheelEncoder.getVelocity() - flywheelSetpoint) < 350)) // Lower tolerance
                                                                                                     // range in the
@@ -203,5 +212,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public boolean isBeamBroken() {
         return !beamBreakSensor.get();
+    }
+
+    public InstantCommand testCooking() {
+        return new InstantCommand(() -> {
+            conveyorMotor.setVoltage(12);
+        });
     }
 }

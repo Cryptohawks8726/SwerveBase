@@ -54,6 +54,7 @@ public class RobotContainer {
     operatorController.a().onTrue(arm.rotateToState(Arm.intakeState));
     operatorController.b().onTrue(arm.rotateToState(Arm.ampState));
     operatorController.y().onTrue(arm.rotateToState(Arm.sourceState));
+    operatorController.x().onTrue(shooter.testCooking());
 
     operatorController.back().onTrue(climber.smartReleaseClimber());
     operatorController.start().onTrue(climber.smartClimb());
