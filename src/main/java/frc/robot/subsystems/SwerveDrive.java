@@ -82,7 +82,7 @@ public class SwerveDrive extends SubsystemBase{
         // TODO: check for 2024 version
         //gyro.calibrate(); // possibly move to avoid the robot being moved during calibration        
         // simGyro = new AnalogGyroSim(0);
-        
+        gyro.setAngleAdjustment(0.0);
         odometry = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), modPositionStates, new Pose2d()); 
         
         field = new Field2d();
@@ -145,7 +145,7 @@ public class SwerveDrive extends SubsystemBase{
             );
         }*/
         
-        logValues(true);
+        logValues(false);
 
     }
     /* 
@@ -244,14 +244,14 @@ public class SwerveDrive extends SubsystemBase{
 
     public void setOdometryPosition(Pose2d setPosition){
         odometry.resetPosition(getRobotAngle(), getSwerveModulePositions(), setPosition);
-        gyro.setAngleAdjustment(setPosition.getRotation().getDegrees()-(gyro.getRotation2d().getDegrees()%360));
+        gyro.setAngleAdjustment(setPosition.getRotation().getDegrees()-(gyro.getRotation2d().getDegrees()));
     }
 
     public void resetOdometry(Pose2d pose) {
         odometry.resetPosition(Rotation2d.fromDegrees(0.0), getSwerveModulePositions(), pose);
-        SmartDashboard.putNumber("resetOdometryAngle",gyro.getRotation2d().getDegrees()%360);
-
-        gyro.setAngleAdjustment(gyro.getRotation2d().getDegrees()%360);
+        SmartDashboard.putNumber("resetOdometryAngle",gyro.getRotation2d().getDegrees());
+        gyro.setAngleAdjustment(0.0);
+        gyro.setAngleAdjustment(gyro.getRotation2d().getDegrees());
  
         //gyro.reset();
     }
@@ -295,7 +295,7 @@ public class SwerveDrive extends SubsystemBase{
         SmartDashboard.putNumber("xpos", estimatedPostition.getTranslation().getX());
         SmartDashboard.putNumber("ypos", estimatedPostition.getTranslation().getY());
         //SmartDashboard.putNumber("estimatedthetaPos",estimatedPostition.getRotation().getDegrees());
-        //SmartDashboard.putNumber("gyroAngle", gyro.getRotation2d().getDegrees());//getRotation2d().getDegrees()%360
+        SmartDashboard.putNumber("gyroAngle", gyro.getRotation2d().getDegrees());//getRotation2d().getDegrees()%360
         SmartDashboard.putBoolean("isGyroConnected", gyro.isConnected());
         //SmartDashboard.putNumber("CalcThetaVel", getRobotRelativeSpeeds().omegaRadiansPerSecond);
        // SmartDashboard.putNumber("setXVel", lastSetChassisSpeeds.vxMetersPerSecond);

@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.InvalidPropertiesFormatException;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -26,7 +28,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final RelativeEncoder topFlywheelEncoder = topFlywheelMotor.getEncoder();
     private final RelativeEncoder bottomFlywheelEncoder = bottomFlywheelMotor.getEncoder();
 
-    private double conveyorSetpoint = 8; // TODO: Since this and flywheelSetpoint change during operation, they should
+    private double conveyorSetpoint = 7.5; // TODO: Since this and flywheelSetpoint change during operation, they should
                                          // be initalized at the end of the constructor to make their inital values
                                          // clear.
 
@@ -126,7 +128,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public SequentialCommandGroup startIntake() {
         return toggleMotors(toggleMotorsStates.proceed, toggleMotorsStates.enable)
                 .andThen(new WaitUntilCommand(() -> isBeamBroken()))
-                .andThen(new WaitCommand(0.0625))
+                .andThen(new WaitCommand(0.0425))
                 .andThen(toggleMotors(toggleMotorsStates.disable, toggleMotorsStates.disable));
     }
 
@@ -156,18 +158,18 @@ public class ShooterSubsystem extends SubsystemBase {
                                                                                               // the intended logic?
                 .andThen(new WaitUntilCommand(() -> !isBeamBroken()))
                 .andThen(new InstantCommand(() -> {
-                    conveyorSetpoint = 8;
+                    conveyorSetpoint = 7.5;
                     conveyorMotor.setSmartCurrentLimit(25);
                 }))
                 .andThen(new WaitCommand(0.5))
                 .andThen(toggleMotors(toggleMotorsStates.disable, toggleMotorsStates.disable))
-                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
+                .withName("FireNote, isAmp:"+isAmp);
     }
 
     public InstantCommand toggleMotors(toggleMotorsStates activateFlywheel, toggleMotorsStates activateConveyor) {
         return new InstantCommand(() -> {
             if (activateConveyor == toggleMotorsStates.enable) {
-                conveyorMotor.setVoltage(conveyorSetpoint);
+                conveyorMotor.setVoltage(conveyorSetpoint); //TODO: change to velocity control
                 
             } else if (activateConveyor == toggleMotorsStates.disable) {
                 conveyorMotor.setVoltage(0);
@@ -183,6 +185,12 @@ public class ShooterSubsystem extends SubsystemBase {
             }
             SmartDashboard.putNumber("IntakeRunning", conveyorSetpoint);
         });
+    }
+
+    public Command nudgeIntake(){
+        return new InstantCommand(()->conveyorMotor.setVoltage(-5.0))
+        .andThen(new WaitCommand(0.1))
+        .finallyDo(()->conveyorMotor.setVoltage(0.0));
     }
 
     public Command staticGainTest() {

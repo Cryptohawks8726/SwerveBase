@@ -46,9 +46,10 @@ public class RobotContainer {
   private void configureBindings() {
 
     drivetrain.setDefaultCommand(new ActualXboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
-    
+    driverController.start().onTrue(drivetrain.resetGyroAngle());
     operatorController.leftTrigger().onTrue(shooter.startIntake());
-    operatorController.rightTrigger().onTrue(shooter.fireNote(arm.atStatePos(Arm.ampState)));
+    operatorController.rightTrigger().onTrue(shooter.fireNote(false));//arm.atStatePos(Arm.ampState)
+    operatorController.leftBumper().onTrue(shooter.nudgeIntake());
 
     operatorController.a().onTrue(arm.rotateToState(Arm.intakeState));
     operatorController.b().onTrue(arm.rotateToState(Arm.ampState));
@@ -60,7 +61,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    if(!Constants.demoMode){
+    /*if(!Constants.demoMode){
     // An ExampleCommand will run in autonomous
     PathPlannerPath path = PathPlannerPath.fromPathFile("Test1");
 
@@ -75,6 +76,8 @@ public class RobotContainer {
     //return new InstantCommand(()->drivetrain.drive(new ChassisSpeeds(1, 0, 0.1), false),drivetrain)
     //.andThen(new WaitCommand(5))
     //.andThen(()->drivetrain.drive(new ChassisSpeeds(0, 0, 0), false),drivetrain);
-  } else{ return null;}
+  } else{ return null;}*/
+  return null;
+
 }
 }
