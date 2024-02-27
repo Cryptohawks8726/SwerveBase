@@ -150,7 +150,7 @@ public final class Constants {
     public final class Arm{
         public static final int leftMotorId = 51;
         public static final int rightMotorId = 50;
-        public static final double absEncoderOffset = 124.7233920;
+        public static final double absEncoderOffset = 120;
         // TODO: add gains and current limits after verification    
         public static final double kP = 0.0;
         public static final double kI = 0.0;
@@ -161,8 +161,8 @@ public final class Constants {
         public static final double kV = 0.0;
         public static final double kA = 0.0;
 
-        public static final double maxVelRads = 0.5;
-        public static final double maxAccelRads = 0.2;
+        public static final double maxVelRads = 3.5;
+        public static final double maxAccelRads = 1.0;
 
 
 

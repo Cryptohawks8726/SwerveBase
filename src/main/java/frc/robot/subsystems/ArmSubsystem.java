@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Field;
 
@@ -25,28 +25,29 @@ public class ArmSubsystem extends SubsystemBase{
     double shooterVel = 14; // TODO: get initial velocity of shooter
     double maxAmpAngle = 121.5;
    
-    double kp = 2.0;//
-    double ki = 0;
-    double kd = 0;
+    private static final double kp = 4.1;//can be increased a bit
+    private static final double ki = 0;
+    private static final double kd = 0.0;
 
     double ks = 0.135;
-    double kg = 0.22; //0.33
-    double kv = 3.62; //3.62
+    double kg = 0.55; //0.33
+    double kv = 3.25; //3.62 
     double ka = 0; //0.02
-    private final double DEG_TO_RAD = 0.017453292519943295; 
+    private static final double DEG_TO_RAD = 0.017453292519943295; 
     
-    private final CANSparkMax motorController = new CANSparkMax(Arm.rightMotorId, MotorType.kBrushless);
+    private static final CANSparkMax motorController = new CANSparkMax(Arm.rightMotorId, MotorType.kBrushless);
     private final CANSparkMax motorController2 = new CANSparkMax(Arm.leftMotorId, MotorType.kBrushless);
-    private final SparkAbsoluteEncoder absoluteEncoder = motorController.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+    private static final SparkAbsoluteEncoder absoluteEncoder = motorController.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
     
     private final Constraints constraints = new Constraints(Arm.maxVelRads, Arm.maxAccelRads); // TODO: find good constraints (in rad/s)
-    private final PIDController pidController = new PIDController(kp, ki, kd); // degrees
+    private static final PIDController pidController = new PIDController(kp, ki, kd); // degrees
     private final ArmFeedforward armFF = new ArmFeedforward(ks, kg, kv, ka);
-    private final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(constraints);
+    private final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(constraints); //TODO: Set down constraints with more limited acceleration
 
     private State calculateAngleState = new State(0, 0); // will be changed based on calculated angle
-    private State goal = new State(); // will be changed to reflect current goal
+    private static State goal = new State(); // will be changed to reflect current goal
     private double t;
+    private boolean zeroVoltage;
 
     public ArmSubsystem() {
         absoluteEncoder.setPositionConversionFactor(360);
@@ -54,11 +55,12 @@ public class ArmSubsystem extends SubsystemBase{
         absoluteEncoder.setZeroOffset(Arm.absEncoderOffset);
         absoluteEncoder.setInverted(true);
 
-        motorController.setIdleMode(IdleMode.kCoast); 
-        motorController2.setIdleMode(IdleMode.kCoast);
+        motorController.setIdleMode(IdleMode.kBrake); 
+        motorController2.setIdleMode(IdleMode.kBrake);
 
         motorController.setInverted(true);
-        motorController2.setInverted(false);
+
+        motorController2.follow(motorController,true);
         
         goal = new State(getArmRad(),0);
         pidController.setSetpoint(getArmRad());
@@ -68,24 +70,35 @@ public class ArmSubsystem extends SubsystemBase{
     @Override
     public void periodic() {
         SmartDashboard.putBoolean("isAtAmp", this.atStatePos(Arm.ampState));
-        t+=0.02;
-        State setpoint = trapezoidProfile.calculate(t, new State(getArmRad(),toRads(absoluteEncoder.getVelocity())), goal);
-        double ff = armFF.calculate(setpoint.position-toRads(17.5), setpoint.velocity);//14 degrees accounts for offset from parallel 
-        pidController.setSetpoint(setpoint.position);
-        double pidOutput = pidController.calculate(getArmRad());
+        if (!zeroVoltage) {
+            t += 0.02;
+            State setpoint = trapezoidProfile.calculate(t,
+                    new State(getArmRad(), toRads(absoluteEncoder.getVelocity())), goal);
+            double ff = armFF.calculate(setpoint.position - toRads(17.5), setpoint.velocity);// 14 degrees accounts for
+                                                                                             // offset from parallel
+            pidController.setSetpoint(setpoint.position);
+            double pidOutput = pidController.calculate(toRads(getArmDeg()));
 
-        motorController.setVoltage(pidOutput+ff);
-        motorController2.setVoltage(pidOutput+ff);
+            motorController.setVoltage(pidOutput + ff);
+            SmartDashboard.putNumber("Applied Voltage", pidOutput + ff);
+            SmartDashboard.putNumber("Set Pos", setpoint.position);
+            SmartDashboard.putNumber("Goal", goal.position);
+            SmartDashboard.putNumber("armVelSetRad", setpoint.velocity);
+            SmartDashboard.putNumber("FF", ff);
+            SmartDashboard.putNumber("PID", pidOutput);
+            motorController.setIdleMode(IdleMode.kBrake);
+            motorController2.setIdleMode(IdleMode.kBrake);
+        } else {
+            motorController.setVoltage(0.0);
+            motorController.setIdleMode(IdleMode.kCoast);
+            motorController2.setIdleMode(IdleMode.kCoast);
+        }
+       // motorController2.setVoltage(pidOutput+ff);
 
         SmartDashboard.putNumber("Arm Rad",getArmRad());
         SmartDashboard.putNumber("armDeg", getArmDeg());
-        SmartDashboard.putNumber("armVelDeg", absoluteEncoder.getVelocity());
-        SmartDashboard.putNumber("Applied Voltage", pidOutput+ff);
-        SmartDashboard.putNumber("Set Pos",setpoint.position);
-        SmartDashboard.putNumber("Goal", goal.position);
-        SmartDashboard.putNumber("Set Velocity",setpoint.velocity);
-        SmartDashboard.putNumber("FF", ff);
-        SmartDashboard.putNumber("PID",pidOutput);
+        SmartDashboard.putNumber("armVelRad", toRads(absoluteEncoder.getVelocity()));
+        
         SmartDashboard.putNumber("error",pidController.getPositionError());
         SmartDashboard.putNumber("Setpoint diff",Math.abs(getArmRad()-goal.position) );
     }
@@ -96,14 +109,14 @@ public class ArmSubsystem extends SubsystemBase{
      * @param True if the current angle is within 5 degrees of the goal
      */
     public boolean atStatePos(State goal) { // will check if the arm angle is at the setpoint periodically
-        if (Math.abs(getArmRad()-goal.position) < toRads(20)) {
+        if (Math.abs(getArmRad()-goal.position) < toRads(10)) {
             return true;
         } else {
             return false;
         }
     }
 
-    public double toRads(double degrees) {
+    public static double toRads(double degrees) {
         return degrees * DEG_TO_RAD;
     }
 
@@ -114,7 +127,7 @@ public class ArmSubsystem extends SubsystemBase{
         return absoluteEncoder.getPosition();
     }
 
-    public double getArmRad() {
+    public static double getArmRad() {
         return toRads(absoluteEncoder.getPosition());
     }
 
@@ -130,14 +143,12 @@ public class ArmSubsystem extends SubsystemBase{
         InstantCommand(() -> {
             goal = Arm.intakeState; 
             t=0.0;
-                    });
-        /*
-        .andThen(new WaitUntilCommand(()->this.atStatePos(goal)))
+                    })
+        .andThen(new WaitUntilCommand(()->this.atStatePos(new State(toRads(75),0))))
         .andThen(new InstantCommand(()->{
-            motorController.setVoltage(0.0);
-            motorController2.setVoltage(0.0);
+            zeroVoltage=true;
             SmartDashboard.putString("At zero", "true");
-        })); */
+        })); 
     }
 
 
@@ -145,7 +156,9 @@ public class ArmSubsystem extends SubsystemBase{
         if(goal == Arm.intakeState){
             return rotateToIntake();
         }else{
-            return new InstantCommand(() -> {this.goal = goal;
+            return new InstantCommand(() -> {
+                zeroVoltage=false;
+                this.goal = goal;
             t=0.0;});
         }
     }
@@ -174,6 +187,11 @@ public class ArmSubsystem extends SubsystemBase{
         calculateAngleState.position = toRads(calculateAngle(posX, posY));
 
         return new InstantCommand(() -> goal = calculateAngleState); // in degrees
+    }
+
+    public static void initArmSetpoint(){
+        goal = new State(getArmRad(),0);
+        pidController.setSetpoint(getArmRad());
     }
     
 }
