@@ -179,3 +179,5 @@ ctre_sim/
 
 # Glass 
 .Glass/
+# DataLogTool
+.DataLogTool/
