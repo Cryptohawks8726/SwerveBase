@@ -60,15 +60,15 @@ public class ActualXboxTeleopDrive extends Command {
         yVel = -Math.signum(yVel) * Math.pow(yVel,2) * translationalSpeed ;
 
         // maintain heading if there's no rotational input
-        if (thetaVel == 0.0 && ((Math.abs(xVel)>0.2) ||(Math.abs(yVel)>0.2))){
+       if (thetaVel == 0.0 && ((Math.abs(xVel)>0.2) ||(Math.abs(yVel)>0.2))){
             if (isHeadingSet == false){
                 headingPID.reset();
                 isHeadingSet = true;
                 lastHeading = drivetrain.getRobotAngle().getDegrees();
                 headingPID.setSetpoint(lastHeading);
-                thetaVel = headingPID.calculate(drivetrain.getRobotAngle().getDegrees());
+                thetaVel = headingPID.calculate(drivetrain.getRobotAngle().getDegrees()%360);
              }else{
-                thetaVel = headingPID.calculate(drivetrain.getRobotAngle().getDegrees());
+                thetaVel = headingPID.calculate(drivetrain.getRobotAngle().getDegrees()%360);
             }
         } else{
             isHeadingSet = false;

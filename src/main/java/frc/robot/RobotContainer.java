@@ -23,22 +23,22 @@ import frc.robot.subsystems.ArmSubsystem;
 public class RobotContainer {
 
   private final CommandXboxController driverController;
-  private final CommandXboxController operatorController;
+  //private final CommandXboxController operatorController;
   private final SwerveDrive drivetrain;
-  private final ShooterSubsystem shooter;
-  private final ClimberSubsystem climber;
-  private final ArmSubsystem arm;
+  //private final ShooterSubsystem shooter;
+  //private final ClimberSubsystem climber;
+  //private final ArmSubsystem arm;
 
   public RobotContainer() {
 
     Unmanaged.setPhoenixDiagnosticsStartTime(-1);
     drivetrain = new SwerveDrive();
-    shooter = new ShooterSubsystem();
-    climber = new ClimberSubsystem();
-    arm = new ArmSubsystem();
+    //shooter = new ShooterSubsystem();
+    //climber = new ClimberSubsystem();
+    //arm = new ArmSubsystem();
     
     driverController = new CommandXboxController(0);
-    operatorController = new CommandXboxController(1);
+    //operatorController = new CommandXboxController(1);
 
     configureBindings();
   }
@@ -47,7 +47,7 @@ public class RobotContainer {
 
     drivetrain.setDefaultCommand(new ActualXboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
     driverController.start().onTrue(drivetrain.resetGyroAngle());
-    operatorController.leftTrigger().onTrue(shooter.startIntake());
+    /*operatorController.leftTrigger().onTrue(shooter.startIntake());
     operatorController.rightTrigger().onTrue(shooter.fireNote(false));//arm.atStatePos(Arm.ampState)
     operatorController.leftBumper().onTrue(shooter.nudgeIntake());
 
@@ -56,28 +56,28 @@ public class RobotContainer {
     operatorController.y().onTrue(arm.rotateToState(Arm.sourceState));
 
     operatorController.back().onTrue(climber.smartReleaseClimber());
-    operatorController.start().onTrue(climber.smartClimb());
+    operatorController.start().onTrue(climber.smartClimb());*/
     
   }
 
   public Command getAutonomousCommand() {
-    /*if(!Constants.demoMode){
+    if(!Constants.demoMode){
     // An ExampleCommand will run in autonomous
     PathPlannerPath path = PathPlannerPath.fromPathFile("Test1");
 
     // Create a path following command using AutoBuilder. This will also trigger event markers.
 
     SmartDashboard.putNumber("e", 1);
-    drivetrain.setOdometryPosition(new Pose2d(2.659489631652832, 7.026157379150391, new Rotation2d(0)));
+    drivetrain.setOdometryPosition(new Pose2d(1.3604378700256348, 5.526217937469482, new Rotation2d(0)));
     SmartDashboard.putNumber("Gyro angle:", drivetrain.getRobotAngle().getDegrees()%360);
-    PathPlannerPath exampleChoreoTraj = PathPlannerPath.fromChoreoTrajectory("Path4");
+    PathPlannerPath exampleChoreoTraj = PathPlannerPath.fromChoreoTrajectory("2NoteAutoCenter");
     
     return AutoBuilder.followPath(exampleChoreoTraj);
-    //return new InstantCommand(()->drivetrain.drive(new ChassisSpeeds(1, 0, 0.1), false),drivetrain)
+    //returnq new InstantCommand(()->drivetrain.drive(new ChassisSpeeds(1, 0, 0.1), false),drivetrain)
     //.andThen(new WaitCommand(5))
     //.andThen(()->drivetrain.drive(new ChassisSpeeds(0, 0, 0), false),drivetrain);
-  } else{ return null;}*/
-  return null;
+  } else{ return null;}
+  //return null;
 
 }
 }

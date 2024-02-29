@@ -26,6 +26,9 @@
     "mode": "Client (NT4)",
     "serverTeam": "8726"
   },
+  "NetworkTables View": {
+    "visible": false
+  },
   "Plots": {
     "Plot <0>": {
       "plots": [
@@ -36,7 +39,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 338,
+          "height": 0,
           "series": [
             {
               "color": [
@@ -69,7 +72,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 338,
+          "height": 0,
           "series": [
             {
               "color": [
@@ -88,6 +91,35 @@
                 1.0
               ],
               "id": "NT:/SmartDashboard/Set Pos"
+            }
+          ]
+        }
+      ]
+    },
+    "Plot <2>": {
+      "plots": [
+        {
+          "axis": [
+            {
+              "autoFit": true
+            }
+          ],
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "height": 338,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/robotAngleFull"
             }
           ]
         }

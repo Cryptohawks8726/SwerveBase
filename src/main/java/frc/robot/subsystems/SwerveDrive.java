@@ -8,6 +8,8 @@ import static frc.robot.Constants.Swerve.ModulePosition.FR;
 import java.util.Arrays;
 import java.util.List;
 
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -44,7 +46,8 @@ public class SwerveDrive extends SubsystemBase{
     private SwerveModulePosition[] modPositionStates;
     private SwerveDriveKinematics kinematics;
     public SwerveDrivePoseEstimator odometry;
-    public AHRS gyro;
+    //public AHRS gyro;
+    public Pigeon2 gyro;
 
     private Field2d field; 
     private FieldObject2d[] modPoses;
@@ -78,11 +81,14 @@ public class SwerveDrive extends SubsystemBase{
             modules.get(FL.modPos).getCenterTransform().getTranslation()
         );
         
-        gyro = new AHRS(SerialPort.Port.kUSB1);
+        gyro = new Pigeon2(Constants.Swerve.pigeonId);
+        
+
+
         // TODO: check for 2024 version
         //gyro.calibrate(); // possibly move to avoid the robot being moved during calibration        
         // simGyro = new AnalogGyroSim(0);
-        gyro.setAngleAdjustment(0.0);
+        gyro.setYaw(0.0);
         odometry = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), modPositionStates, new Pose2d()); 
         
         field = new Field2d();
@@ -103,7 +109,7 @@ public class SwerveDrive extends SubsystemBase{
             this::drive, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
                     new PIDConstants(5, 0.0, 0), // Translation PID constants
-                    new PIDConstants(3, 0, 0), // Rotation PID constants
+                    new PIDConstants(5, 0, 0), // Rotation PID constants
                     4.5, // Mgax module speed, in m/s
                     Constants.Swerve.driveBaseLength/2, // Drive base radius in meters. Distance from robot center to furthest module.
                     new ReplanningConfig() // Default path replanning config. See the API for the options here
@@ -230,7 +236,7 @@ public class SwerveDrive extends SubsystemBase{
         );
     }
 
-    public AHRS getGyro(){
+    private Pigeon2 getGyro(){
         return gyro;
     }
 
@@ -244,21 +250,21 @@ public class SwerveDrive extends SubsystemBase{
 
     public void setOdometryPosition(Pose2d setPosition){
         odometry.resetPosition(getRobotAngle(), getSwerveModulePositions(), setPosition);
-        gyro.setAngleAdjustment(setPosition.getRotation().getDegrees()-(gyro.getRotation2d().getDegrees()));
+        //gyro.setYaw(setPosition.getRotation().getDegrees()-(gyro.getRotation2d().getDegrees()%360));
     }
 
     public void resetOdometry(Pose2d pose) {
         odometry.resetPosition(Rotation2d.fromDegrees(0.0), getSwerveModulePositions(), pose);
-        SmartDashboard.putNumber("resetOdometryAngle",gyro.getRotation2d().getDegrees());
-        gyro.setAngleAdjustment(0.0);
-        gyro.setAngleAdjustment(gyro.getRotation2d().getDegrees());
- 
+        SmartDashboard.putNumber("resetOdometryAngle",getRobotAngle().getDegrees());
+        //gyro.setYaw(0.0);
+        //gyro.setYaw(gyro.getRotation2d().getDegrees()%360);
+
         //gyro.reset();
     }
 
     public Rotation2d getRobotAngle() {
         // return Rotation2d.fromDegrees(gyro.getYaw());
-        return gyro.getRotation2d();
+        return odometry.getEstimatedPosition().getRotation();
     }
 
     public SwerveModulePosition[] getSwerveModulePositions(){
@@ -295,8 +301,9 @@ public class SwerveDrive extends SubsystemBase{
         SmartDashboard.putNumber("xpos", estimatedPostition.getTranslation().getX());
         SmartDashboard.putNumber("ypos", estimatedPostition.getTranslation().getY());
         //SmartDashboard.putNumber("estimatedthetaPos",estimatedPostition.getRotation().getDegrees());
-        SmartDashboard.putNumber("gyroAngle", gyro.getRotation2d().getDegrees());//getRotation2d().getDegrees()%360
-        SmartDashboard.putBoolean("isGyroConnected", gyro.isConnected());
+        SmartDashboard.putNumber("robotAngleFull", getRobotAngle().getDegrees());//getRotation2d().getDegrees()%360
+        SmartDashboard.putNumber("robotAngleFull", getRobotAngle().getDegrees()%360);
+        //SmartDashboard.putBoolean("isGyroConnected", gyro.isConnected());
         //SmartDashboard.putNumber("CalcThetaVel", getRobotRelativeSpeeds().omegaRadiansPerSecond);
        // SmartDashboard.putNumber("setXVel", lastSetChassisSpeeds.vxMetersPerSecond);
         //SmartDashboard.putNumber("setYVel", lastSetChassisSpeeds.vyMetersPerSecond);

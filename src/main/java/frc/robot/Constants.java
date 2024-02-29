@@ -22,7 +22,7 @@ public final class Constants {
         Comp2024(),PracticeBot();
     }
     public static final boolean demoMode = false;
-    public static final DriveBase driveBase = DriveBase.Comp2024;
+    public static final DriveBase driveBase = DriveBase.PracticeBot;
     public static final class Swerve {
         
         // Physical Constants
@@ -41,7 +41,7 @@ public final class Constants {
         public static final int  driveMotorFreeCurrentLimit = 40; // TODO raise these and observe max speed differences
         public static final int  driveMotorStallCurrentLimit = 30;
         public static final int  steerMotorFreeCurrentLimit = 30;
-
+        public static final int  pigeonId = 4;
 
         
         // Controller Gains
