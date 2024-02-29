@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.InvalidPropertiesFormatException;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -27,18 +25,19 @@ public class ShooterSubsystem extends SubsystemBase {
     private final RelativeEncoder topFlywheelEncoder = topFlywheelMotor.getEncoder();
     private final RelativeEncoder bottomFlywheelEncoder = bottomFlywheelMotor.getEncoder();
 
-    private double conveyorSetpoint = 7.5; // TODO: Since this and flywheelSetpoint change during operation, they should
-                                         // be initalized at the end of the constructor to make their inital values
-                                         // clear.
-
     // Feedforward control
-    private double flywheelSetpoint = 1800; // Theoretical, get experimental value top 5570, bottom 5400
+    private double ampSetpoint = 1800;
+    private double speakerSetpoint = 5400; // Theoretical, get experimental value top 5570, bottom 5400
+    private final double conveyorSetpoint = 12;
+
     private final double kSTop = 0.0;
-    private final double ksBottom = 0.0;
-    private double testSetpoint = 0;
+    private final double kSBottom = 0.0;
+
     private final double kVTop = 1.0 / 5570.0;
     private final double kVBottom = 1.0 / 5400.0;
     private final double kVConveyor = 1;
+
+    private double testSetpoint = 0.0;
 
     // Feedback control
     private final double kP = 0.0001;
@@ -55,28 +54,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private DigitalInput beamBreakSensor = new DigitalInput(Shooter.beamBreakReceiverPort); // TODO: Wire the emitter to signal - ground to allow
                                                                 // for self-tests of the sensor
-
-    // Enum for potential motor states, used when modifying motor states via
-    // toggleMotors
-    public enum toggleMotorsStates {
-        disable,
-        enable,
-        proceed
-    }
-
-    /*
-     * TODO: Refactor to remove toggleMotors().
-     * This makes the code unnecesarily indirect and verbose, and could easily be
-     * replaced by direct setVoltage() calls to the conveyor motors and a
-     * configureSetpoint() call instead. The conveyor setVoltage() call could be
-     * wrapped to allow for easy setpoint logging.
-     */
-
     // Configures flywheel motors
     public ShooterSubsystem() {
         topPID.setFF(kVTop);
         bottomPID.setFF(kVBottom);
-
+        
         topPID.setP(kP);
         topPID.setI(kI);
         topPID.setD(kD);
@@ -97,7 +79,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         topFlywheelMotor.enableVoltageCompensation(12.0);
         bottomFlywheelMotor.enableVoltageCompensation(12.0);
-        conveyorMotor.enableVoltageCompensation(12.0);
+        conveyorMotor.enableVoltageCompensation(12.0);        
     };
 
     @Override
@@ -122,9 +104,8 @@ public class ShooterSubsystem extends SubsystemBase {
     // current flywheel velocity OR rewrite with a bang-bang controller.
     private InstantCommand startFlywheels(double motorSpeed) {
         return new InstantCommand(() -> {
-            flywheelSetpoint = motorSpeed;
-            topPID.setReference(flywheelSetpoint, ControlType.kVelocity, 0, kSTop, ArbFFUnits.kVoltage);
-            bottomPID.setReference(flywheelSetpoint, ControlType.kVelocity, 0, ksBottom, ArbFFUnits.kVoltage);
+            topPID.setReference(motorSpeed, ControlType.kVelocity, 0, kSTop, ArbFFUnits.kVoltage);
+            bottomPID.setReference(motorSpeed, ControlType.kVelocity, 0, kSBottom, ArbFFUnits.kVoltage);
         });
     }
 
@@ -135,15 +116,34 @@ public class ShooterSubsystem extends SubsystemBase {
      * @Return The SequentialCommandGroup to run the intake sequence
      */
     public SequentialCommandGroup startIntake() {
-        return toggleMotors(toggleMotorsStates.proceed, toggleMotorsStates.enable)
+        return setConveyorReference(conveyorSetpoint)
+                .andThen(setFlywheelReferences(0))
                 .andThen(new WaitUntilCommand(() -> isBeamBroken()))
                 .andThen(new WaitCommand(0.0425))
-                .andThen(toggleMotors(toggleMotorsStates.disable, toggleMotorsStates.disable));
+                .andThen(setConveyorReference(0));
     }
 
-    public InstantCommand configureSetpoint(int newSetpoint) {
+    public InstantCommand setFlywheelReferences(double newVelocitySetpoint) {
         return new InstantCommand(() -> {
-            flywheelSetpoint = newSetpoint;
+            if (newVelocitySetpoint > 0) {
+                topPID.setReference(newVelocitySetpoint, ControlType.kVelocity, 0, kSTop, ArbFFUnits.kVoltage);
+                bottomPID.setReference(newVelocitySetpoint, ControlType.kVelocity, 0, kSBottom, ArbFFUnits.kVoltage);
+            }
+            else {
+                topPID.setReference(0, ControlType.kVoltage, 0, kSTop, ArbFFUnits.kVoltage);
+                bottomPID.setReference(0, ControlType.kVoltage, 0, kSBottom, ArbFFUnits.kVoltage);
+            }
+        }, this);
+    }
+
+    public InstantCommand setConveyorReference(double newVoltageSetpoint) {
+        return new InstantCommand(() -> {
+            if (newVoltageSetpoint > 0) {
+                conveyorPID.setReference(newVoltageSetpoint, ControlType.kVoltage, 0, conveyorSetpoint, ArbFFUnits.kVoltage);
+            }
+            else {
+                conveyorPID.setReference(0, ControlType.kVoltage, 0, conveyorSetpoint, ArbFFUnits.kVoltage);
+            }
         }, this);
     }
 
@@ -151,49 +151,25 @@ public class ShooterSubsystem extends SubsystemBase {
     // ring to the flywheel and firing it
     // Only fires if the flywheel is up to speed
     public Command fireNote(boolean isAmp) {
-        return startFlywheels(isAmp ? 1800 : 5400)//amp was 1000
-                .andThen(new WaitUntilCommand(() -> Math.abs(topFlywheelEncoder.getVelocity() - flywheelSetpoint) < 350
-                        && Math.abs(bottomFlywheelEncoder.getVelocity() - flywheelSetpoint) < 350)) // Lower tolerance
+        return startFlywheels(isAmp ? ampSetpoint : speakerSetpoint)//amp was 1000
+                .andThen(new WaitUntilCommand(() -> Math.abs(topFlywheelEncoder.getVelocity() - (isAmp ? ampSetpoint : speakerSetpoint)) < 350
+                        && Math.abs(bottomFlywheelEncoder.getVelocity() - (isAmp ? ampSetpoint : speakerSetpoint)) < 350)) // Lower tolerance
                                                                                                     // range in the
                                                                                                     // future
                 .andThen(new InstantCommand(() -> {
-                    conveyorSetpoint = 12;
                     conveyorMotor.setSmartCurrentLimit(35);
                     System.out.println(topFlywheelEncoder.getVelocity());
                     System.out.println(bottomFlywheelEncoder.getVelocity());
                 }, this))
-                .andThen(toggleMotors(toggleMotorsStates.proceed, toggleMotorsStates.enable)) // proceed seems to do
-                                                                                              // nothing here. What was
-                                                                                              // the intended logic?
+                .andThen(setConveyorReference(conveyorSetpoint))
                 .andThen(new WaitUntilCommand(() -> !isBeamBroken()))
                 .andThen(new InstantCommand(() -> {
-                    conveyorSetpoint = 7.5;
                     conveyorMotor.setSmartCurrentLimit(25);
                 }))
                 .andThen(new WaitCommand(0.5))
-                .andThen(toggleMotors(toggleMotorsStates.disable, toggleMotorsStates.disable))
+                .andThen(setFlywheelReferences(0))
+                .andThen(setConveyorReference(0))
                 .withName("FireNote, isAmp:"+isAmp);
-    }
-
-    public InstantCommand toggleMotors(toggleMotorsStates activateFlywheel, toggleMotorsStates activateConveyor) {
-        return new InstantCommand(() -> {
-            if (activateConveyor == toggleMotorsStates.enable) {
-                conveyorMotor.setVoltage(conveyorSetpoint); //TODO: change to velocity control
-                
-            } else if (activateConveyor == toggleMotorsStates.disable) {
-                conveyorMotor.setVoltage(0);
-            }
-            if (activateFlywheel == toggleMotorsStates.enable) {
-                topPID.setReference(flywheelSetpoint, ControlType.kVelocity, 0, kSTop, ArbFFUnits.kVoltage);
-                bottomPID.setReference(flywheelSetpoint, ControlType.kVelocity, 0, ksBottom, ArbFFUnits.kVoltage);
-            } else if (activateFlywheel == toggleMotorsStates.disable) {
-                // Control mode is set to kVoltage to let the flywheels coast to zero. This is
-                // unneccesary for a bang-bang controller
-                topPID.setReference(0, ControlType.kVoltage, 0, 0, ArbFFUnits.kVoltage);
-                bottomPID.setReference(0, ControlType.kVoltage, 0, 0, ArbFFUnits.kVoltage);
-            }
-            SmartDashboard.putNumber("IntakeRunning", conveyorSetpoint);
-        });
     }
 
     public Command nudgeIntake(){
