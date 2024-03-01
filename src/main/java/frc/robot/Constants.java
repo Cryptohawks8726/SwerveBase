@@ -21,8 +21,14 @@ public final class Constants {
     public enum DriveBase{
         Comp2024(),PracticeBot();
     }
+
+    public enum autoPath{
+        twoRingAutoMid, twoRingAutoRight, twoRingAutoLeft;
+    }
+
     public static final boolean demoMode = false;
     public static final DriveBase driveBase = DriveBase.PracticeBot;
+    public static final autoPath path = autoPath.twoRingAutoMid;
     public static final class Swerve {
         
         // Physical Constants

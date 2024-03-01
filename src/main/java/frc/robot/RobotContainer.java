@@ -6,11 +6,19 @@ package frc.robot;
 
 import com.ctre.phoenix6.unmanaged.Unmanaged;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.EventMarker;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.PathPlannerTrajectory;
+import com.pathplanner.lib.pathfinding.Pathfinder;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.util.concurrent.Event;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.Arm;
@@ -62,17 +70,44 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     if(!Constants.demoMode){
-    // An ExampleCommand will run in autonomous
-    PathPlannerPath path = PathPlannerPath.fromPathFile("Test1");
 
-    // Create a path following command using AutoBuilder. This will also trigger event markers.
-
-    SmartDashboard.putNumber("e", 1);
-    drivetrain.setOdometryPosition(new Pose2d(1.3604378700256348, 5.526217937469482, new Rotation2d(0)));
-    SmartDashboard.putNumber("Gyro angle:", drivetrain.getRobotAngle().getDegrees()%360);
-    PathPlannerPath exampleChoreoTraj = PathPlannerPath.fromChoreoTrajectory("2NoteAutoCenter");
+    PathPlannerPath choreoTraj = PathPlannerPath.fromChoreoTrajectory("2NoteAutoCenter"); //default path
+    for (EventMarker event : choreoTraj.getEventMarkers()){
+      
+    }
     
-    return AutoBuilder.followPath(exampleChoreoTraj);
+    // Create a path following command using AutoBuilder. This will also trigger event markers.
+    if(Constants.path == Constants.autoPath.twoRingAutoMid){ //if robot is centered with the subwoofer
+      drivetrain.setOdometryPosition(new Pose2d(1.3604378700256348, 5.526217937469482, new Rotation2d(3.1415)));
+      choreoTraj = PathPlannerPath.fromChoreoTrajectory("2NoteAutoCenter");
+       for (EventMarker event : choreoTraj.getEventMarkers()){
+        event.getCommand().execute();
+        /*if(event.getCommand().execute();){
+          new InstantCommand(() -> {
+            new WaitCommand(2);
+          });
+        }else if(event.getClass().getName().equals("Shoot first note")){
+          new InstantCommand(() -> {
+            new WaitCommand(3);
+          });
+        }else if(event.getClass().getName().equals("Shoot second note")){
+          new InstantCommand(() -> {
+            new WaitCommand(3);
+          });
+        }*/
+      }
+    }else if(Constants.path == Constants.autoPath.twoRingAutoRight){ //if the robot is angled on the ride side (facing the speaker) of the subwoofer. Top left of the robot's bumper aligned with the edge of the subwoofer
+      drivetrain.setOdometryPosition(new Pose2d(0.7466598153114319, 6.684545040130615, new Rotation2d(-2.094395307179586)));
+      choreoTraj = PathPlannerPath.fromChoreoTrajectory("2NoteAutoRight");
+    }else if(Constants.path == Constants.autoPath.twoRingAutoLeft){
+      drivetrain.setOdometryPosition(new Pose2d(0.7523629665374756, 4.439711570739746, new Rotation2d(2.0943951023931)));
+      choreoTraj = PathPlannerPath.fromChoreoTrajectory("2NoteAutoLeft");
+    }
+    
+    SmartDashboard.putNumber("Gyro angle:", drivetrain.getRobotAngle().getDegrees()%360);
+    
+    
+    return AutoBuilder.followPath(choreoTraj);
     //returnq new InstantCommand(()->drivetrain.drive(new ChassisSpeeds(1, 0, 0.1), false),drivetrain)
     //.andThen(new WaitCommand(5))
     //.andThen(()->drivetrain.drive(new ChassisSpeeds(0, 0, 0), false),drivetrain);
