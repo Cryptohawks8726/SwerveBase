@@ -1,0 +1,49 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.7533434629440308,
+      "y": 6.666699409484863
+    },
+    "rotation": -120.0000117333959
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootFirstNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2NoteAutoRight1.1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2NoteAutoRight2.1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootSecondNote"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}

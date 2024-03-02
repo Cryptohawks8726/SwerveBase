@@ -11,23 +11,36 @@
         "open": true
       },
       "SmartDashboard": {
+        "Auto Chooser": {
+          "open": true,
+          "string[]##v_/SmartDashboard/Auto Chooser/options": {
+            "open": true
+          }
+        },
         "open": true
       }
     },
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Auto Chooser": "String Chooser",
       "/SmartDashboard/Field": "Field2d"
+    },
+    "windows": {
+      "/SmartDashboard/Auto Chooser": {
+        "window": {
+          "visible": true
+        }
+      }
     }
   },
   "NetworkTables Info": {
-    "visible": true
+    "Clients": {
+      "open": true
+    }
   },
   "NetworkTables Settings": {
     "mode": "Client (NT4)",
     "serverTeam": "8726"
-  },
-  "NetworkTables View": {
-    "visible": false
   },
   "Plots": {
     "Plot <0>": {
