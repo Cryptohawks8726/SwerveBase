@@ -18,13 +18,29 @@ public class Limelights extends SubsystemBase {
 
         //read values periodically
         double x = tx.getDouble(0.0);
-        double y = ty.getDouble(0.0);
+        double y = ty.getDouble(0.0); // targetOffsetAngle_Vertical
         double area = ta.getDouble(0.0);
+
+        // how many degrees back is your limelight rotated from perfectly vertical?
+        double limelightMountAngleDegrees = 25.0; 
+
+        // distance from the center of the Limelight lens to the floor (inches)
+        double limelightLensHeightInches = 20.0; 
+
+        // distance from the target to the floor (inches) maybe convert to meters?
+        double goalHeightInches = 60.0; 
+
+        double angleToGoalDegrees = limelightMountAngleDegrees + y;
+        double angleToGoalRadians = angleToGoalDegrees * (Math.PI / 180.0);
+
+        //calculate horizontal distance from limelight to goal
+        double horDistFromGoal = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoalRadians);
 
         //post to smart dashboard periodically
         SmartDashboard.putNumber("LimelightX", x);
         SmartDashboard.putNumber("LimelightY", y);
         SmartDashboard.putNumber("LimelightArea", area);
+        SmartDashboard.putNumber("HorDist", horDistFromGoal);
     }
 }
 
