@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -52,8 +53,10 @@ public class ShooterSubsystem extends SubsystemBase {
     SparkPIDController bottomPID = bottomFlywheelMotor.getPIDController();
     SparkPIDController conveyorPID = conveyorMotor.getPIDController();
 
-    private DigitalInput beamBreakSensor = new DigitalInput(Shooter.beamBreakReceiverPort); // TODO: Wire the emitter to signal - ground to allow
+    private DigitalInput initialBeamBreak = new DigitalInput(Shooter.initialBeamBreakReceiverPort); // TODO: Wire the emitter to signal - ground to allow
                                                                 // for self-tests of the sensor
+    private DigitalInput overshootBeamBreak = new DigitalInput(Shooter.overshootBeamBreakReceiverPort);
+
     // Configures flywheel motors
     public ShooterSubsystem() {
         topPID.setFF(kVTop);
@@ -87,7 +90,8 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Top Flywheel Vel", topFlywheelEncoder.getVelocity());
         SmartDashboard.putNumber("Bottom Flywheel Vel", bottomFlywheelEncoder.getVelocity());
         SmartDashboard.putNumber("Conveyor Vel", conveyorMotor.getEncoder().getVelocity());
-        SmartDashboard.putBoolean("Beam Broken", !beamBreakSensor.get());
+        SmartDashboard.putBoolean("Initial Beam Broken", !initialBeamBreak.get());
+        SmartDashboard.putBoolean("Overshoot Beam Broken", !overshootBeamBreak.get());
     }
 
     /*
@@ -118,9 +122,18 @@ public class ShooterSubsystem extends SubsystemBase {
     public SequentialCommandGroup startIntake() {
         return setConveyorReference(conveyorSetpoint)
                 .andThen(setFlywheelReferences(0))
-                .andThen(new WaitUntilCommand(() -> isBeamBroken()))
-                .andThen(new WaitCommand(0.0425))
-                .andThen(setConveyorReference(0));
+                .andThen(new WaitUntilCommand(() -> initialBeamBreak.get()))
+                .andThen(setConveyorReference(0))
+                .andThen(new WaitCommand(0.125))
+                .andThen(new ConditionalCommand(
+                    setConveyorReference(-6)
+                    .andThen(new WaitUntilCommand(() -> !overshootBeamBreak.get()))
+                    .andThen(setConveyorReference(0)),
+                    new InstantCommand(() -> {
+                        //nah
+                    }),
+                    () -> overshootBeamBreak.get()
+                ));
     }
 
     public InstantCommand setFlywheelReferences(double newVelocitySetpoint) {
@@ -162,7 +175,7 @@ public class ShooterSubsystem extends SubsystemBase {
                     System.out.println(bottomFlywheelEncoder.getVelocity());
                 }, this))
                 .andThen(setConveyorReference(conveyorSetpoint))
-                .andThen(new WaitUntilCommand(() -> !isBeamBroken()))
+                .andThen(new WaitUntilCommand(() -> overshootBeamBreak.get()))
                 .andThen(new InstantCommand(() -> {
                     conveyorMotor.setSmartCurrentLimit(25);
                 }))
@@ -184,10 +197,6 @@ public class ShooterSubsystem extends SubsystemBase {
             SmartDashboard.putNumber("test setpoint", testSetpoint);
             bottomFlywheelMotor.setVoltage(testSetpoint);
         });
-    }
-
-    public boolean isBeamBroken() {
-        return !beamBreakSensor.get();
     }
 
     public InstantCommand testCooking() {

@@ -182,8 +182,10 @@ public final class Constants {
         public static final int topMotorId = 62;
         public static final int bottomMotorId = 61;
         public static final int conveyorMotorId = 60;
-        public static final int beamBreakReceiverPort = 3;
-        public static final int beamBreakEmitterPort = 5;
+        public static final int initialBeamBreakReceiverPort = 3;
+        public static final int initialBeamBreakEmitterPort = 4;
+        public static final int overshootBeamBreakReceiverPort = 5;
+        public static final int overshootBeamBreakEmitterPort = 6;
         // TODO: add gains and current limits after verification
     }
 
