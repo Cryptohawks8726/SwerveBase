@@ -19,16 +19,21 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.ActualXboxTeleopDrive;
 import frc.robot.subsystems.SwerveDrive;
 
+import frc.robot.subsystems.Limelights;
+
 public class RobotContainer {
 
-  private final SwerveDrive drivetrain;
+  //private final SwerveDrive drivetrain; TODO: i just commented this to test limelights
   private final CommandXboxController driverController;
+  private final Limelights limelights;
 
   public RobotContainer() {
 
     Unmanaged.setPhoenixDiagnosticsStartTime(-1);
-    drivetrain = new SwerveDrive();
+    //drivetrain = new SwerveDrive(); TODO: uncomment
     driverController = new CommandXboxController(0);
+
+    limelights = new Limelights();
 
     configureButtonBindings();
   }
@@ -40,9 +45,10 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    drivetrain.setDefaultCommand(new ActualXboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+    // TODO: uncomment
+    //drivetrain.setDefaultCommand(new ActualXboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
     
-    driverController.a().onTrue(drivetrain.resetGyroAngle());
+    //driverController.a().onTrue(drivetrain.resetGyroAngle());TODO: uncomment
 
     // Trigger driverRightBumper = driverController.rightBumper();
     // driverRightBumper.whileTrue(drivetrain.passiveBrake());
@@ -55,6 +61,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    return null;
+    /* TODO: uncomment
     if(!Constants.demoMode){
     // An ExampleCommand will run in autonomou`s
     PathPlannerPath path = PathPlannerPath.fromPathFile("Test1");
@@ -62,8 +70,8 @@ public class RobotContainer {
     // Create a path following command using AutoBuilder. This will also trigger event markers.
 
     SmartDashboard.putNumber("e", 1);
-    drivetrain.setOdometryPosition(new Pose2d(2.659489631652832, 7.026157379150391, new Rotation2d(0)));
-    SmartDashboard.putNumber("Gyro angle:", drivetrain.getRobotAngle().getDegrees()%360);
+    //drivetrain.setOdometryPosition(new Pose2d(2.659489631652832, 7.026157379150391, new Rotation2d(0))); TODO: uncomment
+    //SmartDashboard.putNumber("Gyro angle:", drivetrain.getRobotAngle().getDegrees()%360); TODO: uncomment
     PathPlannerPath exampleChoreoTraj = PathPlannerPath.fromChoreoTrajectory("Path4");
     
     return AutoBuilder.followPath(exampleChoreoTraj);
@@ -71,5 +79,6 @@ public class RobotContainer {
     //.andThen(new WaitCommand(5))
     //.andThen(()->drivetrain.drive(new ChassisSpeeds(0, 0, 0), false),drivetrain);
   } else{ return null;}
+  */
 }
 }

@@ -43,7 +43,7 @@ public class SwerveDrive extends SubsystemBase{
     private SwerveModuleState[] currentModState;
     private SwerveModulePosition[] modPositionStates;
     private SwerveDriveKinematics kinematics;
-    public SwerveDrivePoseEstimator odometry;
+    public SwerveDrivePoseEstimator odometry; // TODO: figure out how to add limelight measurement
     public AHRS gyro;
 
     private Field2d field; 
