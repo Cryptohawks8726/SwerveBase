@@ -38,7 +38,7 @@ public class RobotContainer {
     private final CommandXboxController driverController;
     //private final CommandXboxController operatorController;
     private final SwerveDrive drivetrain;
-    private final SendableChooser<Command> autoChooser;
+    private final SendableChooser<String> autoChooser;
     //private final ShooterSubsystem shooter;
     //private final ClimberSubsystem climber;
     //private final ArmSubsystem arm;
@@ -53,16 +53,33 @@ public class RobotContainer {
       
       driverController = new CommandXboxController(0);
       //operatorController = new CommandXboxController(1);
+
+
       
-      NamedCommands.registerCommand("ShootFirstNote", new WaitCommand(2.0));
-      NamedCommands.registerCommand("IntakeNote", new WaitCommand(2.0));
-      NamedCommands.registerCommand("ShootSecondNote", new WaitCommand(2.0));
+      
+      
 
-      autoChooser = AutoBuilder.buildAutoChooser();
-
+      //autoChooser = AutoBuilder.buildAutoChooser();
+      autoChooser = new SendableChooser<String>();
+      autoChooser.addOption("2NoteCenterAuto","2NoteCenterAuto");
+      autoChooser.addOption("2NoteRightAuto","2NoteRightAuto");
+      autoChooser.addOption("2NoteLeftAuto","2NoteLeftAuto");
       configureBindings();
 
       SmartDashboard.putData("Auto Chooser", autoChooser);
+
+
+      
+
+
+      NamedCommands.registerCommand("ShootFirstNote", new WaitCommand(2)); //shooter.fireNote(false) without remy
+      NamedCommands.registerCommand("IntakeNoteCmd0", new WaitCommand(2));
+      NamedCommands.registerCommand("IntakeNoteCmd1", new WaitCommand(2));
+      //NamedCommands.registerCommand("IntakeNoteCmd2", shooter.startIntake());
+      //NamedCommands.registerCommand("IntakeNoteCmd3", shooter.startFlywheels(5000));
+      NamedCommands.registerCommand("ShootSecondNote", new WaitCommand(2));
+      NamedCommands.registerCommand("ShootThirdNote", new WaitCommand(2));
+      
     }
 
     private void configureBindings() {
@@ -85,23 +102,20 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
       if(!Constants.demoMode){
       System.out.println("Starting auto");
-      System.out.println(autoChooser.getSelected().toString());
 
-      /*if(){
-        drivetrain.setOdometryPosition(new Pose2d(1.3604378700256348, 5.526217937469482, new Rotation2d(3.1415)));
-      }else if(autoChooser.getSelected().toString().equals("2NoteLeftAuto")){
-        drivetrain.setOdometryPosition(new Pose2d(0.7523629665374756, 4.439711570739746, new Rotation2d(2.0943951023931)));
-        
-      }else if(autoChooser.getSelected().toString().equals("2NoteRightAuto")){
-        drivetrain.setOdometryPosition(new Pose2d(0.7533434629440308, 6.666699409484863, new Rotation2d(-2.094395307179586)));
-        
-      }*/
 
-      //return AutoBuilder.followPath(choreoTraj)
-      //drivetrain.setOdometryPosition(new Pose2d(1.3604378700256348, 5.526217937469482, new Rotation2d(3.1415)));
-      drivetrain.setOdometryPosition(new Pose2d(0.7533434629440308, 6.666699409484863, new Rotation2d(-2.094395307179586)));
-      return AutoBuilder.buildAuto("2NoteRightAuto");
-      //return AutoBuilder.buildAuto();
+      if(autoChooser.getSelected().equals("2NoteCenterAuto")){
+        return AutoBuilder.buildAuto("2NoteCenterAuto");
+      }else if(autoChooser.getSelected().equals("2NoteLeftAuto")){
+        return AutoBuilder.buildAuto("2NoteLeftAuto");
+      }else if(autoChooser.getSelected().equals("2NoteRightAuto")){
+        return AutoBuilder.buildAuto("2NoteRightAuto");
+      }else{
+        return AutoBuilder.buildAuto("2NoteCenterAuto"); //default path to do if nothing is selected
+      }
+      
+      
+
     } else{ return null;}
 
   }

@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7533434629440308,
-      "y": 6.666699409484863
+      "x": 0.7523629665374756,
+      "y": 4.439711570739746
     },
-    "rotation": 59.999999999994394
+    "rotation": -59.999999999994394
   },
   "command": {
     "type": "sequential",
@@ -20,19 +20,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "2NoteAutoRight1.1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2NoteAutoRight2.1"
+            "pathName": "3NoteAutoLeft1.1"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "ShootSecondNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3NoteAutoLeft2.1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootThirdNote"
           }
         }
       ]

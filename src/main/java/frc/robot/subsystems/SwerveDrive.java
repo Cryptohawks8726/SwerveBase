@@ -8,7 +8,7 @@ import static frc.robot.Constants.Swerve.ModulePosition.FR;
 import java.util.Arrays;
 import java.util.List;
 
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -249,7 +249,7 @@ public class SwerveDrive extends SubsystemBase{
     }
 
     public void setOdometryPosition(Pose2d setPosition){
-        odometry.resetPosition(getRobotAngle(), getSwerveModulePositions(), setPosition);
+        odometry.resetPosition(gyro.getRotation2d(), getSwerveModulePositions(), setPosition);
         //gyro.setYaw(setPosition.getRotation().getDegrees()-(gyro.getRotation2d().getDegrees()%360));
     }
 

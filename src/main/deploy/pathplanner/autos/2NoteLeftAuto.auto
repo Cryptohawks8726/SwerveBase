@@ -5,7 +5,7 @@
       "x": 0.7523629665374756,
       "y": 4.439711570739746
     },
-    "rotation": 119.99999999999453
+    "rotation": -59.999999999994394
   },
   "command": {
     "type": "sequential",
@@ -21,12 +21,6 @@
           "type": "path",
           "data": {
             "pathName": "2NoteAutoLeft1.1"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "IntakeNote"
           }
         },
         {
