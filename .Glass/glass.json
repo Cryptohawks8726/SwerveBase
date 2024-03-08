@@ -8,15 +8,49 @@
         "open": true
       },
       "SmartDashboard": {
+        "Auto Chooser": {
+          "open": true,
+          "string[]##v_/SmartDashboard/Auto Chooser/options": {
+            "open": true
+          }
+        },
+        "Field": {
+          "open": true
+        },
         "open": true
       }
     },
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Auto Chooser": "String Chooser",
       "/SmartDashboard/Field": "Field2d"
+    },
+    "windows": {
+      "/SmartDashboard/Auto Chooser": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Field": {
+        "bottom": 1476,
+        "height": 8.210550308227539,
+        "left": 150,
+        "right": 2961,
+        "top": 79,
+        "width": 16.541748046875,
+        "window": {
+          "visible": true
+        }
+      }
     }
   },
   "NetworkTables Info": {
+    "Clients": {
+      "open": true
+    },
+    "glass@1": {
+      "open": true
+    },
     "visible": true
   },
   "NetworkTables Settings": {
@@ -33,7 +67,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": -43,
+          "height": 338,
           "series": [
             {
               "color": [
@@ -66,6 +100,7 @@
             0.0,
             0.8500000238418579
           ],
+          "height": 0,
           "height": 0,
           "series": [
             {

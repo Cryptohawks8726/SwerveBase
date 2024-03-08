@@ -106,7 +106,7 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     // TODO: Prevent potentially damaging references from being set by checking
     // current flywheel velocity OR rewrite with a bang-bang controller.
-    private InstantCommand startFlywheels(double motorSpeed) {
+    public InstantCommand startFlywheels(double motorSpeed) {
         return new InstantCommand(() -> {
             topPID.setReference(motorSpeed, ControlType.kVelocity, 0, kSTop, ArbFFUnits.kVoltage);
             bottomPID.setReference(motorSpeed, ControlType.kVelocity, 0, kSBottom, ArbFFUnits.kVoltage);
