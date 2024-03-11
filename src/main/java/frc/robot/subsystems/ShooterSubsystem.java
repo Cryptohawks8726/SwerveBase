@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 
@@ -13,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -28,8 +30,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Feedforward control
     private double ampSetpoint = 1800;
-    private double speakerSetpoint = 5400; // Theoretical, get experimental value top 5570, bottom 5400
-    private final double conveyorSetpoint = 12;
+    private double speakerSetpoint = 5200; // Theoretical, get experimental value top 5570, bottom 5400
+    private final double conveyorSetpoint = 12;//try 12 again
 
     private final double kSTop = 0.0;
     private final double kSBottom = 0.0;
@@ -72,13 +74,14 @@ public class ShooterSubsystem extends SubsystemBase {
         conveyorPID.setI(kIConveyor);
         conveyorPID.setD(kDConveyor);
 
-        topFlywheelMotor.setInverted(false);
-        bottomFlywheelMotor.setInverted(false);
+        topFlywheelMotor.setInverted(true);
+        bottomFlywheelMotor.setInverted(true);
         conveyorMotor.setInverted(false);
 
         topFlywheelMotor.setSmartCurrentLimit(40);
         bottomFlywheelMotor.setSmartCurrentLimit(40);
-        conveyorMotor.setSmartCurrentLimit(25);
+        conveyorMotor.setSmartCurrentLimit(80);
+        conveyorMotor.setIdleMode(IdleMode.kBrake);
 
         topFlywheelMotor.enableVoltageCompensation(12.0);
         bottomFlywheelMotor.enableVoltageCompensation(12.0);
@@ -122,17 +125,19 @@ public class ShooterSubsystem extends SubsystemBase {
     public SequentialCommandGroup startIntake() {
         return setConveyorReference(conveyorSetpoint)
                 .andThen(setFlywheelReferences(0))
-                .andThen(new WaitUntilCommand(() -> initialBeamBreak.get()))
+                .andThen(new WaitUntilCommand(() -> !initialBeamBreak.get()))
+                .andThen(new PrintCommand("Thy beam was broken"))
                 .andThen(setConveyorReference(0))
+                .andThen(new PrintCommand("Conveyor should be zero :("))
                 .andThen(new WaitCommand(0.125))
                 .andThen(new ConditionalCommand(
-                    setConveyorReference(-6)
-                    .andThen(new WaitUntilCommand(() -> !overshootBeamBreak.get()))
+                    setConveyorReference(-1.0)
+                    .andThen(new WaitUntilCommand(() -> overshootBeamBreak.get()))
                     .andThen(setConveyorReference(0)),
                     new InstantCommand(() -> {
                         //nah
                     }),
-                    () -> overshootBeamBreak.get()
+                    () -> !overshootBeamBreak.get()
                 ));
     }
 
@@ -151,11 +156,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public InstantCommand setConveyorReference(double newVoltageSetpoint) {
         return new InstantCommand(() -> {
-            if (newVoltageSetpoint > 0) {
-                conveyorPID.setReference(newVoltageSetpoint, ControlType.kVoltage, 0, conveyorSetpoint, ArbFFUnits.kVoltage);
+            if (newVoltageSetpoint != 0) {
+                conveyorPID.setReference(newVoltageSetpoint, ControlType.kVoltage, 0, 0, ArbFFUnits.kVoltage);
             }
             else {
-                conveyorPID.setReference(0, ControlType.kVoltage, 0, conveyorSetpoint, ArbFFUnits.kVoltage);
+                conveyorPID.setReference(0, ControlType.kVoltage, 0, 0, ArbFFUnits.kVoltage);
             }
         }, this);
     }
@@ -170,15 +175,11 @@ public class ShooterSubsystem extends SubsystemBase {
                                                                                                     // range in the
                                                                                                     // future
                 .andThen(new InstantCommand(() -> {
-                    conveyorMotor.setSmartCurrentLimit(35);
                     System.out.println(topFlywheelEncoder.getVelocity());
                     System.out.println(bottomFlywheelEncoder.getVelocity());
                 }, this))
                 .andThen(setConveyorReference(conveyorSetpoint))
-                .andThen(new WaitUntilCommand(() -> overshootBeamBreak.get()))
-                .andThen(new InstantCommand(() -> {
-                    conveyorMotor.setSmartCurrentLimit(25);
-                }))
+                .andThen(new WaitUntilCommand(() -> !overshootBeamBreak.get()))
                 .andThen(new WaitCommand(0.5))
                 .andThen(setFlywheelReferences(0))
                 .andThen(setConveyorReference(0))
