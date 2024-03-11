@@ -25,7 +25,7 @@ public class ArmSubsystem extends SubsystemBase{
     double shooterVel = 14; // TODO: get initial velocity of shooter
     double maxAmpAngle = 121.5;
    
-    private static final double kp = 4.1;//can be increased a bit
+    private static final double kp = 4.8;//can be increased a bit
     private static final double ki = 0;
     private static final double kd = 0.0;
 
