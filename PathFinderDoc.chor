@@ -145,8 +145,7 @@
                     "scope": [
                         1
                     ],
-                    "type": "StopPoint",
-                    "direction": 0
+                    "type": "StopPoint"
                 }
             ],
             "usesControlIntervalGuessing": true,
@@ -179,7 +178,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         },
         "2NoteAutoRight1": {
             "waypoints": [
@@ -376,8 +375,7 @@
                     "scope": [
                         1
                     ],
-                    "type": "StopPoint",
-                    "direction": 0
+                    "type": "StopPoint"
                 }
             ],
             "usesControlIntervalGuessing": true,
@@ -410,7 +408,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         },
         "2NoteAutoLeft1": {
             "waypoints": [
@@ -640,7 +638,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         },
         "2NoteAutoCenter2": {
             "waypoints": [
@@ -782,7 +780,7 @@
             "usesDefaultFieldObstacles": true,
             "circleObstacles": [],
             "eventMarkers": [],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         },
         "2NoteAutoLeft2": {
             "waypoints": [
@@ -987,7 +985,7 @@
             "usesDefaultFieldObstacles": true,
             "circleObstacles": [],
             "eventMarkers": [],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         },
         "2NoteAutoRight2": {
             "waypoints": [
@@ -1192,7 +1190,7 @@
             "usesDefaultFieldObstacles": true,
             "circleObstacles": [],
             "eventMarkers": [],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         },
         "3NoteAutoRight1": {
             "waypoints": [
@@ -1568,7 +1566,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         },
         "3NoteAutoRight2": {
             "waypoints": [
@@ -2196,7 +2194,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         },
         "3NoteAutoLeft1": {
             "waypoints": [
@@ -2572,7 +2570,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         },
         "3NoteAutoLeft2": {
             "waypoints": [
@@ -3384,7 +3382,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         }
     },
     "splitTrajectoriesAtStopPoints": false,
