@@ -75,8 +75,8 @@ public class RobotContainer {
       NamedCommands.registerCommand("ShootFirstNote", new WaitCommand(2)); //shooter.fireNote(false) without remy
       NamedCommands.registerCommand("IntakeNoteCmd0", new WaitCommand(2));
       NamedCommands.registerCommand("IntakeNoteCmd1", new WaitCommand(2));
-      //NamedCommands.registerCommand("IntakeNoteCmd2", shooter.startIntake());
-      //NamedCommands.registerCommand("IntakeNoteCmd3", shooter.startFlywheels(5000));
+      NamedCommands.registerCommand("IntakeNoteCmd2", new WaitCommand(2));
+      NamedCommands.registerCommand("IntakeNoteCmd3", new WaitCommand(2));
       NamedCommands.registerCommand("ShootSecondNote", new WaitCommand(2));
       NamedCommands.registerCommand("ShootThirdNote", new WaitCommand(2));
       
