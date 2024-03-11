@@ -164,21 +164,9 @@
                             "name": "IntakeNoteCmd0"
                         }
                     }
-                },
-                {
-                    "name": "IntakeNoteCmd1",
-                    "target": 1,
-                    "targetTimestamp": 0.7939983846292135,
-                    "offset": -0.5,
-                    "command": {
-                        "type": "named",
-                        "data": {
-                            "name": "IntakeNoteCmd1"
-                        }
-                    }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "2NoteAutoRight1": {
             "waypoints": [
@@ -394,21 +382,9 @@
                             "name": "IntakeNoteCmd0"
                         }
                     }
-                },
-                {
-                    "name": "IntakeNoteCmd1",
-                    "target": 1,
-                    "targetTimestamp": 1.0715653640298737,
-                    "offset": -0.5,
-                    "command": {
-                        "type": "named",
-                        "data": {
-                            "name": "IntakeNoteCmd1"
-                        }
-                    }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "2NoteAutoLeft1": {
             "waypoints": [
@@ -624,21 +600,9 @@
                             "name": "IntakeNoteCmd0"
                         }
                     }
-                },
-                {
-                    "name": "IntakeNoteCmd0",
-                    "target": 1,
-                    "targetTimestamp": 1.1118334260753977,
-                    "offset": -0.5,
-                    "command": {
-                        "type": "named",
-                        "data": {
-                            "name": "IntakeNoteCmd1"
-                        }
-                    }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "2NoteAutoCenter2": {
             "waypoints": [
@@ -780,7 +744,7 @@
             "usesDefaultFieldObstacles": true,
             "circleObstacles": [],
             "eventMarkers": [],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "2NoteAutoLeft2": {
             "waypoints": [
@@ -985,7 +949,7 @@
             "usesDefaultFieldObstacles": true,
             "circleObstacles": [],
             "eventMarkers": [],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "2NoteAutoRight2": {
             "waypoints": [
@@ -1190,7 +1154,7 @@
             "usesDefaultFieldObstacles": true,
             "circleObstacles": [],
             "eventMarkers": [],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "3NoteAutoRight1": {
             "waypoints": [
@@ -1552,21 +1516,9 @@
                             "name": "IntakeNoteCmd0"
                         }
                     }
-                },
-                {
-                    "name": "IntakeNoteCmd1",
-                    "target": 1,
-                    "targetTimestamp": 1.0298852421977593,
-                    "offset": -0.5,
-                    "command": {
-                        "type": "named",
-                        "data": {
-                            "name": "IntakeCmd1"
-                        }
-                    }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "3NoteAutoRight2": {
             "waypoints": [
@@ -2180,21 +2132,9 @@
                             "name": "IntakeNoteCmd3"
                         }
                     }
-                },
-                {
-                    "name": "IntakeNoteCmd4",
-                    "target": 1,
-                    "targetTimestamp": 2.4759275700543797,
-                    "offset": -0.5,
-                    "command": {
-                        "type": "named",
-                        "data": {
-                            "name": "IntakeNoteCmd4"
-                        }
-                    }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "3NoteAutoLeft1": {
             "waypoints": [
@@ -2556,21 +2496,9 @@
                             "name": "IntakeNoteCmd0"
                         }
                     }
-                },
-                {
-                    "name": "IntakeNoteCmd1",
-                    "target": 1,
-                    "targetTimestamp": 1.1118334260753984,
-                    "offset": -0.5,
-                    "command": {
-                        "type": "named",
-                        "data": {
-                            "name": "IntakeNoteCmd1"
-                        }
-                    }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "3NoteAutoLeft2": {
             "waypoints": [
@@ -3368,21 +3296,9 @@
                             "name": "IntakeNoteCmd3"
                         }
                     }
-                },
-                {
-                    "name": "IntakeNoteCmd4",
-                    "target": 2,
-                    "targetTimestamp": 2.4796757339251627,
-                    "offset": -0.5,
-                    "command": {
-                        "type": "named",
-                        "data": {
-                            "name": "IntakeNoteCmd4"
-                        }
-                    }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         }
     },
     "splitTrajectoriesAtStopPoints": false,
