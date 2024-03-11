@@ -27,7 +27,7 @@ public final class Constants {
     }
 
     public static final boolean demoMode = false;
-    public static final DriveBase driveBase = DriveBase.PracticeBot;
+    public static final DriveBase driveBase = DriveBase.Comp2024;
     public static final autoPath path = autoPath.twoRingAutoMid;
     public static final class Swerve {
         
@@ -156,7 +156,8 @@ public final class Constants {
     public final class Arm{
         public static final int leftMotorId = 51;
         public static final int rightMotorId = 50;
-        public static final double absEncoderOffset = 120;
+        public static final double absEncoderOffset = 343.3922443;
+        
         // TODO: add gains and current limits after verification    
         public static final double kP = 0.0;
         public static final double kI = 0.0;
@@ -172,7 +173,7 @@ public final class Constants {
 
 
 
-        public static final State intakeState = new State(Math.toRadians(10.0), 0);
+        public static final State intakeState = new State(Math.toRadians(2.65), 0);
         public static final State ampState = new State(Math.toRadians(117), 0);//No clue if this is accurate
         public static final State sourceState = new State(Math.toRadians(81),0);//Also no clue
     }
@@ -185,9 +186,9 @@ public final class Constants {
     }
 
     public final class Shooter{
-        public static final int topMotorId = 62;
-        public static final int bottomMotorId = 61;
-        public static final int conveyorMotorId = 60;
+        public static final int topMotorId = 61;
+        public static final int bottomMotorId = 60;
+        public static final int conveyorMotorId = 62;
         public static final int initialBeamBreakReceiverPort = 2;
         public static final int overshootBeamBreakReceiverPort = 3;
         // TODO: add gains and current limits after verification
