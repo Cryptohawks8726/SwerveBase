@@ -74,11 +74,12 @@ public class ArmSubsystem extends SubsystemBase{
             t += 0.02;
             State setpoint = trapezoidProfile.calculate(t,
                     new State(getArmRad(), toRads(absoluteEncoder.getVelocity())), goal);
-            double ff = armFF.calculate(setpoint.position - toRads(17.5), setpoint.velocity);// 14 degrees accounts for
+            double ff = armFF.calculate(setpoint.position - toRads(17.0), setpoint.velocity);// 14 degrees accounts for
                                                                                              // offset from parallel
             pidController.setSetpoint(setpoint.position);
             double pidOutput = pidController.calculate(toRads(getArmDeg()));
 
+           /* if(getArmDeg()<4 && (pidOutput + ff) >0 ){motorController.setVoltage(0)}else{motorControl*/
             motorController.setVoltage(pidOutput + ff);
             SmartDashboard.putNumber("Applied Voltage", pidOutput + ff);
             SmartDashboard.putNumber("Set Pos", setpoint.position);
@@ -92,6 +93,7 @@ public class ArmSubsystem extends SubsystemBase{
             motorController.setVoltage(0.0);
             motorController.setIdleMode(IdleMode.kCoast);
             motorController2.setIdleMode(IdleMode.kCoast);
+            SmartDashboard.putNumber("Set Pos", Arm.intakeState.position);
         }
        // motorController2.setVoltage(pidOutput+ff);
 
