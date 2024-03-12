@@ -187,9 +187,9 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command nudgeIntake(){
-        return new InstantCommand(()->conveyorMotor.setVoltage(-5.0))
+        return new InstantCommand(()->setConveyorReference(-5.0))
         .andThen(new WaitCommand(0.1))
-        .finallyDo(()->conveyorMotor.setVoltage(0.0));
+        .finallyDo(()->setConveyorReference(0.0));
     }
 
     public Command staticGainTest() {
