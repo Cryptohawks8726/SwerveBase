@@ -61,13 +61,13 @@ public class RobotContainer {
 
       drivetrain.setDefaultCommand(new ActualXboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
       driverController.start().onTrue(drivetrain.resetGyroAngle());
-      operatorController.leftTrigger().onTrue(shooter.startIntake());
-      operatorController.rightTrigger().onTrue(shooter.fireNote(false));//arm.atStatePos(Arm.ampState)
+      operatorController.leftTrigger().onTrue(shooter.startIntake().withTimeout(10));
+      operatorController.rightTrigger().onTrue(shooter.fireNote(false).withTimeout(5));//arm.atStatePos(Arm.ampState)
       operatorController.leftBumper().onTrue(shooter.nudgeIntake());
 
-    operatorController.a().onTrue(arm.rotateToState(Arm.intakeState));
-    operatorController.b().onTrue(arm.rotateToState(Arm.ampState));
-    operatorController.y().onTrue(arm.rotateToState(Arm.sourceState));
+      operatorController.a().onTrue(arm.rotateToState(Arm.intakeState));
+      operatorController.b().onTrue(arm.rotateToState(Arm.ampState));
+      operatorController.y().onTrue(arm.rotateToState(Arm.sourceState));
 
       operatorController.back().onTrue(climber.smartReleaseClimber());
       operatorController.start().onTrue(climber.smartClimb());
