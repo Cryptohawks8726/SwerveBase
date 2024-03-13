@@ -25,12 +25,13 @@ public class ArmSubsystem extends SubsystemBase{
     double shooterVel = 14; // TODO: get initial velocity of shooter
     double maxAmpAngle = 121.5;
    
-    private static final double kp = 4.8;//can be increased a bit
+    private static final double kp = 5.2;//can be increased a bit
     private static final double ki = 0;
     private static final double kd = 0.0;
+    //private static final double downKp = 2.5;
 
     double ks = 0.135;
-    double kg = 0.55; //0.33
+    double kg = 0.33; //0.33
     double kv = 3.25; //3.62 
     double ka = 0; //0.02
     private static final double DEG_TO_RAD = 0.017453292519943295; 
@@ -40,6 +41,7 @@ public class ArmSubsystem extends SubsystemBase{
     private static final SparkAbsoluteEncoder absoluteEncoder = motorController.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
     
     private final Constraints constraints = new Constraints(Arm.maxVelRads, Arm.maxAccelRads); // TODO: find good constraints (in rad/s)
+    private final Constraints downconstraints = new Constraints(2.5, 0.5);
     private static final PIDController pidController = new PIDController(kp, ki, kd); // degrees
     private final ArmFeedforward armFF = new ArmFeedforward(ks, kg, kv, ka);
     private final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(constraints); //TODO: Set down constraints with more limited acceleration
