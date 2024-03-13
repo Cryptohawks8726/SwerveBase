@@ -186,10 +186,28 @@ public class ShooterSubsystem extends SubsystemBase {
                 .withName("FireNote, isAmp:"+isAmp);
     }
 
+    public Command stopShooter(){
+        return
+            setFlywheelReferences(0.0)
+            .andThen(setConveyorReference(0.0))
+            ;
+    }
+
     public Command nudgeIntake(){
-        return new InstantCommand(()->setConveyorReference(-5.0))
-        .andThen(new WaitCommand(0.1))
-        .finallyDo(()->setConveyorReference(0.0));
+        return setConveyorReference(-1.0)
+        .andThen(new WaitCommand(0.5))
+        .andThen(setConveyorReference(0.0));
+    }
+
+    public Command pullBackNote(){
+        return new ConditionalCommand(
+                    setConveyorReference(-1.0)
+                    .andThen(new WaitUntilCommand(() -> overshootBeamBreak.get()))
+                    .andThen(setConveyorReference(0)),
+                    new InstantCommand(() -> {
+                        //nah
+                    }),
+                    () -> !overshootBeamBreak.get());
     }
 
     public Command staticGainTest() {

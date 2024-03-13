@@ -7,9 +7,15 @@ package frc.robot;
 import com.ctre.phoenix6.unmanaged.Unmanaged;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.WrapperCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.Arm;
@@ -45,15 +51,19 @@ public class RobotContainer {
       autoChooser.addOption("2NoteCenterAuto","2NoteCenterAuto");
       autoChooser.addOption("2NoteRightAuto","2NoteRightAuto");
       autoChooser.addOption("2NoteLeftAuto","2NoteLeftAuto");
+      autoChooser.addOption("3NoteRightAuto", "3NoteRightAuto");
+      autoChooser.addOption("3NoteLeftAuto", "3NoteLeftAuto");
       configureBindings();
 
       SmartDashboard.putData("Auto Chooser", autoChooser);
 
-      NamedCommands.registerCommand("ShootFirstNote", shooter.fireNote(false)); //shooter.fireNote(false) without remy
-      NamedCommands.registerCommand("IntakeNoteCmd0", shooter.startIntake());
-      NamedCommands.registerCommand("IntakeNoteCmd2", shooter.startIntake());
-      NamedCommands.registerCommand("ShootSecondNote", shooter.startIntake());
-      NamedCommands.registerCommand("ShootThirdNote", shooter.startIntake());
+      NamedCommands.registerCommand("ShootFirstNote", arm.rotateToState(new State(Math.toRadians(7.5), 0)).andThen(shooter.fireNote(false))); //shooter.fireNote(false) without remy
+      NamedCommands.registerCommand("IntakeNoteCmd0", arm.rotateToState(new State(Math.toRadians(4.7), 0))
+        .andThen(shooter.startIntake()));
+      NamedCommands.registerCommand("IntakeNoteCmd3", arm.rotateToState(new State(Math.toRadians(4.7), 0))
+        .andThen(shooter.startIntake()));
+      NamedCommands.registerCommand("ShootSecondNote", arm.rotateToState(new State(Math.toRadians(7.5), 0)).andThen(shooter.fireNote(false)));
+      NamedCommands.registerCommand("ShootThirdNote", arm.rotateToState(new State(Math.toRadians(7.5), 0)).andThen(shooter.fireNote(false)));
       
     }
 
@@ -61,10 +71,23 @@ public class RobotContainer {
 
       drivetrain.setDefaultCommand(new ActualXboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
       driverController.start().onTrue(drivetrain.resetGyroAngle());
-      operatorController.leftTrigger().onTrue(shooter.startIntake().withTimeout(10));
-      operatorController.rightTrigger().onTrue(shooter.fireNote(false).withTimeout(5));//arm.atStatePos(Arm.ampState)
+      
+      operatorController.leftTrigger()
+          .onTrue(
+              arm.rotateToState(Arm.tempIntakeState)
+          .andThen(shooter.startIntake()));
+      // .onFalse(shooter.stopShooter()); //stopShooter isn't functional atm
+      operatorController.rightTrigger()
+          .onTrue(
+              new ConditionalCommand(
+                  new PrintCommand("Already at angle"),
+                  arm.rotateToState(Arm.tempShootState),
+                  () -> arm.getArmDeg() > 40) // This checks if the Arm is likely going for the amp
+          .andThen(shooter.fireNote(false)));
+          //.onFalse(shooter.stopShooter());
       operatorController.leftBumper().onTrue(shooter.nudgeIntake());
-
+      operatorController.povUp().onTrue(shooter.pullBackNote());
+      //operatorController.rightBumper().onTrue(shooter.stopShooter());
       operatorController.a().onTrue(arm.rotateToState(Arm.intakeState));
       operatorController.b().onTrue(arm.rotateToState(Arm.ampState));
       operatorController.y().onTrue(arm.rotateToState(Arm.sourceState));
