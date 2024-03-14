@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.Shooter;
@@ -38,7 +37,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private final double kVTop = 1.0 / 5570.0;
     private final double kVBottom = 1.0 / 5400.0;
-    private final double kVConveyor = 1;
 
     private double testSetpoint = 0.0;
 
@@ -122,23 +120,28 @@ public class ShooterSubsystem extends SubsystemBase {
      * 
      * @Return The SequentialCommandGroup to run the intake sequence
      */
-    public SequentialCommandGroup startIntake() {
-        return setConveyorReference(conveyorSetpoint)
-                .andThen(setFlywheelReferences(0))
-                .andThen(new WaitUntilCommand(() -> !initialBeamBreak.get()))
-                .andThen(new PrintCommand("Thy beam was broken"))
-                .andThen(setConveyorReference(0))
-                .andThen(new PrintCommand("Conveyor should be zero :("))
-                .andThen(new WaitCommand(0.125))
-                .andThen(new ConditionalCommand(
-                    setConveyorReference(-1.0)
-                    .andThen(new WaitUntilCommand(() -> overshootBeamBreak.get()))
-                    .andThen(setConveyorReference(0)),
-                    new InstantCommand(() -> {
-                        //nah
-                    }),
-                    () -> !overshootBeamBreak.get()
-                ));
+    public ConditionalCommand startIntake() {
+        return new ConditionalCommand(
+            setConveyorReference(conveyorSetpoint)
+            .andThen(setFlywheelReferences(0))
+            .andThen(new WaitUntilCommand(() -> !initialBeamBreak.get()))
+            .andThen(new PrintCommand("Thy beam was broken"))
+            .andThen(setConveyorReference(0))
+            .andThen(new WaitCommand(0.125))
+            .andThen(new ConditionalCommand(
+                setConveyorReference(-1.0)
+                .andThen(new WaitUntilCommand(() -> overshootBeamBreak.get()))
+                .andThen(setConveyorReference(0)),
+                new InstantCommand(() -> {
+                    //nah
+                }),
+                () -> !overshootBeamBreak.get()
+            )),
+            new InstantCommand(() -> {
+                //nah
+            }),
+            () -> initialBeamBreak.get()
+        );
     }
 
     public InstantCommand setFlywheelReferences(double newVelocitySetpoint) {
@@ -169,28 +172,33 @@ public class ShooterSubsystem extends SubsystemBase {
     // ring to the flywheel and firing it
     // Only fires if the flywheel is up to speed
     public Command fireNote(boolean isAmp) {
-        return startFlywheels(isAmp ? ampSetpoint : speakerSetpoint)//amp was 1000
-                .andThen(new WaitUntilCommand(() -> Math.abs(topFlywheelEncoder.getVelocity() - (isAmp ? ampSetpoint : speakerSetpoint)) < 350
-                        && Math.abs(bottomFlywheelEncoder.getVelocity() - (isAmp ? ampSetpoint : speakerSetpoint)) < 350)) // Lower tolerance
-                                                                                                    // range in the
-                                                                                                    // future
-                .andThen(new InstantCommand(() -> {
-                    System.out.println(topFlywheelEncoder.getVelocity());
-                    System.out.println(bottomFlywheelEncoder.getVelocity());
-                }, this))
-                .andThen(setConveyorReference(conveyorSetpoint))
-                .andThen(new WaitUntilCommand(() -> !overshootBeamBreak.get()))
-                .andThen(new WaitCommand(0.5))
-                .andThen(setFlywheelReferences(0))
-                .andThen(setConveyorReference(0))
-                .withName("FireNote, isAmp:"+isAmp);
+        return new ConditionalCommand(
+            startFlywheels(isAmp ? ampSetpoint : speakerSetpoint)//amp was 1000
+            .andThen(new WaitUntilCommand(() -> Math.abs(topFlywheelEncoder.getVelocity() - (isAmp ? ampSetpoint : speakerSetpoint)) < 350
+                    && Math.abs(bottomFlywheelEncoder.getVelocity() - (isAmp ? ampSetpoint : speakerSetpoint)) < 350)) // Lower tolerance
+                                                                                                // range in the
+                                                                                                // future
+            .andThen(new InstantCommand(() -> {
+                System.out.println(topFlywheelEncoder.getVelocity());
+                System.out.println(bottomFlywheelEncoder.getVelocity());
+            }, this))
+            .andThen(setConveyorReference(conveyorSetpoint))
+            .andThen(new WaitUntilCommand(() -> !overshootBeamBreak.get()))
+            .andThen(new WaitCommand(0.5))
+            .andThen(setFlywheelReferences(0))
+            .andThen(setConveyorReference(0))
+            .withName("FireNote, isAmp: " + isAmp),
+            new InstantCommand(() -> {/*nah*/
+
+            }),
+            () -> !initialBeamBreak.get()
+        );
     }
 
     public Command stopShooter(){
         return
             setFlywheelReferences(0.0)
-            .andThen(setConveyorReference(0.0))
-            ;
+            .andThen(setConveyorReference(0.0));
     }
 
     public Command nudgeIntake(){
