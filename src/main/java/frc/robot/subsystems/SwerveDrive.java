@@ -86,7 +86,7 @@ public class SwerveDrive extends SubsystemBase{
         );
         
         gyro = new Pigeon2(Constants.Swerve.pigeonId);
-        gyro.setYaw(0.0);//TODO: Remove
+        gyro.setYaw(180);//TODO: Remove
 
 
         if(RobotBase.isSimulation()){
@@ -279,7 +279,7 @@ public class SwerveDrive extends SubsystemBase{
     }
 
     public InstantCommand resetGyroAngle(){
-        return new InstantCommand(() ->odometry.resetPosition(gyro.getRotation2d(), getSwerveModulePositions(), odometry.getEstimatedPosition())
+        return new InstantCommand(() -> odometry.resetPosition(gyro.getRotation2d(), getSwerveModulePositions(), new Pose2d(odometry.getEstimatedPosition().getTranslation(),Rotation2d.fromDegrees(0.0)))
 );
     }
 
