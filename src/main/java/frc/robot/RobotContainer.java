@@ -9,6 +9,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,6 +31,7 @@ public class RobotContainer {
 
     private final CommandXboxController driverController;
     private final CommandXboxController operatorController;
+    private final GenericHID operatorControllerHID;
     private final SwerveDrive drivetrain;
     private final SendableChooser<String> autoChooser;
     private final ShooterSubsystem shooter;
@@ -45,6 +48,7 @@ public class RobotContainer {
       
       driverController = new CommandXboxController(0);
       operatorController = new CommandXboxController(1);
+      operatorControllerHID = operatorController.getHID();
 
       //autoChooser = AutoBuilder.buildAutoChooser();
       autoChooser = new SendableChooser<String>();
@@ -74,27 +78,34 @@ public class RobotContainer {
       
       operatorController.leftTrigger()
           .onTrue(
-              arm.rotateToState(Arm.tempIntakeState)
-          .andThen(shooter.startIntake()));
-      // .onFalse(shooter.stopShooter()); //stopShooter isn't functional atm
+            new ConditionalCommand(
+                  arm.rotateToState(Arm.tempIntakeState),
+                  new PrintCommand("Arm not lowered for intake"),
+                  () -> arm.getArmDeg() < 40)
+          .andThen(shooter.startIntake()))
+      .onFalse(shooter.stopShooter()); //stopShooter isn't functional atm
       operatorController.rightTrigger()
           .onTrue(
               new ConditionalCommand(
                   new PrintCommand("Already at angle"),
                   arm.rotateToState(Arm.tempShootState),
                   () -> arm.getArmDeg() > 40) // This checks if the Arm is likely going for the amp
-          .andThen(shooter.fireNote(false)));
-          //.onFalse(shooter.stopShooter());
+          .andThen(shooter.fireNote(false)))
+          .onFalse(shooter.stopShooter());
       operatorController.leftBumper().onTrue(shooter.nudgeIntake());
       operatorController.povUp().onTrue(shooter.pullBackNote());
-      //operatorController.rightBumper().onTrue(shooter.stopShooter());
+      operatorController.rightBumper().onTrue(shooter.stopShooter());
       operatorController.a().onTrue(arm.rotateToState(Arm.intakeState));
       operatorController.b().onTrue(arm.rotateToState(Arm.ampState));
       operatorController.y().onTrue(arm.rotateToState(Arm.sourceState));
-
+      operatorController.x().onTrue(arm.rotateToState(Arm.podiumState));
       operatorController.back().onTrue(climber.smartReleaseClimber());
       operatorController.start().onTrue(climber.smartClimb());
-      
+      shooter.hasNote()
+        .onTrue(new InstantCommand(()->operatorControllerHID.setRumble(RumbleType.kBothRumble, 0.5)))
+        .onFalse(new InstantCommand(()->operatorControllerHID.setRumble(RumbleType.kBothRumble, 0)));
+
+      //shooter.noteReady()
     }
 
     public Command getAutonomousCommand() {

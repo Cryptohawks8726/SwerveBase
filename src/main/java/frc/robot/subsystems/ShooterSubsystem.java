@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Shooter;
 
 public class ShooterSubsystem extends SubsystemBase {
@@ -51,14 +52,15 @@ public class ShooterSubsystem extends SubsystemBase {
     private final double kIConveyor = 0;
     private final double kDConveyor = 0;
 
-    SparkPIDController topPID = topFlywheelMotor.getPIDController();
-    SparkPIDController bottomPID = bottomFlywheelMotor.getPIDController();
-    SparkPIDController conveyorPID = conveyorMotor.getPIDController();
+    private SparkPIDController topPID = topFlywheelMotor.getPIDController();
+    private SparkPIDController bottomPID = bottomFlywheelMotor.getPIDController();
+    private SparkPIDController conveyorPID = conveyorMotor.getPIDController();
 
     private DigitalInput initialBeamBreak = new DigitalInput(Shooter.initialBeamBreakReceiverPort); // TODO: Wire the emitter to signal - ground to allow
                                                                 // for self-tests of the sensor
     private DigitalInput overshootBeamBreak = new DigitalInput(Shooter.overshootBeamBreakReceiverPort);
-
+    
+    private boolean noteReady;
     // Configures flywheel motors
     public ShooterSubsystem() {
         topPID.setFF(kVTop);
@@ -85,7 +87,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
         topFlywheelMotor.enableVoltageCompensation(12.0);
         bottomFlywheelMotor.enableVoltageCompensation(12.0);
-        conveyorMotor.enableVoltageCompensation(12.0);        
+        conveyorMotor.enableVoltageCompensation(12.0); 
+        noteReady = false;       
     };
 
     @Override
@@ -132,8 +135,11 @@ public class ShooterSubsystem extends SubsystemBase {
                 .andThen(new WaitCommand(0.125))
                 .andThen(new ConditionalCommand(
                     setConveyorReference(-1.0)
+                    //.andThen(setFlywheelReferences(-50))
                     .andThen(new WaitUntilCommand(() -> overshootBeamBreak.get()))
-                    .andThen(setConveyorReference(0)),
+                    .andThen(setConveyorReference(0))
+                    //.andThen(setFlywheelReferences(0))
+                    .andThen(()->noteReady = true),
                     new InstantCommand(() -> {
                         //nah
                     }),
@@ -179,8 +185,9 @@ public class ShooterSubsystem extends SubsystemBase {
                     System.out.println(bottomFlywheelEncoder.getVelocity());
                 }, this))
                 .andThen(setConveyorReference(conveyorSetpoint))
-                .andThen(new WaitUntilCommand(() -> !overshootBeamBreak.get()))
-                .andThen(new WaitCommand(0.5))
+                .andThen(new WaitUntilCommand(() -> overshootBeamBreak.get()))
+                .andThen(()->noteReady = false)
+                .andThen(new WaitCommand(0.5))//remove
                 .andThen(setFlywheelReferences(0))
                 .andThen(setConveyorReference(0))
                 .withName("FireNote, isAmp:"+isAmp);
@@ -223,4 +230,13 @@ public class ShooterSubsystem extends SubsystemBase {
             conveyorMotor.setVoltage(12);
         });
     }
+
+    public Trigger hasNote(){
+        return new Trigger(()->(!initialBeamBreak.get() || !overshootBeamBreak.get()));
+    }
+
+    public Trigger noteReady(){
+        return  new Trigger(()->(noteReady && overshootBeamBreak.get() && !initialBeamBreak.get()));
+    }
+
 }
