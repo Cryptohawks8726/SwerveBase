@@ -52,11 +52,12 @@ public class RobotContainer {
 
       //autoChooser = AutoBuilder.buildAutoChooser();
       autoChooser = new SendableChooser<String>();
-      autoChooser.addOption("2NoteCenterAuto","2NoteCenterAuto");
-      autoChooser.addOption("2NoteRightAuto","2NoteRightAuto");
-      autoChooser.addOption("2NoteLeftAuto","2NoteLeftAuto");
+      autoChooser.setDefaultOption("2NoteCenterAuto","2NoteCenterAuto");
+      autoChooser.addOption("2NoteAmpSideAuto","2NoteAmpSideAuto");
+      autoChooser.addOption("2NoteSourceSideAuto","2NoteSourceSideAuto");
       autoChooser.addOption("3NoteRightAuto", "3NoteRightAuto");
       autoChooser.addOption("3NoteLeftAuto", "3NoteLeftAuto");
+
       configureBindings();
 
       SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -115,9 +116,9 @@ public class RobotContainer {
       if (autoChooser.getSelected() != null) {
         if (autoChooser.getSelected().equals("2NoteCenterAuto")) {
           return AutoBuilder.buildAuto("2NoteCenterAuto");
-        } else if (autoChooser.getSelected().equals("2NoteLeftAuto")) {
+        } else if (autoChooser.getSelected().equals("2NoteSourceSideAuto")) {
           return AutoBuilder.buildAuto("2NoteLeftAuto");
-        } else if (autoChooser.getSelected().equals("2NoteRightAuto")) {
+        } else if (autoChooser.getSelected().equals("2NoteAmpSideAuto")) {
           return AutoBuilder.buildAuto("2NoteRightAuto");
         } else {
           return AutoBuilder.buildAuto("2NoteCenterAuto"); // default path to do if nothing is selected
