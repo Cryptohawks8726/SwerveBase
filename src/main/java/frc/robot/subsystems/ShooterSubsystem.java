@@ -191,10 +191,6 @@ public class ShooterSubsystem extends SubsystemBase {
                         && Math.abs(bottomFlywheelEncoder.getVelocity() - (isAmp ? ampSetpoint : speakerSetpoint)) < 350)) // Lower tolerance
                                                                                                     // range in the
                                                                                                     // future
-                .andThen(new InstantCommand(() -> {
-                    System.out.println(topFlywheelEncoder.getVelocity());
-                    System.out.println(bottomFlywheelEncoder.getVelocity());
-                }, this))
                 .andThen(setConveyorReference(conveyorSetpoint))
                 .andThen(new WaitUntilCommand(() -> !overshootBeamBreak.get()))
                 .andThen(new WaitCommand(0.125))
