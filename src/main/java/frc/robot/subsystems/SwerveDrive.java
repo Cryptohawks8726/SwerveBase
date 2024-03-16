@@ -10,6 +10,7 @@ import java.util.List;
 
 
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.sim.Pigeon2SimState;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -26,6 +27,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.proto.Kinematics;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
@@ -51,6 +53,8 @@ public class SwerveDrive extends SubsystemBase{
 
     private Field2d field; 
     private FieldObject2d[] modPoses;
+    private Pigeon2SimState gyroSim;
+    private ChassisSpeeds lastSetSpeeds;
    
     public SwerveDrive(){
         modules = Arrays.asList(
@@ -82,13 +86,14 @@ public class SwerveDrive extends SubsystemBase{
         );
         
         gyro = new Pigeon2(Constants.Swerve.pigeonId);
-        
+        gyro.setYaw(0.0);//TODO: Remove
 
 
-        // TODO: check for 2024 version
-        //gyro.calibrate(); // possibly move to avoid the robot being moved during calibration        
-        // simGyro = new AnalogGyroSim(0);
-        gyro.setYaw(0.0);
+        if(RobotBase.isSimulation()){
+            gyroSim = gyro.getSimState();
+            lastSetSpeeds = new ChassisSpeeds();
+        }
+
         odometry = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), modPositionStates, new Pose2d()); 
         
         field = new Field2d();
@@ -154,37 +159,15 @@ public class SwerveDrive extends SubsystemBase{
         logValues(false);
 
     }
-    /* 
     @Override
     public void simulationPeriodic(){
-        
-        // multiplying by 0.001 makes it more usable, it isn't based on an accurate time interval
-        simGyro.setAngle(simGyro.getAngle() + lastSetChassisSpeeds.omegaRadiansPerSecond*57.2958*0.001);
-        odometry.update(
-            new Rotation2d(simGyro.getAngle()), 
-            getSwerveModulePositions()
-        );
-
-        Pose2d estimatedPostition = odometry.getEstimatedPosition();
-
-        field.setRobotPose(estimatedPostition);
-        // sim new positions of modules
-        for (int i = 0;i<4;i++){
-            modPoses[i].setPose(
-                estimatedPostition // current robot origin
-                .plus(
-                    modules.get(i).getCenterTransform() // transform by constant translation to module
-                    .plus
-                        (new Transform2d(new Translation2d(),modules.get(i).getLastSetState().angle)) // set mod rotation to the last set angle
-                    )
-            );
-        }
-
-    };*/
+        gyroSim.addYaw(Math.toDegrees(0.02*lastSetSpeeds.omegaRadiansPerSecond));
+    }
 
     
     public void drive(ChassisSpeeds robotSpeeds, boolean isClosedLoop){  
         robotSpeeds = ChassisSpeeds.discretize(robotSpeeds, 0.2);
+        lastSetSpeeds = robotSpeeds;
         modStates = kinematics.toSwerveModuleStates(robotSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(modStates,Constants.Swerve.maxSpeed);
         //SmartDashboard.putNumber("expectedRotation", robotSpeeds.omegaRadiansPerSecond);
@@ -268,7 +251,11 @@ public class SwerveDrive extends SubsystemBase{
     }
 
     public SwerveModulePosition[] getSwerveModulePositions(){
-        modules.forEach(mod -> {modPositionStates[mod.getModPos().getVal()] = mod.getCurrentPosition();});
+        if(RobotBase.isReal()){
+            modules.forEach(mod -> {modPositionStates[mod.getModPos().getVal()] = mod.getCurrentPosition();});
+        }else{
+            modules.forEach(mod -> {modPositionStates[mod.getModPos().getVal()] = mod.getSimulatedPosition(0.02);});
+        }
         return modPositionStates;
     }
 
@@ -292,7 +279,8 @@ public class SwerveDrive extends SubsystemBase{
     }
 
     public InstantCommand resetGyroAngle(){
-        return new InstantCommand(() -> resetOdometry(new Pose2d()));
+        return new InstantCommand(() ->odometry.resetPosition(gyro.getRotation2d(), getSwerveModulePositions(), odometry.getEstimatedPosition())
+);
     }
 
     public void logValues(boolean moduleLevel){ 

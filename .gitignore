@@ -181,3 +181,5 @@ ctre_sim/
 .Glass/
 # DataLogTool
 .DataLogTool/
+
+networktables.json
