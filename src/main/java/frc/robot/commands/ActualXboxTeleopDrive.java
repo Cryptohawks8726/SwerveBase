@@ -4,6 +4,8 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.internal.DriverStationModeThread;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,6 +20,7 @@ public class ActualXboxTeleopDrive extends Command {
     private boolean isHeadingSet;
     private PIDController headingPID;
     private double translationalSpeed,thetaSpeed;
+    private int inversion;
     
     public ActualXboxTeleopDrive(SwerveDrive drivetrain, CommandXboxController controller){
         this.drivetrain = drivetrain;
@@ -37,11 +40,15 @@ public class ActualXboxTeleopDrive extends Command {
     @Override
     public void execute(){
         /* X axis is forward from driver perspective, and the Y axis is parallel to the driver station wall. 
-    See https://docs.wpilib.org/en/stable/docs/software/advanced-controls/geometry/coordinate-systems.html 
+        See https://docs.wpilib.org/en/stable/docs/software/advanced-controls/geometry/coordinate-systems.html 
         The controller axes have x as left-right and y as up-down
         */
 
-    
+        if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
+            inversion = -1;
+        }else{
+            inversion = 1;
+        }
 
         boolean isRobotRelative = controller.leftTrigger().getAsBoolean();
         SmartDashboard.putBoolean("robotRelative", isRobotRelative);
@@ -77,7 +84,7 @@ public class ActualXboxTeleopDrive extends Command {
         }
         drivetrain.drive(
              isRobotRelative ? new ChassisSpeeds(xVel, yVel, thetaVel)
-            : ChassisSpeeds.fromFieldRelativeSpeeds(xVel, yVel, thetaVel, drivetrain.getRobotAngle())
+            : ChassisSpeeds.fromFieldRelativeSpeeds(xVel*inversion, yVel*inversion, thetaVel, drivetrain.getRobotAngle())
             ,true
         );
     }
