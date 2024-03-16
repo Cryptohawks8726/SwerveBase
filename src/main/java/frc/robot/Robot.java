@@ -23,6 +23,7 @@ public class Robot extends TimedRobot {
     DataLogManager.start();
     DriverStation.startDataLog(DataLogManager.getLog());
     commandInitLog = new StringLogEntry(DataLogManager.getLog(), "CommandInitList");
+    ArmSubsystem.initArmSetpoint();
   }
 
   @Override
@@ -42,7 +43,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    ArmSubsystem.initArmSetpoint();
+    
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
@@ -63,7 +64,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    ArmSubsystem.initArmSetpoint();
+    //ArmSubsystem.initArmSetpoint();
   }
 
   @Override
