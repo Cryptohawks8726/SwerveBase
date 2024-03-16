@@ -31,7 +31,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final RelativeEncoder bottomFlywheelEncoder = bottomFlywheelMotor.getEncoder();
 
     // Feedforward control
-    private double ampSetpoint = 1800;
+    private final double ampSetpoint = 1800;
     private double speakerSetpoint = 5200; // Theoretical, get experimental value top 5570, bottom 5400
     private final double conveyorSetpoint = 12;//try 12 again
 
@@ -130,21 +130,10 @@ public class ShooterSubsystem extends SubsystemBase {
                 .andThen(setFlywheelReferences(0))
                 .andThen(new WaitUntilCommand(() -> !initialBeamBreak.get()))
                 .andThen(new PrintCommand("Thy beam was broken"))
-                .andThen(setConveyorReference(0))
-                .andThen(new PrintCommand("Conveyor should be zero :("))
-                .andThen(new WaitCommand(0.125))
-                .andThen(new ConditionalCommand(
-                    setConveyorReference(-1.0)
-                    //.andThen(setFlywheelReferences(-50))
-                    .andThen(new WaitUntilCommand(() -> overshootBeamBreak.get()))
-                    .andThen(setConveyorReference(0))
-                    //.andThen(setFlywheelReferences(0))
-                    .andThen(()->noteReady = true),
-                    new InstantCommand(() -> {
-                        //nah
-                    }),
-                    () -> !overshootBeamBreak.get()
-                ));
+                .andThen(setConveyorReference(2.5))
+                .andThen(new WaitUntilCommand(()->!overshootBeamBreak.get()))
+                .andThen(pullBackNote()
+                );
     }
     /*public ConditionalCommand startIntake() {
         return new ConditionalCommand(
@@ -171,7 +160,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public InstantCommand setFlywheelReferences(double newVelocitySetpoint) {
         return new InstantCommand(() -> {
-            if (newVelocitySetpoint > 0) {
+            if (Math.abs(newVelocitySetpoint)>  0) {
                 topPID.setReference(newVelocitySetpoint, ControlType.kVelocity, 0, kSTop, ArbFFUnits.kVoltage);
                 bottomPID.setReference(newVelocitySetpoint, ControlType.kVelocity, 0, kSBottom, ArbFFUnits.kVoltage);
             }
@@ -208,7 +197,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 }, this))
                 .andThen(setConveyorReference(conveyorSetpoint))
                 .andThen(new WaitUntilCommand(() -> !overshootBeamBreak.get()))
-                .andThen(new WaitCommand(0.5))
+                .andThen(new WaitCommand(0.125))
                 .andThen(setFlywheelReferences(0))
                 .andThen(setConveyorReference(0))
                 .withName("FireNote, isAmp:"+isAmp);
@@ -243,16 +232,18 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command nudgeIntake(){
-        return setConveyorReference(-1.0)
+        return setConveyorReference(-1.5)
+        .andThen(setFlywheelReferences(-150))
         .andThen(new WaitCommand(0.5))
-        .andThen(setConveyorReference(0.0));
+        .andThen(stopShooter());
     }
 
     public Command pullBackNote(){
         return new ConditionalCommand(
-                    setConveyorReference(-1.0)
+                    setConveyorReference(-2.0)
+                    .andThen(setFlywheelReferences(-150))
                     .andThen(new WaitUntilCommand(() -> overshootBeamBreak.get()))
-                    .andThen(setConveyorReference(0)),
+                    .andThen(stopShooter()),
                     new InstantCommand(() -> {
                         //nah
                     }),
@@ -278,7 +269,6 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Trigger noteReady(){
-        return  new Trigger(()->(noteReady && overshootBeamBreak.get() && !initialBeamBreak.get()));
+        return new Trigger(()->(noteReady && overshootBeamBreak.get() && !initialBeamBreak.get()));
     }
-
 }
