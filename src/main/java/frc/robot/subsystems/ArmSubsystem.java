@@ -33,7 +33,7 @@ public class ArmSubsystem extends SubsystemBase{
     double ks = 0.135;
     double kg = 0.33; //0.33
     double kv = 3.25; //3.62 
-    double ka = 0; //0.02
+    double ka = 0.0; //0.02
     private static final double DEG_TO_RAD = 0.017453292519943295; 
     
     private static final CANSparkMax motorController = new CANSparkMax(Arm.rightMotorId, MotorType.kBrushless);
@@ -45,7 +45,7 @@ public class ArmSubsystem extends SubsystemBase{
     private static final PIDController pidController = new PIDController(kp, ki, kd); // degrees
     private final ArmFeedforward armFF = new ArmFeedforward(ks, kg, kv, ka);
     private final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(constraints); //TODO: Set down constraints with more limited acceleration
-
+    private final TrapezoidProfile downProfile = new TrapezoidProfile(downconstraints);
     private State calculateAngleState = new State(0, 0); // will be changed based on calculated angle
     private static State goal = new State(); // will be changed to reflect current goal
     private double t;
@@ -76,6 +76,8 @@ public class ArmSubsystem extends SubsystemBase{
             t += 0.02;
             State setpoint = trapezoidProfile.calculate(t,
                     new State(getArmRad(), toRads(absoluteEncoder.getVelocity())), goal);
+                pidController.setP(kp);
+            
             double ff = armFF.calculate(setpoint.position - toRads(17.0), setpoint.velocity);// 14 degrees accounts for
                                                                                              // offset from parallel
             pidController.setSetpoint(setpoint.position);
@@ -96,6 +98,12 @@ public class ArmSubsystem extends SubsystemBase{
             motorController.setIdleMode(IdleMode.kCoast);
             motorController2.setIdleMode(IdleMode.kCoast);
             SmartDashboard.putNumber("Set Pos", Arm.intakeState.position);
+            if(getArmDeg()<10){
+                rotateToState(Arm.tempIntakeState);
+                zeroVoltage = false;
+                SmartDashboard.putNumber("Set Pos", Arm.tempIntakeState.position);
+            }
+            
         }
        // motorController2.setVoltage(pidOutput+ff);
 

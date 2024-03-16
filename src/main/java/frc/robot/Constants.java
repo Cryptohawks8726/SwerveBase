@@ -174,8 +174,11 @@ public final class Constants {
 
 
         public static final State intakeState = new State(Math.toRadians(2.65), 0);
+        public static final State tempIntakeState = new State(Math.toRadians(4.7), 0);
+        public static final State tempShootState = new State(Math.toRadians(7.5), 0);
         public static final State ampState = new State(Math.toRadians(117), 0);//No clue if this is accurate
         public static final State sourceState = new State(Math.toRadians(81),0);//Also no clue
+        public static final State podiumState = new State(Math.toRadians(30),0);
     }
 
     public final class Climber{
