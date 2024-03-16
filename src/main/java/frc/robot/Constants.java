@@ -40,7 +40,7 @@ public final class Constants {
         public static final double driveConversionFactor = wheelDiameterMeters * Math.PI / driveGearRatio;
 
         public static final double maxSpeed = (demoMode ? 0.7 : 4.8); // m/s
-        public static final double maxAngularSpeed = (demoMode ? 1.0 : 2.5); // rad/s
+        public static final double maxAngularSpeed = (demoMode ? 1.0 : 3.5); // rad/s
         public static final double driverThetaDeadband = 0.05;
         public static final double driverTranslationDeadband = 1;
         // Electrical Constants
@@ -156,7 +156,7 @@ public final class Constants {
     public final class Arm{
         public static final int leftMotorId = 51;
         public static final int rightMotorId = 50;
-        public static final double absEncoderOffset = 343.3922443;
+        public static final double absEncoderOffset = 343.3922443-6;
         
         // TODO: add gains and current limits after verification    
         public static final double kP = 0.0;
@@ -173,12 +173,12 @@ public final class Constants {
 
 
 
-        public static final State intakeState = new State(Math.toRadians(2.65), 0);
-        public static final State tempIntakeState = new State(Math.toRadians(4.7), 0);
-        public static final State tempShootState = new State(Math.toRadians(7.5), 0);
-        public static final State ampState = new State(Math.toRadians(117), 0);//No clue if this is accurate
-        public static final State sourceState = new State(Math.toRadians(81),0);//Also no clue
-        public static final State podiumState = new State(Math.toRadians(30),0);
+        public static final State intakeState = new State(Math.toRadians(2.65+6), 0);
+        public static final State tempIntakeState = new State(Math.toRadians(4.7+6), 0);
+        public static final State tempShootState = new State(Math.toRadians(7.5+6), 0);
+        public static final State ampState = new State(Math.toRadians(117+6), 0);//No clue if this is accurate
+        public static final State sourceState = new State(Math.toRadians(81+6),0);//Also no clue
+        public static final State podiumState = new State(Math.toRadians(30+6),0);
     }
 
     public final class Climber{
