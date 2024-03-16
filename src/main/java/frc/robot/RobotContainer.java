@@ -112,15 +112,18 @@ public class RobotContainer {
       if(!Constants.demoMode){
       System.out.println("Starting auto");
 
-
-      if(autoChooser.getSelected().equals("2NoteCenterAuto")){
-        return AutoBuilder.buildAuto("2NoteCenterAuto");
-      }else if(autoChooser.getSelected().equals("2NoteLeftAuto")){
-        return AutoBuilder.buildAuto("2NoteLeftAuto");
-      }else if(autoChooser.getSelected().equals("2NoteRightAuto")){
-        return AutoBuilder.buildAuto("2NoteRightAuto");
+      if (autoChooser.getSelected() != null) {
+        if (autoChooser.getSelected().equals("2NoteCenterAuto")) {
+          return AutoBuilder.buildAuto("2NoteCenterAuto");
+        } else if (autoChooser.getSelected().equals("2NoteLeftAuto")) {
+          return AutoBuilder.buildAuto("2NoteLeftAuto");
+        } else if (autoChooser.getSelected().equals("2NoteRightAuto")) {
+          return AutoBuilder.buildAuto("2NoteRightAuto");
+        } else {
+          return AutoBuilder.buildAuto("2NoteCenterAuto"); // default path to do if nothing is selected
+        }
       }else{
-        return AutoBuilder.buildAuto("2NoteCenterAuto"); //default path to do if nothing is selected
+        return null;
       }
       
       
