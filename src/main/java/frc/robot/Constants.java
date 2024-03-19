@@ -173,9 +173,10 @@ public final class Constants {
 
 
 
-        public static final State intakeState = new State(Math.toRadians(2.65+6), 0);
+        public static final State intakeState = new State(Math.toRadians(2.65+6), 0); //not reflective of hardstop
         public static final State tempIntakeState = new State(Math.toRadians(4.7+6), 0);
-        public static final State tempShootState = new State(Math.toRadians(7.5+6), 0);
+        public static final State tempShootState = new State(Math.toRadians(15.5), 0); //13.5 works
+        public static final State driveState = new State(Math.toRadians(15.25),0); 
         public static final State ampState = new State(Math.toRadians(117+6), 0);//No clue if this is accurate
         public static final State sourceState = new State(Math.toRadians(81+6),0);//Also no clue
         public static final State podiumState = new State(Math.toRadians(30+6),0);
