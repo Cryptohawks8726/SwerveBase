@@ -10,6 +10,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,6 +28,7 @@ import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
 
+
 public class RobotContainer {
 
     private final CommandXboxController driverController;
@@ -37,6 +39,7 @@ public class RobotContainer {
     private final ShooterSubsystem shooter;
     private final ClimberSubsystem climber;
     private final ArmSubsystem arm;
+    private final PowerDistribution pdh;
 
     public RobotContainer() {
 
@@ -45,6 +48,8 @@ public class RobotContainer {
       shooter = new ShooterSubsystem();
       climber = new ClimberSubsystem();
       arm = new ArmSubsystem();
+      pdh = new PowerDistribution();
+      pdh.setSwitchableChannel(true);
       
       driverController = new CommandXboxController(0);
       operatorController = new CommandXboxController(1);
@@ -57,19 +62,18 @@ public class RobotContainer {
       autoChooser.addOption("2NoteSourceSideAuto","2NoteSourceSideAuto");
       autoChooser.addOption("3NoteRightAuto", "3NoteRightAuto");
       autoChooser.addOption("3NoteLeftAuto", "3NoteLeftAuto");
-      autoChooser.addOption("AmpSideBlank", "AmpSideBlank");
-      autoChooser.addOption("SourceSideBlank", "SourceSideBlank");
-      autoChooser.addOption("CenterBlank", "CenterBlank");
+      //autoChooser.addOption("AmpSideBlank", "AmpSideBlank");
+      //autoChooser.addOption("SourceSideBlank", "SourceSideBlank");
+      //autoChooser.addOption("CenterBlank", "CenterBlank");
 
       configureBindings();
 
       SmartDashboard.putData("Auto Chooser", autoChooser);
 
       NamedCommands.registerCommand("ShootFirstNote", arm.rotateToState(Arm.tempShootState).andThen(shooter.fireNote(false)).andThen(arm.rotateToState(Arm.intakeState))); //shooter.fireNote(false) without remy
-      NamedCommands.registerCommand("IntakeNoteCmd0", arm.rotateToState(Arm.intakeState)
-        .andThen(shooter.startIntake()).andThen(arm.rotateToState(Arm.driveState)));
-      NamedCommands.registerCommand("IntakeNoteCmd3", arm.rotateToState(Arm.intakeState)
-        .andThen(shooter.startIntake()).andThen(arm.rotateToState(Arm.driveState)));
+      NamedCommands.registerCommand("IntakeNoteCmd0", shooter.startIntake());
+      NamedCommands.registerCommand("IntakeNoteCmd3", 
+        shooter.startIntake().andThen(arm.rotateToState(Arm.driveState)));
       NamedCommands.registerCommand("ShootSecondNote", arm.rotateToState(Arm.tempShootState).andThen(shooter.fireNote(false)));
       NamedCommands.registerCommand("ShootThirdNote", arm.rotateToState(new State(Math.toRadians(7.5), 0)).andThen(shooter.fireNote(false)));
       
@@ -123,7 +127,11 @@ public class RobotContainer {
           return AutoBuilder.buildAuto("2NoteLeftAuto");
         } else if (autoChooser.getSelected().equals("2NoteAmpSideAuto")) {
           return AutoBuilder.buildAuto("2NoteRightAuto");
-        } else {
+        } else if(autoChooser.getSelected().equals("3NoteRightAuto")){
+          return AutoBuilder.buildAuto("3NoteRightAuto");
+        }else if(autoChooser.getSelected().equals("3NoteLeftAuto")){
+          return AutoBuilder.buildAuto("3NoteLeftAuto");
+        }else {
           return shooter.fireNote(false); // default path to do if nothing is selected
         }
       }else{
