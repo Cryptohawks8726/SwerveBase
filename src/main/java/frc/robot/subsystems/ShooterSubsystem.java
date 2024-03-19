@@ -32,7 +32,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Feedforward control
     private final double ampSetpoint = 1800;
-    private double speakerSetpoint = 5200; // Theoretical, get experimental value top 5570, bottom 5400
+    private double speakerSetpoint = 3000; // Theoretical, get experimental value top 5570, bottom 5400
     private final double conveyorSetpoint = 12;//try 12 again
 
     private final double kSTop = 0.0;
