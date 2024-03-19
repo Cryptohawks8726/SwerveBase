@@ -86,8 +86,6 @@ public class SwerveModule{
         contSteerController = new PIDController(Constants.Swerve.kSteerP, Constants.Swerve.kSteerI, Constants.Swerve.kSteerD);
         //set the reference angle of pid to the current module angle.
         contSteerController.enableContinuousInput(0, 360);
-        System.out.println(contSteerController.getSetpoint());
-        System.out.println(contSteerController.getPositionError());
 
         driveController.setP(Constants.Swerve.kDriveP,0);
         driveController.setP(0.0,1);
