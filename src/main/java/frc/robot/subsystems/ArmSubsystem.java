@@ -67,12 +67,14 @@ public class ArmSubsystem extends SubsystemBase{
         goal = new State(getArmRad(),0);
         pidController.setSetpoint(getArmRad());
         t = 0.0;
+        motorController.burnFlash();
+        motorController2.burnFlash();
     }
 
     @Override
     public void periodic() {
         SmartDashboard.putBoolean("isAtAmp", this.atStatePos(Arm.ampState));
-        if (!zeroVoltage) {
+        if (!zeroVoltage){
             t += 0.02;
             State setpoint = trapezoidProfile.calculate(t,
                     new State(getArmRad(), toRads(absoluteEncoder.getVelocity())), goal);
@@ -83,7 +85,7 @@ public class ArmSubsystem extends SubsystemBase{
             pidController.setSetpoint(setpoint.position);
             double pidOutput = pidController.calculate(toRads(getArmDeg()));
 
-           /* if(getArmDeg()<4 && (pidOutput + ff) >0 ){motorController.setVoltage(0)}else{motorControl*/
+           //if(getArmDeg()<4 && (pidOutput + ff) >0 ){motorController.setVoltage(0)}else{motorControl
             motorController.setVoltage(pidOutput + ff);
             SmartDashboard.putNumber("Applied Voltage", pidOutput + ff);
             SmartDashboard.putNumber("Set Pos", setpoint.position);
@@ -98,11 +100,11 @@ public class ArmSubsystem extends SubsystemBase{
             motorController.setIdleMode(IdleMode.kCoast);
             motorController2.setIdleMode(IdleMode.kCoast);
             SmartDashboard.putNumber("Set Pos", Arm.intakeState.position);
-            if(getArmDeg()<10){
+            /*if(getArmDeg()<10){
                 rotateToState(Arm.tempIntakeState);
                 zeroVoltage = false;
                 SmartDashboard.putNumber("Set Pos", Arm.tempIntakeState.position);
-            }
+            }*/
             
         }
        // motorController2.setVoltage(pidOutput+ff);
@@ -155,7 +157,7 @@ public class ArmSubsystem extends SubsystemBase{
             goal = Arm.intakeState; 
             t = 0.0;
         })
-        .andThen(new WaitUntilCommand(()->this.atStatePos(new State(toRads(75),0))))
+        .andThen(new WaitUntilCommand(()->this.getArmDeg()<75))
         .andThen(new InstantCommand(()->{
             zeroVoltage = true;
             SmartDashboard.putString("At zero", "true");
