@@ -126,14 +126,14 @@ public class ShooterSubsystem extends SubsystemBase {
      * @Return The SequentialCommandGroup to run the intake sequence
      */
     public SequentialCommandGroup startIntake() {
-        return setConveyorReference(conveyorSetpoint)
-                .andThen(setFlywheelReferences(0))
-                .andThen(new WaitUntilCommand(() -> !initialBeamBreak.get()))
-                .andThen(new PrintCommand("Thy beam was broken"))
-                .andThen(setConveyorReference(2.5))
-                .andThen(new WaitUntilCommand(()->!overshootBeamBreak.get()))
-                .andThen(pullBackNote()
-                );
+        return 
+            setConveyorReference(conveyorSetpoint)
+            .andThen(setFlywheelReferences(0))
+            .andThen(new WaitUntilCommand(() -> !initialBeamBreak.get()))
+            .andThen(new PrintCommand("Thy beam was broken"))
+            .andThen(setConveyorReference(3.0))
+            .andThen(new WaitUntilCommand(()->!overshootBeamBreak.get()))
+            .andThen(pullBackNote());
     }
     /*public ConditionalCommand startIntake() {
         return new ConditionalCommand(
@@ -163,10 +163,15 @@ public class ShooterSubsystem extends SubsystemBase {
             if (Math.abs(newVelocitySetpoint)>  0) {
                 topPID.setReference(newVelocitySetpoint, ControlType.kVelocity, 0, kSTop, ArbFFUnits.kVoltage);
                 bottomPID.setReference(newVelocitySetpoint, ControlType.kVelocity, 0, kSBottom, ArbFFUnits.kVoltage);
+                bottomFlywheelMotor.setIdleMode(IdleMode.kCoast);
+                topFlywheelMotor.setIdleMode(IdleMode.kCoast);
             }
             else {
                 topPID.setReference(0, ControlType.kVoltage, 0, kSTop, ArbFFUnits.kVoltage);
                 bottomPID.setReference(0, ControlType.kVoltage, 0, kSBottom, ArbFFUnits.kVoltage);
+                bottomFlywheelMotor.setIdleMode(IdleMode.kBrake);
+                topFlywheelMotor.setIdleMode(IdleMode.kBrake);
+
             }
         }, this);
     }
@@ -237,7 +242,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public Command pullBackNote(){
         return new ConditionalCommand(
                     setConveyorReference(-2.0)
-                    .andThen(setFlywheelReferences(-150))
+                    .andThen(setFlywheelReferences(-200))
                     .andThen(new WaitUntilCommand(() -> overshootBeamBreak.get()))
                     .andThen(stopShooter()),
                     new InstantCommand(() -> {
