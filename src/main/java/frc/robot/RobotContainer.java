@@ -57,17 +57,20 @@ public class RobotContainer {
       autoChooser.addOption("2NoteSourceSideAuto","2NoteSourceSideAuto");
       autoChooser.addOption("3NoteRightAuto", "3NoteRightAuto");
       autoChooser.addOption("3NoteLeftAuto", "3NoteLeftAuto");
+      autoChooser.addOption("AmpSideBlank", "AmpSideBlank");
+      autoChooser.addOption("SourceSideBlank", "SourceSideBlank");
+      autoChooser.addOption("CenterBlank", "CenterBlank");
 
       configureBindings();
 
       SmartDashboard.putData("Auto Chooser", autoChooser);
 
-      NamedCommands.registerCommand("ShootFirstNote", arm.rotateToState(new State(Math.toRadians(7.5), 0)).andThen(shooter.fireNote(false))); //shooter.fireNote(false) without remy
-      NamedCommands.registerCommand("IntakeNoteCmd0", arm.rotateToState(new State(Math.toRadians(4.7), 0))
-        .andThen(shooter.startIntake()));
-      NamedCommands.registerCommand("IntakeNoteCmd3", arm.rotateToState(new State(Math.toRadians(4.7), 0))
-        .andThen(shooter.startIntake()));
-      NamedCommands.registerCommand("ShootSecondNote", arm.rotateToState(new State(Math.toRadians(7.5), 0)).andThen(shooter.fireNote(false)));
+      NamedCommands.registerCommand("ShootFirstNote", arm.rotateToState(Arm.tempShootState).andThen(shooter.fireNote(false)).andThen(arm.rotateToState(Arm.intakeState))); //shooter.fireNote(false) without remy
+      NamedCommands.registerCommand("IntakeNoteCmd0", arm.rotateToState(Arm.intakeState)
+        .andThen(shooter.startIntake()).andThen(arm.rotateToState(Arm.driveState)));
+      NamedCommands.registerCommand("IntakeNoteCmd3", arm.rotateToState(Arm.intakeState)
+        .andThen(shooter.startIntake()).andThen(arm.rotateToState(Arm.driveState)));
+      NamedCommands.registerCommand("ShootSecondNote", arm.rotateToState(Arm.tempShootState).andThen(shooter.fireNote(false)));
       NamedCommands.registerCommand("ShootThirdNote", arm.rotateToState(new State(Math.toRadians(7.5), 0)).andThen(shooter.fireNote(false)));
       
     }
@@ -80,26 +83,26 @@ public class RobotContainer {
       operatorController.leftTrigger()
           .onTrue(
             new ConditionalCommand(
-                  arm.rotateToState(Arm.tempIntakeState),
+                  arm.rotateToState(Arm.intakeState),
                   new PrintCommand("Arm not lowered for intake"),
                   () -> arm.getArmDeg() < 40)
-          .andThen(shooter.startIntake()))
-      .onFalse(shooter.stopShooter()); //stopShooter isn't functional atm
+          .alongWith(shooter.startIntake()))
+      .onFalse(shooter.stopShooter().alongWith(arm.rotateToState(Arm.driveState))); //stopShooter isn't functional atm
       operatorController.rightTrigger()
           .onTrue(
               new ConditionalCommand(
                   new PrintCommand("Already at angle"),
                   arm.rotateToState(Arm.tempShootState),
                   () -> arm.getArmDeg() > 40) // This checks if the Arm is likely going for the amp
-          .andThen(shooter.fireNote(false)))
-          .onFalse(shooter.stopShooter());
-      operatorController.leftBumper().onTrue(shooter.nudgeIntake());
-      operatorController.povUp().onTrue(shooter.pullBackNote());
+          .andThen(shooter.fireNote(arm.getArmDeg()>40)))
+          .onFalse(shooter.stopShooter().alongWith(arm.rotateToState(Arm.intakeState)));
+      operatorController.leftBumper().onTrue(shooter.pullBackNote());
+      //operatorController.povUp().onTrue(shooter.pullBackNote());
       operatorController.rightBumper().onTrue(shooter.stopShooter());
       operatorController.a().onTrue(arm.rotateToState(Arm.intakeState));
-      operatorController.b().onTrue(arm.rotateToState(Arm.ampState));
-      operatorController.y().onTrue(arm.rotateToState(Arm.sourceState));
-      operatorController.x().onTrue(arm.rotateToState(Arm.podiumState));
+      //operatorController.b().onTrue(arm.rotateToState(Arm.ampState));
+      //operatorController.y().onTrue(arm.rotateToState(Arm.sourceState));
+      //operatorController.x().onTrue(arm.rotateToState(Arm.podiumState));
       operatorController.back().onTrue(climber.smartReleaseClimber());
       operatorController.start().onTrue(climber.smartClimb());
       shooter.hasNote()
@@ -121,7 +124,7 @@ public class RobotContainer {
         } else if (autoChooser.getSelected().equals("2NoteAmpSideAuto")) {
           return AutoBuilder.buildAuto("2NoteRightAuto");
         } else {
-          return AutoBuilder.buildAuto("2NoteCenterAuto"); // default path to do if nothing is selected
+          return shooter.fireNote(false); // default path to do if nothing is selected
         }
       }else{
         return null;
