@@ -62,6 +62,7 @@ public class RobotContainer {
       autoChooser.addOption("2NoteSourceSideAuto","2NoteSourceSideAuto");
       autoChooser.addOption("3NoteRightAuto", "3NoteRightAuto");
       autoChooser.addOption("3NoteLeftAuto", "3NoteLeftAuto");
+      autoChooser.addOption("4NoteAutoCenter", "4NoteAutoCenter");
       //autoChooser.addOption("AmpSideBlank", "AmpSideBlank");
       //autoChooser.addOption("SourceSideBlank", "SourceSideBlank");
       //autoChooser.addOption("CenterBlank", "CenterBlank");
@@ -71,11 +72,13 @@ public class RobotContainer {
       SmartDashboard.putData("Auto Chooser", autoChooser);
 
       NamedCommands.registerCommand("ShootFirstNote", arm.rotateToState(Arm.tempShootState).andThen(shooter.fireNote(false)).andThen(arm.rotateToState(Arm.intakeState))); //shooter.fireNote(false) without remy
-      NamedCommands.registerCommand("IntakeNoteCmd0", shooter.startIntake());
-      NamedCommands.registerCommand("IntakeNoteCmd3", 
+      NamedCommands.registerCommand("IntakeNoteCmd0", shooter.startIntake().andThen(arm.rotateToState(Arm.driveState)));
+      NamedCommands.registerCommand("IntakeNoteCmd1", shooter.startIntake().andThen(arm.rotateToState(Arm.driveState)));
+      NamedCommands.registerCommand("IntakeNoteCmd2", 
         shooter.startIntake().andThen(arm.rotateToState(Arm.driveState)));
       NamedCommands.registerCommand("ShootSecondNote", arm.rotateToState(Arm.tempShootState).andThen(shooter.fireNote(false)));
       NamedCommands.registerCommand("ShootThirdNote", arm.rotateToState(new State(Math.toRadians(7.5), 0)).andThen(shooter.fireNote(false)));
+      NamedCommands.registerCommand("ShootFourthNote", arm.rotateToState(new State(Math.toRadians(7.5), 0)).andThen(shooter.fireNote(false)));
       
     }
 
@@ -131,6 +134,8 @@ public class RobotContainer {
           return AutoBuilder.buildAuto("3NoteRightAuto");
         }else if(autoChooser.getSelected().equals("3NoteLeftAuto")){
           return AutoBuilder.buildAuto("3NoteLeftAuto");
+        }else if(autoChooser.getSelected().equals("4NoteAutoCenter")){
+          return AutoBuilder.buildAuto("4NoteAutoCenter");
         }else {
           return shooter.fireNote(false); // default path to do if nothing is selected
         }
