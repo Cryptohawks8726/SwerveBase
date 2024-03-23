@@ -58,7 +58,7 @@ public class ActualXboxTeleopDrive extends Command {
         double leftY = controller.getLeftY();
         double rightX = controller.getRightX();
 
-        translationalSpeed = slowMode ? 2.5: Swerve.maxSpeed;
+        translationalSpeed = slowMode ? 2.1: Swerve.maxSpeed;
         thetaSpeed = slowMode ? 2.0 : Swerve.maxAngularSpeed;
         
         // Get Controller Values
