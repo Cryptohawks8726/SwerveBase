@@ -55,8 +55,8 @@ public class SwerveModule{
         driveMotor.restoreFactoryDefaults();
         steerMotor.restoreFactoryDefaults();
         
-        driveMotor.setIdleMode(IdleMode.kCoast);
-        steerMotor.setIdleMode(IdleMode.kCoast);
+        driveMotor.setIdleMode(IdleMode.kBrake);
+        steerMotor.setIdleMode(IdleMode.kBrake);
         
         //lower later
         driveMotor.setSmartCurrentLimit(Constants.Swerve.driveMotorStallCurrentLimit,Constants.Swerve.driveMotorFreeCurrentLimit); 
