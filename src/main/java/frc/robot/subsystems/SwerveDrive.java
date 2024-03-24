@@ -156,7 +156,7 @@ public class SwerveDrive extends SubsystemBase{
             );
         }*/
         
-        logValues(false);
+        logValues(true);
 
     }
     @Override
@@ -285,7 +285,7 @@ public class SwerveDrive extends SubsystemBase{
 
     public void logValues(boolean moduleLevel){ 
         Pose2d estimatedPostition = odometry.getEstimatedPosition();
-
+        SmartDashboard.putData(field);
         SmartDashboard.putNumber("xpos", estimatedPostition.getTranslation().getX());
         SmartDashboard.putNumber("ypos", estimatedPostition.getTranslation().getY());
         //SmartDashboard.putNumber("estimatedthetaPos",estimatedPostition.getRotation().getDegrees());
@@ -298,11 +298,13 @@ public class SwerveDrive extends SubsystemBase{
         if(moduleLevel){
             for (SwerveModule module : modules) {
                 String modName = module.getModPos().toString();
-                module.seedRelativeEncoder();
+                //module.seedRelativeEncoder();
                 SmartDashboard.putNumber(modName + "setvel", module.getLastSetState().speedMetersPerSecond);
                 SmartDashboard.putNumber(modName + "actvel", module.getCurrentState().speedMetersPerSecond);
-                SmartDashboard.putNumber(modName + "setdeg", module.getSetStateAngle());
-                SmartDashboard.putNumber(modName + "actdeg", module.getCurrentState().angle.getDegrees());
+                //SmartDashboard.putNumber(modName + "setdeg", module.getSetStateAngle());
+                //SmartDashboard.putNumber(modName + "actdeg", module.getCurrentState().angle.getDegrees());
+                SmartDashboard.putNumber(modName + "outputPer",module.getOutput());
+                SmartDashboard.putNumber(modName + "driveCurrent",module.getDriveCurrent());
                 
             // SmartDashboard.putNumber(modName + "absdeg", module.getAbsPos());
             //  SmartDashboard.putNumber(modName + "built in steer", module.getRelativePos());

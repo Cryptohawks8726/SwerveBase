@@ -137,6 +137,10 @@ public class SwerveModule{
         return driveMotor.getOutputCurrent();
     }
 
+    public double getOutput(){
+        return driveMotor.getAppliedOutput();
+    }
+
     public Transform2d getCenterTransform(){
         return transformationFromCenter;
     }
@@ -151,8 +155,6 @@ public class SwerveModule{
     
     public SwerveModule closedLoopDrive(SwerveModuleState setPoint){
         setPoint = SwerveModuleState.optimize(setPoint, Rotation2d.fromDegrees(getAngle()));
-        System.out.println(contSteerController.getPositionError());
-        System.out.println(contSteerController.getSetpoint());
         lastSetState = setPoint;
         driveController.setReference(setPoint.speedMetersPerSecond, ControlType.kVelocity,0,driveFeedforward.calculate(setPoint.speedMetersPerSecond),ArbFFUnits.kVoltage);
         steerMotor.set(contSteerController.calculate(getAngle(), MathUtil.inputModulus(setPoint.angle.getDegrees(), 0, 360)));

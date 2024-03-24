@@ -100,13 +100,15 @@ public class ClimberSubsystem extends SubsystemBase {
         })
                 .andThen(new WaitUntilCommand(() -> this.passedRevGoal(7800))) // TODO verify goal works
                 .finallyDo(() -> winchMotor.setVoltage(0.0))
-                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
+                //.withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
                 .withName("Smart Climb");
     }
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("StartRev", startRev);
+        SmartDashboard.putNumber("CurrPos", winchEncoder.getPosition());
+        SmartDashboard.putNumber("DIff", Math.abs(startRev - winchEncoder.getPosition()));
         SmartDashboard.putNumber("Climb Current",winchMotor.getOutputCurrent());
         SmartDashboard.putNumber("Climb Encoder Vel", winchEncoder.getVelocity());
     }
@@ -129,4 +131,7 @@ public class ClimberSubsystem extends SubsystemBase {
         return (Math.abs(startRev - winchEncoder.getPosition())) >= goal;
     }
 
+    public Command stop(){
+        return new InstantCommand(()->winchMotor.setVoltage(0.0));
+    }
 }

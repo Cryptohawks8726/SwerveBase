@@ -26,7 +26,7 @@ public class ActualXboxTeleopDrive extends Command {
         this.drivetrain = drivetrain;
         this.controller = controller;
         addRequirements(drivetrain);
-        headingPID = new PIDController(Swerve.kHeadingP, Swerve.kHeadingI, Swerve.kHeadingD, 20);
+        headingPID = new PIDController(0.25, Swerve.kHeadingI, Swerve.kHeadingD, 20);
         headingPID.enableContinuousInput(0, 360);
     }
     
@@ -76,8 +76,10 @@ public class ActualXboxTeleopDrive extends Command {
                 lastHeading = drivetrain.getRobotAngle().getDegrees();
                 headingPID.setSetpoint(lastHeading);
                 thetaVel = headingPID.calculate(drivetrain.getRobotAngle().getDegrees()%360);
+                SmartDashboard.putNumber("Calc heading pid vel", thetaVel);
              }else{
                 thetaVel = headingPID.calculate(drivetrain.getRobotAngle().getDegrees()%360);
+                SmartDashboard.putNumber("Calc heading pid vel", thetaVel);
             }
         } else{
             isHeadingSet = false;

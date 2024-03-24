@@ -32,7 +32,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Feedforward control
     private final double ampSetpoint = 1800;
-    private double speakerSetpoint = 3000; // Theoretical, get experimental value top 5570, bottom 5400
+    private double speakerSetpoint = 3500; // Theoretical, get experimental value top 5570, bottom 5400
     private final double conveyorSetpoint = 12;//try 12 again
 
     private final double kSTop = 0.0;
@@ -112,11 +112,11 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     // TODO: Prevent potentially damaging references from being set by checking
     // current flywheel velocity OR rewrite with a bang-bang controller.
-    public InstantCommand startFlywheels(double motorSpeed) {
+    public Command startFlywheels(double motorSpeed) {
         return new InstantCommand(() -> {
             topPID.setReference(motorSpeed, ControlType.kVelocity, 0, kSTop, ArbFFUnits.kVoltage);
             bottomPID.setReference(motorSpeed, ControlType.kVelocity, 0, kSBottom, ArbFFUnits.kVoltage);
-        });
+        }).withName("Start Flywheels");
     }
 
     /*
@@ -158,7 +158,7 @@ public class ShooterSubsystem extends SubsystemBase {
             () -> initialBeamBreak.get()
         ); */
 
-    public InstantCommand setFlywheelReferences(double newVelocitySetpoint) {
+    public Command setFlywheelReferences(double newVelocitySetpoint) {
         return new InstantCommand(() -> {
             if (Math.abs(newVelocitySetpoint)>  0) {
                 topPID.setReference(newVelocitySetpoint, ControlType.kVelocity, 0, kSTop, ArbFFUnits.kVoltage);
@@ -173,10 +173,10 @@ public class ShooterSubsystem extends SubsystemBase {
                 topFlywheelMotor.setIdleMode(IdleMode.kBrake);
 
             }
-        }, this);
+        }, this).withName("SetFlywheel ref: "+newVelocitySetpoint);
     }
 
-    public InstantCommand setConveyorReference(double newVoltageSetpoint) {
+    public Command setConveyorReference(double newVoltageSetpoint) {
         return new InstantCommand(() -> {
             if (newVoltageSetpoint != 0) {
                 conveyorPID.setReference(newVoltageSetpoint, ControlType.kVoltage, 0, 0, ArbFFUnits.kVoltage);
@@ -184,7 +184,7 @@ public class ShooterSubsystem extends SubsystemBase {
             else {
                 conveyorPID.setReference(0, ControlType.kVoltage, 0, 0, ArbFFUnits.kVoltage);
             }
-        }, this);
+        }, this).withName("SetConveyorRef: "+newVoltageSetpoint);
     }
 
     // InstantCommand which activates the index's conveyor belt, transporting a held

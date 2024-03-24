@@ -208,16 +208,5 @@
       "timestamp": 2.304324690446086
     }
   ],
-  "eventMarkers": [
-    {
-      "name": "IntakeNoteCmd0",
-      "timestamp": 0.002029225595414408,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "IntakeNoteCmd0"
-        }
-      }
-    }
-  ]
+  "eventMarkers": []
 }
