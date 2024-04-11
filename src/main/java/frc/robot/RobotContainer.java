@@ -68,6 +68,7 @@ public class RobotContainer {
       autoChooser.addOption("2NoteSourceSideAuto","2NoteSourceSideAuto");
       autoChooser.addOption("3NoteAmpSideAuto", "3NoteRightAuto");
       autoChooser.addOption("3NoteSourceSideAuto", "3NoteLeftAuto");
+      autoChooser.addOption("1NoteAmpSideAuto", "1NoteAmpSideAuto");
       //autoChooser.addOption("AmpSideBlank", "AmpSideBlank");
       //autoChooser.addOption("SourceSideBlank", "SourceSideBlank");
       //autoChooser.addOption("CenterBlank", "CenterBlank");
@@ -143,6 +144,8 @@ public class RobotContainer {
           return AutoBuilder.buildAuto("3NoteRightAuto");
         }else if(autoChooser.getSelected().equals("3NoteLeftAuto")){
           return AutoBuilder.buildAuto("3NoteLeftAuto");
+        }else if(autoChooser.getSelected().equals("1NoteAmpSideAuto")){
+          return AutoBuilder.buildAuto("1NoteAmpSideAuto");
         }else {
           return shooter.fireNote(false); // default path to do if nothing is selected
         }
