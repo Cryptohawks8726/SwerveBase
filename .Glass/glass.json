@@ -1,15 +1,27 @@
 {
   "NetworkTables": {
+    "retained": {
+      "limelight": {
+        "double[]##v_/limelight/botpose": {
+          "open": true
+        },
+        "open": true
+      }
+    },
     "transitory": {
       "Shuffleboard": {
         "open": true
       },
       "SmartDashboard": {
+        "double[]##v_/SmartDashboard/array": {
+          "open": true
+        },
         "open": true
       }
     },
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Auto Chooser": "String Chooser",
       "/SmartDashboard/Field": "Field2d"
     },
     "windows": {
@@ -31,6 +43,15 @@
       "open": true
     },
     "Connections": {
+      "open": true
+    },
+    "Server": {
+      "open": true
+    },
+    "glass@2": {
+      "Subscribers": {
+        "open": true
+      },
       "open": true
     },
     "visible": true
@@ -129,7 +150,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 0,
+          "height": -43,
           "series": [
             {
               "color": [

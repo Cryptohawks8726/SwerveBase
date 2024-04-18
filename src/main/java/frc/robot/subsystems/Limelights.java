@@ -1,12 +1,7 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.LimelightHelpers;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.estimator.PoseEstimator;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -15,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 public class Limelights extends SubsystemBase {
     NetworkTable table;
+    public Pose2d robotPose;
     
     public Limelights() {
         table = NetworkTableInstance.getDefault().getTable("limelight");
@@ -22,7 +18,6 @@ public class Limelights extends SubsystemBase {
 
     @Override
     public void periodic() {
-        
         NetworkTableEntry tx = table.getEntry("tx");
         NetworkTableEntry ty = table.getEntry("ty");
         NetworkTableEntry ta = table.getEntry("ta");
@@ -36,13 +31,13 @@ public class Limelights extends SubsystemBase {
         double area = ta.getDouble(0.0); // the area of the apriltag on screen
 
         // how many degrees back is your limelight rotated from perfectly vertical?
-        double limelightMountAngleDegrees = 30.0; 
+        double limelightMountAngleDegrees = 20.0; 
 
         // distance from the center of the Limelight lens to the floor (inches)
-        double limelightLensHeightInches = 26.0; 
+        double limelightLensHeightInches = 6.0; 
 
         // distance from the target to the floor (inches) maybe convert to meters?
-        double goalHeightInches = 52.0; 
+        double goalHeightInches = 32.0; 
         double dy = goalHeightInches-limelightLensHeightInches; // change in height from limelight to apriltag
 
         double angleToGoalDegrees = limelightMountAngleDegrees + y;
@@ -75,10 +70,11 @@ public class Limelights extends SubsystemBase {
         double yawDegrees = botposeArray[5]; // Yaw (degrees)
 
         // Create the Pose2d using the extracted values
-        Pose2d robotPose = new Pose2d(xMeters, yMeters, new Rotation2d(yawDegrees));
+        robotPose = new Pose2d(xMeters, yMeters, new Rotation2d(yawDegrees));
         SmartDashboard.putNumber("x translation", xMeters);
         SmartDashboard.putNumber("y translation", yMeters);
         SmartDashboard.putNumber("poseYaw", yawDegrees);
+        SmartDashboard.putNumberArray("array", table.getEntry("botpose").getDoubleArray(new double[6]));
 
         //poseEstimator.addVisionMeasurement(robotPose, Timer.getFPGATimestamp());
     }

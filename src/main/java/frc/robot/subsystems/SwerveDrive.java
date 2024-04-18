@@ -45,6 +45,7 @@ public class SwerveDrive extends SubsystemBase{
     private SwerveDriveKinematics kinematics;
     public SwerveDrivePoseEstimator odometry; // TODO: figure out how to add limelight measurement
     public AHRS gyro;
+    public Limelights light;
 
     private Field2d field; 
     private FieldObject2d[] modPoses;
@@ -79,11 +80,14 @@ public class SwerveDrive extends SubsystemBase{
         );
         
         gyro = new AHRS(SerialPort.Port.kUSB1);
+        light = new Limelights();
+
         // TODO: check for 2024 version
         //gyro.calibrate(); // possibly move to avoid the robot being moved during calibration        
         // simGyro = new AnalogGyroSim(0);
         
         odometry = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), modPositionStates, new Pose2d()); 
+        odometry.addVisionMeasurement(light.robotPose, 0);
         
         field = new Field2d();
         modPoses = new FieldObject2d[]{
