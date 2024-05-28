@@ -2,58 +2,32 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.LimelightHelpers;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class Limelights extends SubsystemBase {
     NetworkTable table;
+    public boolean blueOrigin = true;
     public Pose2d robotPose;
-    
+
     public Limelights() {
         table = NetworkTableInstance.getDefault().getTable("limelight");
+        LimelightHelpers.setCameraPose_RobotSpace(getName(), 0.3, 0, 0, 0, 40, 0);
     }
 
     @Override
     public void periodic() {
-        NetworkTableEntry tx = table.getEntry("tx");
-        NetworkTableEntry ty = table.getEntry("ty");
-        NetworkTableEntry ta = table.getEntry("ta");
-        NetworkTableEntry tid = table.getEntry("tid");
+        Pose2d botPose = LimelightHelpers.getBotPose2d("limelight");
+        
 
-        double tagID = tid.getDouble(0.0);
-
-        //read values periodically
-        double x = tx.getDouble(0.0); // THESE ARE ANGLES
-        double y = ty.getDouble(0.0); // targetOffsetAngle_Vertical
-        double area = ta.getDouble(0.0); // the area of the apriltag on screen
-
-        // how many degrees back is your limelight rotated from perfectly vertical?
-        double limelightMountAngleDegrees = 20.0; 
-
-        // distance from the center of the Limelight lens to the floor (inches)
-        double limelightLensHeightInches = 6.0; 
-
-        // distance from the target to the floor (inches) maybe convert to meters?
-        double goalHeightInches = 32.0; 
-        double dy = goalHeightInches-limelightLensHeightInches; // change in height from limelight to apriltag
-
-        double angleToGoalDegrees = limelightMountAngleDegrees + y;
-        double angleToGoalRadians = angleToGoalDegrees * (Math.PI / 180.0);
-
-        //calculate horizontal distance from limelight to goal
-        double horDistFromGoal = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoalRadians);
-
-        // calculate diagonal
-        double diagDistFromGoal = Math.sqrt(dy*dy+Math.pow(horDistFromGoal, 2));
-
-        //post to smart dashboard periodically
-        SmartDashboard.putNumber("XAngleToApT", x);
-        SmartDashboard.putNumber("YAngleToApT", y);
-        //SmartDashboard.putNumber("HorDist", horDistFromGoal);
-        //SmartDashboard.putNumber("DiagDist", diagDistFromGoal);
+        SmartDashboard.putNumber("FieldPosX", botPose.getX());
+        SmartDashboard.putNumber("FieldPosY", botPose.getY());
+        SmartDashboard.putNumber("FieldRotDeg", botPose.getRotation().getDegrees());
+        double tagID = table.getEntry("tid").getDouble(0.0);
+    
         SmartDashboard.putNumber("TagID", tagID);
         
         addVisionMeasurementToPoseEstimator();
@@ -71,13 +45,18 @@ public class Limelights extends SubsystemBase {
 
         // Create the Pose2d using the extracted values
         robotPose = new Pose2d(xMeters, yMeters, new Rotation2d(yawDegrees));
-        SmartDashboard.putNumber("x translation", xMeters);
-        SmartDashboard.putNumber("y translation", yMeters);
-        SmartDashboard.putNumber("poseYaw", yawDegrees);
-        SmartDashboard.putNumberArray("array", table.getEntry("botpose").getDoubleArray(new double[6]));
+        SmartDashboard.putNumber("X Translation", xMeters);
+        SmartDashboard.putNumber("Y Translation", yMeters);
+        SmartDashboard.putNumber("Rotation", yawDegrees);
+        SmartDashboard.putNumberArray("Full Data", table.getEntry("botpose").getDoubleArray(new double[6]));
 
         //poseEstimator.addVisionMeasurement(robotPose, Timer.getFPGATimestamp());
     }
+
+    public Pose2d getRobotPose(){
+        return robotPose;
+    }
+
 }
 
 

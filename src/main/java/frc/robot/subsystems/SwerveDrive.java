@@ -128,7 +128,7 @@ public class SwerveDrive extends SubsystemBase{
     }
 
     @Override
-    public void periodic(){
+    public void periodic() {
         odometry.update(
             gyro.getRotation2d(), 
             getSwerveModulePositions()

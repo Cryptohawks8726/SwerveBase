@@ -23,14 +23,14 @@ import frc.robot.subsystems.Limelights;
 
 public class RobotContainer {
 
-  //private final SwerveDrive drivetrain; TODO: i just commented this to test limelights
+  private final SwerveDrive drivetrain;
   private final CommandXboxController driverController;
   private final Limelights limelights;
 
   public RobotContainer() {
 
     Unmanaged.setPhoenixDiagnosticsStartTime(-1);
-    //drivetrain = new SwerveDrive(); TODO: uncomment
+    drivetrain = new SwerveDrive();
     driverController = new CommandXboxController(0);
 
     limelights = new Limelights();
@@ -45,14 +45,10 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // TODO: uncomment
-    //drivetrain.setDefaultCommand(new ActualXboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+    drivetrain.setDefaultCommand(new ActualXboxTeleopDrive(drivetrain,driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
     
-    //driverController.a().onTrue(drivetrain.resetGyroAngle());TODO: uncomment
-
-    // Trigger driverRightBumper = driverController.rightBumper();
-    // driverRightBumper.whileTrue(drivetrain.passiveBrake());
-
+    driverController.a().onTrue(drivetrain.resetGyroAngle());
+    driverController.rightBumper().whileTrue(drivetrain.passiveBrake());
   }
 
   /**
