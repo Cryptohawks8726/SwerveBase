@@ -178,12 +178,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command setConveyorReference(double newVoltageSetpoint) {
         return new InstantCommand(() -> {
-            if (newVoltageSetpoint != 0) {
-                conveyorPID.setReference(newVoltageSetpoint, ControlType.kVoltage, 0, 0, ArbFFUnits.kVoltage);
-            }
-            else {
-                conveyorPID.setReference(0, ControlType.kVoltage, 0, 0, ArbFFUnits.kVoltage);
-            }
+            conveyorPID.setReference(newVoltageSetpoint, ControlType.kVoltage, 0, 0, ArbFFUnits.kVoltage);
         }, this).withName("SetConveyorRef: "+newVoltageSetpoint);
     }
 
