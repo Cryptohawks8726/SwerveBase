@@ -60,7 +60,8 @@ public class ShooterSubsystem extends SubsystemBase {
                                                                 // for self-tests of the sensor
     private DigitalInput overshootBeamBreak = new DigitalInput(Shooter.overshootBeamBreakReceiverPort);
     
-    private boolean noteReady;
+    private boolean noteReady = false;
+    
     // Configures flywheel motors
     public ShooterSubsystem() {
         topPID.setFF(kVTop);
@@ -88,7 +89,6 @@ public class ShooterSubsystem extends SubsystemBase {
         topFlywheelMotor.enableVoltageCompensation(12.0);
         bottomFlywheelMotor.enableVoltageCompensation(12.0);
         conveyorMotor.enableVoltageCompensation(12.0); 
-        noteReady = false;       
     };
 
     @Override
@@ -178,12 +178,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command setConveyorReference(double newVoltageSetpoint) {
         return new InstantCommand(() -> {
-            if (newVoltageSetpoint != 0) {
-                conveyorPID.setReference(newVoltageSetpoint, ControlType.kVoltage, 0, 0, ArbFFUnits.kVoltage);
-            }
-            else {
-                conveyorPID.setReference(0, ControlType.kVoltage, 0, 0, ArbFFUnits.kVoltage);
-            }
+            conveyorPID.setReference(newVoltageSetpoint, ControlType.kVoltage, 0, 0, ArbFFUnits.kVoltage);
         }, this).withName("SetConveyorRef: "+newVoltageSetpoint);
     }
 
