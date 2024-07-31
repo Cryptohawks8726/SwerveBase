@@ -93,7 +93,7 @@ public class RobotContainer {
       operatorController.leftTrigger()
           .onTrue(
             new ConditionalCommand(
-                  arm.rotateToState(Arm.intakeState),
+                  arm.rotateToState(Arm.tempIntakeState),
                   new PrintCommand("Arm not lowered for intake"),
                   () -> arm.getArmDeg() < 40)
           .alongWith(shooter.startIntake()))
@@ -105,20 +105,21 @@ public class RobotContainer {
                   arm.rotateToState(Arm.tempShootState),
                   () -> arm.getArmDeg() > 40) // This checks if the Arm is likely going for the amp
           .andThen(shooter.fireNote(arm.getArmDeg()>40)))
-          .onFalse(shooter.stopShooter().alongWith(arm.rotateToState(Arm.intakeState)));
-      operatorController.leftBumper().onTrue(shooter.pullBackNote());
+          .onFalse(shooter.stopShooter().alongWith(arm.rotateToState(Arm.tempIntakeState)));
+      if (Constants.disableBeamBreaks) operatorController.leftBumper().onTrue(shooter.demoPullBackNote()).onFalse(shooter.stopShooter());
+      else operatorController.leftBumper().onTrue(shooter.pullBackNote());
       //operatorController.povUp().onTrue(shooter.pullBackNote());
       operatorController.rightBumper().onTrue(shooter.stopShooter());
-      operatorController.a().onTrue(arm.rotateToState(Arm.intakeState));
+      operatorController.a().onTrue(arm.rotateToState(Arm.tempIntakeState));
       operatorController.b().onTrue(arm.rotateToState(Arm.ampState));
       //operatorController.y().onTrue(arm.rotateToState(Arm.sourceState));
       //operatorController.x().onTrue(arm.rotateToState(Arm.podiumState));
       operatorController.back().onTrue(climber.smartReleaseClimber());
       operatorController.start().onTrue(climber.smartClimb());
-      shooter.hasNote()
+      /*shooter.hasNote()
         .onTrue(new InstantCommand(()->setControllerRumble(0.5)))
         .onFalse(new InstantCommand(()->setControllerRumble(0)));
-
+      */
       //shooter.noteReady()
     }
 

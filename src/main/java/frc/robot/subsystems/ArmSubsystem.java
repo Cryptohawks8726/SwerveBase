@@ -1,7 +1,9 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder;
+import com.revrobotics.SparkRelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
@@ -33,15 +35,17 @@ public class ArmSubsystem extends SubsystemBase{
     double ks = 0.135;
     double kg = 0.33; //0.33
     double kv = 6.8; //3.62 
-    double ka = 0.0; //0.02
+    double ka = 0.05; //0.02
     private static final double DEG_TO_RAD = 0.017453292519943295; 
     
     private static final CANSparkMax motorController = new CANSparkMax(Arm.rightMotorId, MotorType.kBrushless);
-    private final CANSparkMax motorController2 = new CANSparkMax(Arm.leftMotorId, MotorType.kBrushless);
+    private static final CANSparkMax motorController2 = new CANSparkMax(Arm.leftMotorId, MotorType.kBrushless);
     private static final SparkAbsoluteEncoder absoluteEncoder = motorController.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
-    
-    private final Constraints constraints = new Constraints(5.5, 15.0); // TODO: find good constraints (in rad/s)
-    private final Constraints downconstraints = new Constraints(5, 10.0);
+    private static final RelativeEncoder rightEncoder = motorController.getEncoder();
+    private static final RelativeEncoder leftEncoder = motorController2.getEncoder();
+
+    private final Constraints constraints = new Constraints(1.5, 15.0); // TODO: find good constraints (in rad/s)
+    private final Constraints downconstraints = new Constraints(1, 10.0);
     private static final PIDController pidController = new PIDController(kp, ki, kd); // degrees
     private final ArmFeedforward armFF = new ArmFeedforward(ks, kg, kv, ka);
     private final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(constraints); //TODO: Set down constraints with more limited acceleration
@@ -100,6 +104,11 @@ public class ArmSubsystem extends SubsystemBase{
             SmartDashboard.putNumber("armVelSetRad", setpoint.velocity);
             SmartDashboard.putNumber("FF", ff);
             SmartDashboard.putNumber("PID", pidOutput);
+            SmartDashboard.putNumber("leftArmVel",leftEncoder.getVelocity());
+            SmartDashboard.putNumber("rightArmVel", rightEncoder.getVelocity());
+            SmartDashboard.putNumber("rightArmCurrent",motorController.getOutputCurrent());
+            SmartDashboard.putNumber("leftArmCurrent",motorController2.getOutputCurrent());
+
             motorController.setIdleMode(IdleMode.kCoast);
             motorController2.setIdleMode(IdleMode.kCoast);
        

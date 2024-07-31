@@ -26,6 +26,7 @@ public final class Constants {
         twoRingAutoMid, twoRingAutoRight, twoRingAutoLeft;
     }
 
+    public static final boolean disableBeamBreaks = false; 
     public static final boolean demoMode = false;
     public static final DriveBase driveBase = DriveBase.Comp2024;
     public static final autoPath path = autoPath.twoRingAutoMid;
@@ -39,8 +40,8 @@ public final class Constants {
         public static final double wheelDiameterMeters = 0.1016;//0.098; // Measure and check later. Compensating for tread wear over comp could be cool
         public static final double driveConversionFactor = wheelDiameterMeters * Math.PI / driveGearRatio;
 
-        public static final double maxSpeed = (demoMode ? 0.7 : 4.8); // m/s
-        public static final double maxAngularSpeed = (demoMode ? 1.0 : 3.5); // rad/s
+        public static final double maxSpeed = (demoMode ? 2.0 : 4.8); // m/s
+        public static final double maxAngularSpeed = (demoMode ? 1.5 : 3.5); // rad/s
         public static final double driverThetaDeadband = 0.05;
         public static final double driverTranslationDeadband = 1;
         // Electrical Constants

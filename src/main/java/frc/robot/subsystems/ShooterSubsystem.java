@@ -35,7 +35,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double speakerSetpoint = 3500; // Theoretical, get experimental value top 5570, bottom 5400
     private final double conveyorSetpoint = 12;//try 12 again
 
-    private final double kSTop = 0.0;
+    private final double kSTop = 0.04200;
     private final double kSBottom = 0.0;
 
     private final double kVTop = 1.0 / 5570.0;
@@ -249,6 +249,10 @@ public class ShooterSubsystem extends SubsystemBase {
                         //nah
                     }),
                     () -> !overshootBeamBreak.get());
+    }
+
+    public Command demoPullBackNote(){
+        return setConveyorReference(-1.5).andThen(setFlywheelReferences(-200));
     }
 
     public Command staticGainTest() {
