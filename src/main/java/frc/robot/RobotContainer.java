@@ -35,7 +35,7 @@ public class RobotContainer {
   
   private final CommandXboxController driverController;
   private final CommandXboxController operatorController;
-  private final SendableChooser<String> autoChooser;
+  private final SendableChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -45,8 +45,7 @@ public class RobotContainer {
     driverController = new CommandXboxController(0);
     operatorController = new CommandXboxController(1);
 
-    autoChooser = new SendableChooser<String>();
-    autoChooser.setDefaultOption("EXAMPLE","EXAMPLE_AUTO_FILENAME");
+    autoChooser = AutoBuilder.buildAutoChooser("EXAMPLE AUTO FILE NAME");
     SmartDashboard.putData("Auto Chooser", autoChooser);
     
     NamedCommands.registerCommand("EXAMPLE_COMMAND", new PrintCommand(""));
@@ -74,11 +73,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     if(!Constants.demoMode){
-      if (autoChooser.getSelected() != null) {
-        return AutoBuilder.buildAuto(autoChooser.getSelected());
-      }else{
-        return null;
-      }
-  } else{ return null;}
+      return autoChooser.getSelected();
+    } else{ return null;}
  }
 }
