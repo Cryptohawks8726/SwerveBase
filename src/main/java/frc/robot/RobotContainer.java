@@ -4,32 +4,82 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.util.Constants;
 
-// ROBOTCONTAINER CURRENTLY UP IN THE AIR
-public class RobotContainer {
+// TODO: Rename stuff? Fix things? Improvemments?
+
+public class RobotContainer extends SubsystemBase {
+  // Sent to NetworkTables to allow the drive team to select multiple auto
+  // options.
   private final SendableChooser<Command> autoChooser;
+
+  // The next queued command and the currently running command.
+  Command nextCommand = null;
+  Command activeCommand = null;
+
+  final Trigger commandQueueTrigger = new Trigger(() -> nextCommand != null);
+  // tracked as a variable so we can change its name.
+  final Command deferredSwitchCommand = new SequentialCommandGroup(
+      new InstantCommand(() -> {
+        activeCommand = nextCommand;
+        nextCommand = null;
+      }),
+      defer(() -> activeCommand),
+      new InstantCommand(() -> activeCommand = null)).withName("Unnamed RobotContainer Deferred Wrapper");
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     autoChooser = new SendableChooser<>();
-    configureButtonBindings();
+    SmartDashboard.putData(autoChooser);
+
+    commandQueueTrigger.onTrue(deferredSwitchCommand);
+
+    // This should usually be something.
+    setDefaultCommand(new InstantCommand().withName("Empty default command - replace me!"));
   }
 
   /**
-   * Use this method to define your button->command mappings. Buttons can be
-   * created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
-   * it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+   * Schedules another command to run across the whole robot. Will cancel the
+   * current one. Please ensure these commands are named! It makes it easier to
+   * track robot logic.
+   * 
+   * @param toRun The command to run.
    */
-  private void configureButtonBindings() {
+  public void runNextCommand(Command toRun) {
+    toRun.addRequirements(this);
+    stopCurrentCommand();
+    deferredSwitchCommand.setName(toRun.getName());
+    nextCommand = toRun; // will make the trigger go off.
+  }
+
+  /**
+   * Stops the actively running command. (just calls getCurrentCommand().cancel())
+   */
+  public void stopCurrentCommand() {
+    getCurrentCommand().cancel();
+  }
+
+  /**
+   * Gets the name of the current command.
+   * 
+   * @return The name of the command currently running on RobotContainer.
+   */
+  public String getCurrentCommandName() {
+    Command cmd = getCurrentCommand();
+    if (cmd != null) {
+      return cmd.getName();
+    } else {
+      return "None"; // is null preferred? probably not since java nulls SUCK
+    }
   }
 
   /**
