@@ -12,18 +12,15 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -38,7 +35,6 @@ import java.util.function.Supplier;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.math.SwerveMath;
-import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -63,7 +59,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * Used in driveToPose8726
    */
   private final PIDController swerveYPositionPID = new PIDController(
-      0.2,
+      Constants.SwerveConstants.positionkP,
       Constants.SwerveConstants.positionkI,
       Constants.SwerveConstants.positionkD);
 
@@ -114,20 +110,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     setupPathPlanner();
     RobotModeTriggers.autonomous().onTrue(Commands.runOnce(this::zeroGyroWithAlliance));
-  }
-
-  /**
-   * Construct the swerve drive.
-   *
-   * @param driveCfg      SwerveDriveConfiguration for the swerve.
-   * @param controllerCfg Swerve Controller.
-   */
-  public SwerveSubsystem(SwerveDriveConfiguration driveCfg, SwerveControllerConfiguration controllerCfg) {
-    swerveDrive = new SwerveDrive(driveCfg,
-        controllerCfg,
-        SwerveConstants.maxSpeed,
-        new Pose2d(new Translation2d(Meter.of(2), Meter.of(0)),
-            Rotation2d.fromDegrees(0)));
   }
 
   /**
@@ -208,39 +190,6 @@ public class SwerveSubsystem extends SubsystemBase {
     // event markers.
     return new PathPlannerAuto(pathName);
   }
-
-  /**
-   * Use PathPlanner Path finding to go to a point on the field.
-   *
-   * @param pose Target {@link Pose2d} to go to.
-   * @return PathFinding command
-   */
-  public Command driveToPose(Pose2d pose) {
-    // Create the constraints to use while pathfinding
-    PathConstraints constraints = new PathConstraints(
-        swerveDrive.getMaximumChassisVelocity(), 4.0,
-        swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
-
-    // Since AutoBuilder is configured, we can use it to build pathfinding commands
-    return AutoBuilder.pathfindToPose(
-        pose,
-        constraints,
-        edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
-    );
-  }
-
-  /**
-   * Replaces the swerve module feedforward with a new SimpleMotorFeedforward
-   * object.
-   *
-   * @param kS the static gain of the feedforward
-   * @param kV the velocity gain of the feedforward
-   * @param kA the acceleration gain of the feedforward
-   */
-  public void replaceSwerveModuleFeedforward(double kS, double kV, double kA) {
-    swerveDrive.replaceSwerveModuleFeedforward(new SimpleMotorFeedforward(kS, kV, kA));
-  }
-
   /**
    * The primary method for controlling the drivebase. Takes a
    * {@link Translation2d} and a rotation rate, and
@@ -555,15 +504,6 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveXPositionPID.setSetpoint(desiredPose.getX());
     swerveYPositionPID.setSetpoint(desiredPose.getY());
     swerveThetaPositionPID.setSetpoint(desiredPose.getRotation().getRadians());
-  }
-
-  public void runDriveToPose() {
-    Pose2d currentPose = swerveDrive.getPose();
-
-    swerveDrive.drive(new ChassisSpeeds(
-        -swerveXPositionPID.calculate(currentPose.getX()),
-        0,
-        swerveThetaPositionPID.getP() * calculateAbsoluteRotationError()));
   }
 
   public boolean isDriveToPoseFinished(Pose2d desiredPose) {
