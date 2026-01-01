@@ -25,6 +25,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -63,7 +64,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * Used in driveToPose8726
    */
   private final PIDController swerveYPositionPID = new PIDController(
-      0.2,
+      Constants.SwerveConstants.positionkP,
       Constants.SwerveConstants.positionkI,
       Constants.SwerveConstants.positionkD);
 
@@ -559,11 +560,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public void runDriveToPose() {
     Pose2d currentPose = swerveDrive.getPose();
-
-    swerveDrive.drive(new ChassisSpeeds(
+    ChassisSpeeds speeds = new ChassisSpeeds(
         -swerveXPositionPID.calculate(currentPose.getX()),
-        0,
-        swerveThetaPositionPID.getP() * calculateAbsoluteRotationError()));
+        -swerveYPositionPID.calculate(currentPose.getY()),
+        swerveThetaPositionPID.getP() * calculateAbsoluteRotationError());
+    SmartDashboard.putNumberArray("Autodrive Speeds",
+        new double[] { speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond });
+    swerveDrive.drive(speeds);
   }
 
   public boolean isDriveToPoseFinished(Pose2d desiredPose) {
