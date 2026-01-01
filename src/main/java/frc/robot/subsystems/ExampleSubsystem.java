@@ -5,17 +5,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.stateStuff.StatefulSubsystem;
 
 public class ExampleSubsystem extends StatefulSubsystem {
-    public String johnVariable = "Command Not Executed";
+    public ExampleSubsystem() { 
+        super("ExampleSubsystem");
 
-    @Override
-    public void periodic() {
-        SmartDashboard.putString("Example Field", johnVariable);
+        SmartDashboard.putString("Example Field", "Command Not Executed");
     }
 
-    public void exampleCommand() {
-        System.out.println("attempting example command");
+    @Override
+    public void periodic() {}
 
-        runNextCommand(run(() -> {
+    public void exampleCommand() {
+        runNextCommand(runOnce(() -> {
             SmartDashboard.putString("Example Field", "Command Executed At " + Timer.getFPGATimestamp());
         }).withName("Example Command"), false);
     }

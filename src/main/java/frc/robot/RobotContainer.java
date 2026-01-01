@@ -20,18 +20,17 @@ public class RobotContainer extends StatefulSubsystem {
   public final ExampleSubsystem johnSubsystem = new ExampleSubsystem();
 
   public RobotContainer() {        
+    super("Robot");
+
     autoChooser = new SendableChooser<>();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
     runNextCommand(new ExampleState(this), true);
-
-    SmartDashboard.putBoolean("Command Null?", true);
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putString("Perceived Robot State", supplier == null ? "None" : supplier.getName());
-    SmartDashboard.putString("Robot State", getCurrentCommand() == null ? "None" : getCurrentCommand().getName());
+    SmartDashboard.putString("Robot Supplier State", getSupplierStatus());
   }
 
   /**

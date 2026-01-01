@@ -5,15 +5,16 @@ import frc.robot.util.StateBase;
 
 //Currently matches Bunnybot State Diagram V2
 public class ExampleState2 extends StateBase {
-    public RobotContainer internalContainer;
+    public RobotContainer robot;
 
     public ExampleState2(RobotContainer container) {
-        internalContainer = container;
+        robot = container;
 
         this.setName("Example State Name 2");
     }
 
     @Override  
     public void execute() {
+        if (controller.getBButtonPressed()) robot.runNextCommand(new ExampleState(robot), false);
     }
 }
