@@ -25,9 +25,6 @@ public class XboxControllerWithTriggers extends XboxController {
         rightTriggerHeld = internalController.getRightTriggerAxis() > 0.4;
 
         rightTriggerPressed = rightTriggerHeld != previousRightTriggerHeld && rightTriggerHeld;
-
-        if (leftTriggerPressed) System.out.println("LEFT TRIGGER: " + leftTriggerPressed);
-        if (rightTriggerPressed) System.out.println("RIGHT TRIGGER: " + rightTriggerPressed);
     }
 
     public boolean getLeftTriggerPressed() {

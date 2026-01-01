@@ -41,8 +41,6 @@ public class StatefulSubsystem extends SubsystemBase {
 
         if (getCurrentCommand() != null) getCurrentCommand().cancel();
 
-        System.out.println(subsystemName + ", " + getCurrentCommandName() + ", " + getSupplierStatus());
-
         supplier = toRun;
 
         currentCommandName = toRun.getName();

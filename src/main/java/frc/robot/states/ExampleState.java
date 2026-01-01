@@ -18,9 +18,10 @@ public class ExampleState extends StateBase {
     public void execute() {
         if (controller.getAButtonPressed()) robot.johnSubsystem.exampleCommand();
         if (controller.getBButtonPressed()) {
-            System.out.println("hello?");
             robot.runNextCommand(new ExampleState2(robot), false);
         }
-        if (controller.getXButtonPressed()) robot.runNextCommand(new PrintCommand("Test1"), false);
+        if (controller.getXButtonPressed()) robot.johnSubsystem.runNextCommand(new PrintCommand("Test1"), false);
+    
+        super.execute();
     }
 }

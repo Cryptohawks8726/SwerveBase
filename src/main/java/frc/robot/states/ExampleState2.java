@@ -15,6 +15,9 @@ public class ExampleState2 extends StateBase {
 
     @Override  
     public void execute() {
+        if (controller.getAButtonPressed()) {}
         if (controller.getBButtonPressed()) robot.runNextCommand(new ExampleState(robot), false);
+
+        super.execute();
     }
 }
