@@ -7,7 +7,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.states.ExampleState;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.util.Constants;
 import frc.robot.util.stateStuff.StatefulSubsystem;
@@ -25,14 +24,9 @@ public class RobotContainer extends StatefulSubsystem {
     autoChooser = new SendableChooser<>();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    runNextCommand(new ExampleState(this), true);
+    runNextCommand(new States.ExampleState(this), true);
   }
-
-  @Override
-  public void periodic() {
-    SmartDashboard.putString("Robot Supplier State", getSupplierStatus());
-  }
-
+  
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *

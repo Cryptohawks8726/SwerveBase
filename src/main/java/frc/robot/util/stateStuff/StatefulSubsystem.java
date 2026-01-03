@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class StatefulSubsystem extends SubsystemBase {
@@ -28,11 +27,6 @@ public class StatefulSubsystem extends SubsystemBase {
                 activeCommand.addRequirements(this);
                 return activeCommand;
             })))
-            .handleInterrupt(() -> {
-                activeCommand = null;
-                currentCommandName = "None";
-            })
-            .withInterruptBehavior(InterruptionBehavior.kCancelSelf)
             .ignoringDisable(true));
     }
 
@@ -48,12 +42,11 @@ public class StatefulSubsystem extends SubsystemBase {
         SmartDashboard.putString(subsystemName + " State", currentCommandName);
     }
 
-
+    /**
+     * Retrieves the current command, if one is currently running.
+     * @return The name of the command, if a name was provided. "None" if no command is running. The name of the command's class if it is unnamed.
+     */
     public String getCurrentCommandName() {
         return activeCommand != null ? currentCommandName : "None";
-    }
-
-    public String getSupplierStatus() {
-        return supplier != null ? supplier.getName() : "None";
     }
 }

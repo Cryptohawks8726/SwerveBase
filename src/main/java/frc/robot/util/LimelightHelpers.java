@@ -15,7 +15,12 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
@@ -904,6 +909,21 @@ public class LimelightHelpers {
         return getLimelightNTTableEntry(tableName, entryName).getStringArray(new String[0]);
     }
 
+
+    public static URL getLimelightURLString(String tableName, String request) {
+        String urlString = "http://" + sanitizeName(tableName) + ".local:5807/" + request;
+        URL url;
+        try {
+            url = new URL(urlString);
+            return url;
+        } catch (MalformedURLException e) {
+            System.err.println("bad LL URL");
+        }
+        return null;
+    }
+    /////
+    /////
+
     /**
      * Does the Limelight have a valid target?
      * @param limelightName Name of the Limelight camera ("" for default)
@@ -1559,6 +1579,39 @@ public class LimelightHelpers {
 
     public static double[] getPythonScriptData(String limelightName) {
         return getLimelightNTDoubleArray(limelightName, "llpython");
+    }
+
+    /////
+    /////
+
+    /**
+     * Asynchronously take snapshot.
+     */
+    public static CompletableFuture<Boolean> takeSnapshot(String tableName, String snapshotName) {
+        return CompletableFuture.supplyAsync(() -> {
+            return SYNCH_TAKESNAPSHOT(tableName, snapshotName);
+        });
+    }
+
+    private static boolean SYNCH_TAKESNAPSHOT(String tableName, String snapshotName) {
+        URL url = getLimelightURLString(tableName, "capturesnapshot");
+        try {
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            if (snapshotName != null && snapshotName != "") {
+                connection.setRequestProperty("snapname", snapshotName);
+            }
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 200) {
+                return true;
+            } else {
+                System.err.println("Bad LL Request");
+            }
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+        return false;
     }
 
     /**
