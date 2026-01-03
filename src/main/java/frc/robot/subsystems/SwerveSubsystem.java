@@ -17,6 +17,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -29,6 +31,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.util.Constants;
@@ -57,6 +60,30 @@ public class SwerveSubsystem extends SubsystemBase
    * Swerve drive object.
    */
   private final SwerveDrive swerveDrive;
+
+    /**
+   * Used in driveToPose8726
+   */
+  private final PIDController swerveXPositionPID = new PIDController(
+      Constants.SwerveConstants.positionkP,
+      Constants.SwerveConstants.positionkI,
+      Constants.SwerveConstants.positionkD);
+
+  /**
+   * Used in driveToPose8726
+   */
+  private final PIDController swerveYPositionPID = new PIDController(
+      Constants.SwerveConstants.positionkP,
+      Constants.SwerveConstants.positionkI,
+      Constants.SwerveConstants.positionkD);
+
+  /**
+   * Used in driveToPose8726
+   */
+  private final PIDController swerveThetaPositionPID = new PIDController(
+      Constants.SwerveConstants.rotationkP,
+      Constants.SwerveConstants.rotationkI,
+      Constants.SwerveConstants.rotationkD);
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -442,6 +469,15 @@ public class SwerveSubsystem extends SubsystemBase
    *
    * @param velocity Robot oriented {@link ChassisSpeeds}
    */
+  public Command drive(Supplier<ChassisSpeeds> velocity) {
+    return run(() -> swerveDrive.drive(velocity.get()));
+  }
+
+  /**
+   * Drive according to the chassis robot oriented velocity.
+   *
+   * @param velocity Robot oriented {@link ChassisSpeeds}
+   */
   public void drive(ChassisSpeeds velocity)
   {
     swerveDrive.drive(velocity);
@@ -664,5 +700,71 @@ public class SwerveSubsystem extends SubsystemBase
   public SwerveDrive getSwerveDrive()
   {
     return swerveDrive;
+  }
+
+  /**
+   * Field-relative driveToPose command by 8726 (not to be confused with other
+   * driveToPose commands)
+   * 
+   * @param desiredPose           The goal field-relative pose
+   * @param maxTranslationalSpeed The max speed the swerve drive is allowed to
+   *                              drive at. Doesn't limit rotational speed,
+   *                              however
+   */
+  public FunctionalCommand driveToPose8726(Pose2d desiredPose, double maxTranslationalSpeed) {
+    return new FunctionalCommand(
+        () -> {
+          swerveXPositionPID.reset();
+          swerveYPositionPID.reset();
+          swerveXPositionPID.setSetpoint(desiredPose.getX());
+          swerveYPositionPID.setSetpoint(desiredPose.getY());
+        },
+        () -> {
+          Pose2d currentPose = swerveDrive.getPose();
+
+          double xPIDSpeed = swerveXPositionPID.calculate(currentPose.getX());
+          double yPIDSpeed = swerveYPositionPID.calculate(currentPose.getY());
+          double thetaPIDSpeed = swerveThetaPositionPID.getP() * calculateAbsoluteRotationError();
+
+          swerveDrive.drive(new ChassisSpeeds(
+              Math.abs(xPIDSpeed) > maxTranslationalSpeed ? Math.copySign(maxTranslationalSpeed, xPIDSpeed) : xPIDSpeed,
+              Math.abs(yPIDSpeed) > maxTranslationalSpeed ? Math.copySign(maxTranslationalSpeed, yPIDSpeed) : yPIDSpeed,
+              thetaPIDSpeed));
+        }, (booleanConsumer) -> {
+          // idk john end condition
+        },
+        () -> {
+          double xError = Math.abs(desiredPose.getX() - swerveDrive.getPose().getX());
+          double yError = Math.abs(desiredPose.getY() - swerveDrive.getPose().getY());
+
+          return xError < SwerveConstants.translationalErrorRange && yError < SwerveConstants.translationalErrorRange;
+        }, this);
+  }
+
+  /**
+   * Gets the absolute error of the swerve drive's rotation
+   * 
+   * @return a double representing the error of the swerve drive from its setpoint
+   *         (in radians)
+   */
+  public double calculateAbsoluteRotationError() {
+    Pose2d currentPose = swerveDrive.getPose();
+
+    double rotationState = currentPose.getRotation().getRadians();
+
+    double rotationSetpoint = swerveThetaPositionPID.getSetpoint();
+
+    // Converts the -PI to PI scale of rotation to 0 to 2PI
+    if (rotationState < 0)
+      rotationState = Math.PI + (Math.PI + rotationState);
+    if (rotationSetpoint < 0)
+      rotationSetpoint = Math.PI + (Math.PI + rotationSetpoint);
+
+    // The two rotational errors between the state and the setpoint
+    double error1 = rotationSetpoint - rotationState;
+    double error2 = error1 - 2 * Math.PI;
+
+    // The smaller of the two errors is desirable for PID control.
+    return Math.abs(error1) > Math.abs(error2) ? error2 : error1;
   }
 }
