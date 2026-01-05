@@ -4,7 +4,12 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.util.stateStuff.StateBase;
 
 //Provide static classes representing robot-wide states here
-public class States {
+public class State {
+    /**
+     * Variables which multiple states or subsystems need to access go here
+     */
+    public static class StateVariables {}
+
     public static class ExampleState extends StateBase {
         public RobotContainer robot;
 
@@ -22,11 +27,11 @@ public class States {
 
         @Override
         public void periodic() {
-            if (controller.getAButtonPressed()) robot.johnSubsystem.exampleCommand();
+            if (controller.getAButtonPressed()) robot.johnSubsystem.exampleCommand(); //Example where subsystem runs runNextCommand internally w/ a void method
             if (controller.getBButtonPressed()) {
-                robot.runNextCommand(new ExampleState2(robot), false);
+                robot.runNextCommand(new ExampleState2(robot), false); //Example state transition
             }
-            if (controller.getXButtonPressed()) robot.johnSubsystem.runNextCommand(new PrintCommand("Test1"), false);
+            if (controller.getXButtonPressed()) robot.johnSubsystem.runNextCommand(new PrintCommand("Test1"), false); //Example where subsystem runs runNextCommand externally
         }
 
         @Override
@@ -35,7 +40,6 @@ public class States {
         }
     }
 
-    //Currently matches Bunnybot State Diagram V2
     public static class ExampleState2 extends StateBase {
         public RobotContainer robot;
 

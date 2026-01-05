@@ -4,10 +4,14 @@
 
 package frc.robot;
 
+import java.io.File;
+
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.util.Constants;
 import frc.robot.util.stateStuff.StatefulSubsystem;
 
@@ -18,13 +22,16 @@ public class RobotContainer extends StatefulSubsystem {
 
   public final ExampleSubsystem johnSubsystem = new ExampleSubsystem();
 
+  // public final SwerveSubsystem swerve = new SwerveSubsystem(
+  //           new File(Filesystem.getDeployDirectory(), "johnSwerve")); //TODO: UPDATE SWERVE CONFIGS
+
   public RobotContainer() {        
     super("Robot");
 
     autoChooser = new SendableChooser<>();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    runNextCommand(new States.ExampleState(this), true);
+    runNextCommand(new State.ExampleState(this), true);
   }
   
   /**

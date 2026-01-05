@@ -32,10 +32,10 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.util.Constants;
 import frc.robot.util.Constants.SwerveConstants;
+import frc.robot.util.stateStuff.StatefulSubsystem;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +54,7 @@ import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
-public class SwerveSubsystem extends SubsystemBase
+public class SwerveSubsystem extends StatefulSubsystem
 {
   /**
    * Swerve drive object.
@@ -92,6 +92,8 @@ public class SwerveSubsystem extends SubsystemBase
    */
    public SwerveSubsystem(File directory)
   { 
+    super("Swerve");
+
     boolean blueAlliance = false;
     Pose2d startingPose = blueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
                                                                       Meter.of(4)),
@@ -130,6 +132,8 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public SwerveSubsystem(SwerveDriveConfiguration driveCfg, SwerveControllerConfiguration controllerCfg)
   {
+    super("Swerve");
+
     swerveDrive = new SwerveDrive(driveCfg,
                                   controllerCfg,
                                   SwerveConstants.maxSpeed,

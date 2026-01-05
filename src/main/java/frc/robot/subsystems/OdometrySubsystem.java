@@ -27,6 +27,10 @@ import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+/**
+ * Handles vision and robot position estimation 
+ * <p> This is the only subsystem which does not extend StatefulSubsystem
+ */
 public class OdometrySubsystem extends SubsystemBase {
     // TODO: UPDATE kP and kD when testing bot
     private final PIDController xCont = new PIDController(
