@@ -29,6 +29,7 @@ public class ExampleSubsystem extends StatefulSubsystem {
 
     @Override
     public void initSendable(SendableBuilder builder) {
+        super.initSendable(builder);
         builder.addDoubleProperty("kP", pidController::getP, null);
     }
 }
