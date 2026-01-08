@@ -1,10 +1,10 @@
-= SwerveBase
+# SwerveBase
 Base code for FRC Team 8726 Robots. Code for specific bots will be forked from this repository.
 
-== Using StatefulSubsystem
+## Using StatefulSubsystem
 - TODO: Someone give nice docs on this
 
-== Publishing values to NetworkTables
+## Publishing values to NetworkTables
 ***It is not recommended to ever call the SmartDashboard.put methods unless you to for code that is for some reason outside of a subsystem.***
 Instead, all subsystems extending from StatefulSubsystem (new robot architecture class) will be automatically put into NetworkTables under the path Subsystems/{subsystem name}. 
 To put values you can see for debugging, override the initSendable method on the subsystem, and use the SubsystemBuilder to add properties as needed - these will be automatically
