@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.io.File;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,17 +25,19 @@ public class RobotContainer extends StatefulSubsystem {
   public final ExampleSubsystem johnSubsystem = new ExampleSubsystem();
 
   // public final SwerveSubsystem swerve = new SwerveSubsystem(
-  //           new File(Filesystem.getDeployDirectory(), "johnSwerve")); //TODO: UPDATE SWERVE CONFIGS
+  // new File(Filesystem.getDeployDirectory(), "johnSwerve")); //TODO: UPDATE
+  // SWERVE CONFIGS
 
-  public RobotContainer() {        
+  public RobotContainer() {
     super("Robot");
 
     autoChooser = new SendableChooser<>();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
+    putOnDashboard();
     runNextCommand(new State.ExampleState(this), true);
   }
-  
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -45,5 +49,10 @@ public class RobotContainer extends StatefulSubsystem {
     } else {
       return null;
     }
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    super.initSendable(builder);
   }
 }

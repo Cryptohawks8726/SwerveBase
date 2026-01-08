@@ -21,6 +21,15 @@
   "NetworkTables": {
     "transitory": {
       "SmartDashboard": {
+        "Subsystems": {
+          "ExampleSubsystem": {
+            "open": true
+          },
+          "Robot": {
+            "open": true
+          },
+          "open": true
+        },
         "open": true
       }
     }

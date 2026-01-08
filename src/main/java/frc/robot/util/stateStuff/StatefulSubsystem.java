@@ -16,7 +16,6 @@ public class StatefulSubsystem extends SubsystemBase {
 
     public StatefulSubsystem(String newSubsystemName) {
         subsystemName = newSubsystemName;
-        SmartDashboard.putData("Subsystems/" + newSubsystemName, this);
 
         executionTrigger = new Trigger(() -> supplier != null);
 
@@ -61,5 +60,9 @@ public class StatefulSubsystem extends SubsystemBase {
         // Can uncomment if needed, but seems useless.
         // super.initSendable(builder);
         builder.addStringProperty("currentCommandName", this::getCurrentCommandName, null);
+    }
+
+    public void putOnDashboard() {
+        SmartDashboard.putData("Subsystems/" + subsystemName, this);
     }
 }
