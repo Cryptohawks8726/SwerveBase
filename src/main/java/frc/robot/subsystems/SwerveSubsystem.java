@@ -29,6 +29,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -48,7 +49,6 @@ import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import swervelib.math.SwerveMath;
-import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -122,23 +122,6 @@ public class SwerveSubsystem extends StatefulSubsystem
     // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
 
     setupPathPlanner();
-  }
-
-  /**
-   * Construct the swerve drive.
-   *
-   * @param driveCfg      SwerveDriveConfiguration for the swerve.
-   * @param controllerCfg Swerve Controller.
-   */
-  public SwerveSubsystem(SwerveDriveConfiguration driveCfg, SwerveControllerConfiguration controllerCfg)
-  {
-    super("Swerve");
-
-    swerveDrive = new SwerveDrive(driveCfg,
-                                  controllerCfg,
-                                  SwerveConstants.maxSpeed,
-                                  new Pose2d(new Translation2d(Meter.of(2), Meter.of(0)),
-                                             Rotation2d.fromDegrees(0)));
   }
 
   @Override
@@ -715,20 +698,26 @@ public class SwerveSubsystem extends StatefulSubsystem
    *                              drive at. Doesn't limit rotational speed,
    *                              however
    */
-  public FunctionalCommand driveToPose8726(Pose2d desiredPose, double maxTranslationalSpeed) {
-    return new FunctionalCommand(
+  public void driveToPose8726(Pose2d desiredPose, double maxTranslationalSpeed) {
+    runNextCommand(new FunctionalCommand(
         () -> {
           swerveXPositionPID.reset();
           swerveYPositionPID.reset();
+          swerveThetaPositionPID.reset();
           swerveXPositionPID.setSetpoint(desiredPose.getX());
           swerveYPositionPID.setSetpoint(desiredPose.getY());
+          swerveThetaPositionPID.setSetpoint(desiredPose.getRotation().getRadians());
         },
         () -> {
           Pose2d currentPose = swerveDrive.getPose();
 
-          double xPIDSpeed = swerveXPositionPID.calculate(currentPose.getX());
-          double yPIDSpeed = swerveYPositionPID.calculate(currentPose.getY());
+          double xPIDSpeed = -swerveXPositionPID.calculate(currentPose.getX());
+          double yPIDSpeed = -swerveYPositionPID.calculate(currentPose.getY());
           double thetaPIDSpeed = swerveThetaPositionPID.getP() * calculateAbsoluteRotationError();
+
+          SmartDashboard.putNumber("X Autodrive Speed", xPIDSpeed);
+          SmartDashboard.putNumber("Y Autodrive Speed", yPIDSpeed);
+          SmartDashboard.putNumber("Theta Autodrive Speed", thetaPIDSpeed);
 
           swerveDrive.drive(new ChassisSpeeds(
               Math.abs(xPIDSpeed) > maxTranslationalSpeed ? Math.copySign(maxTranslationalSpeed, xPIDSpeed) : xPIDSpeed,
@@ -742,7 +731,8 @@ public class SwerveSubsystem extends StatefulSubsystem
           double yError = Math.abs(desiredPose.getY() - swerveDrive.getPose().getY());
 
           return xError < SwerveConstants.translationalErrorRange && yError < SwerveConstants.translationalErrorRange;
-        }, this);
+        }, this)
+    , false);
   }
 
   /**

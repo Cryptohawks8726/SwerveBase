@@ -3,8 +3,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.FieldPointDisplay;
 import frc.robot.util.stateStuff.StatefulSubsystem;
 
@@ -12,6 +10,10 @@ public class ExampleSubsystem extends StatefulSubsystem {
     public final PIDController pidController = new PIDController(0, 0, 0);
     public double controlEffort = 0.0;
     private Pose2d exampleSetpoint = new Pose2d();
+
+    /*
+    Okay I was gonna write a guide but dhruvas gonna make me write a read me anyway so ima just put it in there. 
+     */
 
     public ExampleSubsystem() {
         super("ExampleSubsystem");

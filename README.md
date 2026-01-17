@@ -2,7 +2,13 @@
 Base code for FRC Team 8726 Robots. Code for specific bots will be forked from this repository.
 
 ## Using StatefulSubsystem
-- TODO: Someone give nice docs on this
+
+//I WILL FINISH THIS LATER
+- Hello to the control peoples. This is a guide to using stateful subsystem
+
+Stateful subsystem is an extension of subsystem base, something that WPILIB gives us so we can have access to basic commands in our subsystems, such as periodic(), which runs periodically, meaning once every 0.02 seconds. Stateful subsystem adds a couple new commands to the subsystem base which are useful. 
+
+The first command we will be talking about is 
 
 ## Publishing values to NetworkTables
 ***It is not recommended to ever call the SmartDashboard.put methods unless you to for code that is for some reason outside of a subsystem.***  

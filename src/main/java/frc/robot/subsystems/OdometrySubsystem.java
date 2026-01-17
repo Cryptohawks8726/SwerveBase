@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import frc.robot.util.LimelightHelpers;
-import frc.robot.util.Constants;
 import frc.robot.util.Constants.OdometryConstants;
 import frc.robot.util.LimelightHelpers.PoseEstimate;
 import edu.wpi.first.networktables.NetworkTable;
@@ -14,11 +13,9 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -27,25 +24,8 @@ import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-/**
- * Handles vision and robot position estimation 
- * <p> This is the only subsystem which does not extend StatefulSubsystem
- */
 public class OdometrySubsystem extends SubsystemBase {
     // TODO: UPDATE kP and kD when testing bot
-    private final PIDController xCont = new PIDController(
-            Constants.SwerveConstants.positionkP,
-            Constants.SwerveConstants.positionkI,
-            Constants.SwerveConstants.positionkD);
-    private final PIDController yCont = new PIDController(
-            Constants.SwerveConstants.positionkP,
-            Constants.SwerveConstants.positionkI,
-            Constants.SwerveConstants.positionkD);
-    private final PIDController omegaCont = new PIDController(
-            Constants.SwerveConstants.rotationkP,
-            Constants.SwerveConstants.rotationkI,
-            Constants.SwerveConstants.rotationkD);
-
     private final Pose2d[] scoringSetpoints = new Pose2d[] {
             OdometryConstants.nearGoalAimingPosition,
     };
@@ -68,7 +48,8 @@ public class OdometrySubsystem extends SubsystemBase {
     private final NetworkTable limelightLogs;
 
     // Simpler apriltag layout for 3rd-party games (i.e. Blair Bunnybots)
-    private final AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark); //TODO: UPDATE ONCE MANUAL DROPS!!
+    private final AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout
+            .loadField(AprilTagFields.k2025ReefscapeAndyMark); // TODO: UPDATE ONCE MANUAL DROPS!!
 
     private final Field2d field = new Field2d();
 
@@ -83,8 +64,8 @@ public class OdometrySubsystem extends SubsystemBase {
                 OdometryConstants.pitchOffset,
                 OdometryConstants.yawOffset);
 
-        //TODO: UDPATE if this has use cases during the season
-        //LimelightHelpers.SetFiducialIDFiltersOverride("limelight-april", ...);
+        // TODO: UDPATE if this has use cases during the season
+        // LimelightHelpers.SetFiducialIDFiltersOverride("limelight-april", ...);
 
         swerve = newSwerve;
 
@@ -94,11 +75,6 @@ public class OdometrySubsystem extends SubsystemBase {
         // Simulated field
         SmartDashboard.putData("Apriltag Bot Pose", field);
 
-        // Resetting PID controllers is a good convention in accords with WPILib Docs
-        xCont.reset();
-        yCont.reset();
-        omegaCont.reset();
-
         // n1 = x, n2 = y, n3 = theta; each value represents the expected error of each
         // measurement; x and y are in meters, theta is in radians
         // While the limelight itself does not supply an angle, addvisionmeasurement
@@ -106,7 +82,7 @@ public class OdometrySubsystem extends SubsystemBase {
         swerve.getSwerveDrive().setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 0.05));
 
         // TODO: UPDATE this if need be
-        johnGyro.setYaw(DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue ? 0 : 180);
+        johnGyro.setYaw(DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue ? 180 : 0);
     }
 
     @Override
@@ -131,7 +107,7 @@ public class OdometrySubsystem extends SubsystemBase {
         // a tag
         if (tagID > 0) {
             // Getting MegaTag2 Pose Estimate
-            PoseEstimate megaTagPoseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-april");
+            PoseEstimate megaTagPoseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-april");
             Pose2d inputPose = new Pose2d(megaTagPoseEstimate.pose.getX(), megaTagPoseEstimate.pose.getY(),
                     johnGyro.getRotation2d());
 
@@ -164,51 +140,6 @@ public class OdometrySubsystem extends SubsystemBase {
      */
     public int getVisibleApriltag() {
         return (int) limelightLogs.getEntry("tid").getInteger(0);
-    }
-
-    /**
-     * Gets the setpoint translational and rotational speeds of the robot
-     * May migrate to trapezoidal motion profiles over PID control in the future
-     * 
-     * @return A ChassisSpeeds object to be taken by the drivetrain's drive function
-     */
-    public ChassisSpeeds getTrackingSpeeds() {
-        // Uses pose estimator pose, same pose as in the one used in
-        // swerve.getSwerveDrive().addVisionMeasurement(limelightBotPose, tsValue);
-        Pose2d botPose = swerve.getPose();
-
-        double rotationState = botPose.getRotation().getRadians();
-
-        double rotationSetpoint = omegaCont.getSetpoint();
-
-        // Converts the -PI to PI scale of rotation to 0 to 2PI
-        if (rotationState < 0)
-            rotationState = Math.PI + (Math.PI + rotationState);
-        if (rotationSetpoint < 0)
-            rotationSetpoint = Math.PI + (Math.PI + rotationSetpoint);
-
-        // The two rotational errors between the state and the setpoint
-        double error1 = rotationSetpoint - rotationState;
-        double error2 = error1 - 2 * Math.PI;
-
-        // The smaller of the two errors is desirable for PID control.
-        double finalError = Math.abs(error1) > Math.abs(error2) ? error2 : error1;
-
-        ChassisSpeeds newSpeeds = new ChassisSpeeds(
-                xCont.calculate(botPose.getX()),
-                yCont.calculate(botPose.getY()),
-                omegaCont.getP() * finalError // The actual PID controller is ignored, with error
-        // calculations being done above, to prevent errors with rollover (a measurement
-        // wrapping from PI to -PI instantaneously)
-        );
-
-        SmartDashboard.putNumberArray("Apriltag Bot Speeds", new double[] {
-                newSpeeds.vxMetersPerSecond,
-                newSpeeds.vyMetersPerSecond,
-                newSpeeds.omegaRadiansPerSecond
-        });
-
-        return newSpeeds;
     }
 
     /**
@@ -369,7 +300,7 @@ public class OdometrySubsystem extends SubsystemBase {
      *                        relative to
      */
     @SuppressWarnings("unused")
-    private void simulateTagRelativeSetpoint(Pose2d desiredDistance, int tagID) {
+    public void simulateTagRelativeSetpoint(Pose2d desiredDistance, int tagID) {
         Pose2d tagPose = aprilTagLayout.getTagPose(tagID).get().toPose2d();
 
         Pose2d targetPose = tagPose.transformBy(

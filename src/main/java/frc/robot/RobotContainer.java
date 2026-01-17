@@ -6,40 +6,44 @@ package frc.robot;
 
 import java.io.File;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.ExampleSubsystem;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.subsystems.OdometrySubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.util.Constants;
-import frc.robot.util.FieldPointDisplay;
+import frc.robot.util.SwerveCommandManager;
+import frc.robot.State.StateVariables;
 import frc.robot.util.stateStuff.StatefulSubsystem;
 
 public class RobotContainer extends StatefulSubsystem {
   // Sent to NetworkTables to allow the drive team to select multiple auto
   // options.
   private final SendableChooser<Command> autoChooser;
+  
 
-  public final ExampleSubsystem johnSubsystem = new ExampleSubsystem();
+  // Change directory to change the swerve config
+  public final SwerveSubsystem swerve = new SwerveSubsystem(
+          new File(Filesystem.getDeployDirectory(), "2025bunnybotSwerve"));
+  // Reference the command manager when actually commanding the swerve
+  public final SwerveCommandManager swerveCommander = new SwerveCommandManager(swerve);
 
-  // public final SwerveSubsystem swerve = new SwerveSubsystem(
-  // new File(Filesystem.getDeployDirectory(), "johnSwerve")); //TODO: UPDATE
-  // SWERVE CONFIGS
+  public final OdometrySubsystem apriltagVision = new OdometrySubsystem(swerve);
 
-  public RobotContainer() {
+  public RobotContainer() {        
     super("Robot");
 
     autoChooser = new SendableChooser<>();
+
+    autoChooser.addOption("ShootDaStuffLow", new InstantCommand(() -> {}));
+
     SmartDashboard.putData("Auto Chooser", autoChooser);
-    SmartDashboard.putData("FieldPointDisplay", new FieldPointDisplay());
-
-    putOnDashboard();
-    runNextCommand(new State.ExampleState(this), true);
   }
-
+  
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -53,8 +57,15 @@ public class RobotContainer extends StatefulSubsystem {
     }
   }
 
-  @Override
-  public void initSendable(SendableBuilder builder) {
-    super.initSendable(builder);
+  public static void updateNetworkTables(RobotContainer robot) {
+    SmartDashboard.putString("Current State", robot.getCurrentCommandName());
+
+    SmartDashboard.putNumber("luniteCount", StateVariables.getLuniteCount());
+    SmartDashboard.putNumber("gameTime", Timer.getMatchTime());
+
+    Pose2d pose = robot.swerve.getPose();
+    SmartDashboard.putNumberArray("robot2DPosition",
+            new double[] { pose.getMeasureX().baseUnitMagnitude(), pose.getMeasureY().baseUnitMagnitude(),
+                    pose.getRotation().getRadians() });
   }
 }
