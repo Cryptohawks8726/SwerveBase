@@ -19,6 +19,9 @@ This will automatically call the setter function if the value changes.
 **You should still be able to set other values in glass if needed through - but putting them under a certain prefix will keep things cleaner.**
 
 For any subsystems that need to put data in NetworkTables, call putOnDashboard() at some point to automatically publish them in the correct spot. This is easiest to do in the constructor of your subsystem.  
+
+Additionally, see the documentation of the FieldPointDisplay class for information on how to register setpoints that
+can be set from the driver dashboard or publish points that will appear on the dashboard.
 Example:
 ```java
 public MySubsystem() {

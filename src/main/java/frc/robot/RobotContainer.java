@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.util.Constants;
+import frc.robot.util.FieldPointDisplay;
 import frc.robot.util.stateStuff.StatefulSubsystem;
 
 public class RobotContainer extends StatefulSubsystem {
@@ -33,6 +34,7 @@ public class RobotContainer extends StatefulSubsystem {
 
     autoChooser = new SendableChooser<>();
     SmartDashboard.putData("Auto Chooser", autoChooser);
+    SmartDashboard.putData("FieldPointDisplay", new FieldPointDisplay());
 
     putOnDashboard();
     runNextCommand(new State.ExampleState(this), true);
