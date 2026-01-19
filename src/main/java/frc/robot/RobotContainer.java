@@ -19,6 +19,7 @@ import frc.robot.util.Constants;
 import frc.robot.util.SwerveCommandManager;
 import frc.robot.State.StateVariables;
 import frc.robot.util.stateStuff.StatefulSubsystem;
+import frc.robot.subsystems.ExampleSubsystem;
 
 public class RobotContainer extends StatefulSubsystem {
   // Sent to NetworkTables to allow the drive team to select multiple auto
@@ -31,7 +32,7 @@ public class RobotContainer extends StatefulSubsystem {
           new File(Filesystem.getDeployDirectory(), "2025bunnybotSwerve"));
   // Reference the command manager when actually commanding the swerve
   public final SwerveCommandManager swerveCommander = new SwerveCommandManager(swerve);
-
+  public final ExampleSubsystem johnSubsystem = new ExampleSubsystem();
   public final OdometrySubsystem apriltagVision = new OdometrySubsystem(swerve);
 
   public RobotContainer() {        

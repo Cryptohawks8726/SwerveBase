@@ -27,6 +27,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -93,6 +94,7 @@ public class SwerveSubsystem extends StatefulSubsystem
    public SwerveSubsystem(File directory)
   { 
     super("Swerve");
+    SmartDashboard.putData("Subsystems/" + subsystemName, this);
 
     boolean blueAlliance = false;
     Pose2d startingPose = blueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
@@ -121,7 +123,12 @@ public class SwerveSubsystem extends StatefulSubsystem
                                                 1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
     // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
 
-    setupPathPlanner();
+    //setupPathPlanner(); TODO: UNCOMMENT WHEN HANDLING AUTOS
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+      super.initSendable(builder);
   }
 
   @Override

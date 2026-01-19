@@ -33,6 +33,7 @@ Other Functions:
 - initSendable adds the command name to a sendable for use with Aluminum
 - putOnDashboard puts the subystem name on the dashboard. 
 - Always call super(String subsystemName); in the constructor of StatefulSubsystems, otherwise they won't work
+- After super, ALWAYS call SmartDashboard.putData("Subsystems/" + subsystemName, this); to ensure that Aluminum functions properly
 
 The Robot Container
 
@@ -65,7 +66,7 @@ To put values you can see for debugging, override the initSendable method on the
 updated by calling the provided getter and setter functions. The setter function can be null. 
 You can also do things like publish constants - see the WPILib docs on this class for more info (linked at the end of the section).
 
-When overriding initSendable, *PLEASE* remember to call `super.initSendable()`.
+When overriding initSendable, *PLEASE* remember to call `super.initSendable(builder)`.
 
 If you want to publish values to NetworkTables that can be easily changed at runtime through dashboards, all you have to do is add a setter function when adding properties in initSendable.
 This will automatically call the setter function if the value changes.

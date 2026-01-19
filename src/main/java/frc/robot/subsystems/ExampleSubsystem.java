@@ -3,20 +3,20 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.FieldPointDisplay;
 import frc.robot.util.stateStuff.StatefulSubsystem;
 
 public class ExampleSubsystem extends StatefulSubsystem {
-    public final PIDController pidController = new PIDController(0, 0, 0);
+    public final PIDController pidController = new PIDController(1, 0, 0);
     public double controlEffort = 0.0;
     private Pose2d exampleSetpoint = new Pose2d();
 
-    /*
-    Okay I was gonna write a guide but dhruvas gonna make me write a read me anyway so ima just put it in there. 
-     */
-
     public ExampleSubsystem() {
-        super("ExampleSubsystem");
+        super("Example Subsystem");
+        SmartDashboard.putData("Subsystems/" + subsystemName, this);
+
+        //place normal constructor code in here
     }
 
     @Override
@@ -47,8 +47,9 @@ public class ExampleSubsystem extends StatefulSubsystem {
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        builder.addDoubleProperty("kP", pidController::getP, null);
-        builder.addDoubleProperty("Ouput Control Effort", this::getOutputControlEffort, null);
+
+        builder.addDoubleProperty("Ouput Control Effort", this::getOutputControlEffort, (d) -> {});
+        builder.addDoubleProperty("MutableValues/kP", this.pidController::getP, (d) -> { pidController.setP(d); });
 
         // This call registers a setpoint that can be easily modified from the dashboard
         // or glass.
