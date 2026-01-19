@@ -29,6 +29,8 @@ public class StatefulSubsystem extends SubsystemBase {
                             return activeCommand;
                         })))
                         .ignoringDisable(true));
+
+        SmartDashboard.putData("Subsystems/" + subsystemName, this);
     }
 
     public void runNextCommand(Command toRun, boolean runsWhenDisabled) {
@@ -60,9 +62,5 @@ public class StatefulSubsystem extends SubsystemBase {
         // Can uncomment if needed, but seems useless.
         // super.initSendable(builder);
         builder.addStringProperty("currentCommandName", this::getCurrentCommandName, null);
-    }
-
-    public void putOnDashboard() {
-        SmartDashboard.putData("Subsystems/" + subsystemName, this);
     }
 }

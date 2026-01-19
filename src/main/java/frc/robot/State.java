@@ -47,7 +47,7 @@ public class State {
 
             // The name of this state will be treated as the robot's state's name in
             // dashboard outputs
-            this.setName("Manual Intake");
+            setName("Manual Intake");
         }
 
         @Override
@@ -82,7 +82,7 @@ public class State {
         public ManualShoot(RobotContainer container) {
             robot = container;
 
-            this.setName("Manual Shoot");
+            setName("Manual Shoot");
         }
 
         @Override

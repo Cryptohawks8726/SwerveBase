@@ -17,10 +17,6 @@ public class ExampleSubsystem extends StatefulSubsystem {
 
     public ExampleSubsystem() {
         super("ExampleSubsystem");
-
-        // Call this to publish the subsystem to NetworkTables
-        // Make sure to call this for any subsystems that need to display info.
-        putOnDashboard();
     }
 
     @Override
