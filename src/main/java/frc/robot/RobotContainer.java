@@ -72,5 +72,11 @@ public class RobotContainer extends StatefulSubsystem {
     Pose2d pose = swerve.getPose();
     // X, Y, Rotation (meters, meters, radians)
     builder.addDoubleArrayProperty("robotPosition", () -> new double[] {pose.getMeasureX().baseUnitMagnitude(), pose.getMeasureY().baseUnitMagnitude(), pose.getRotation().getRadians()}, null);
+    builder.addBooleanProperty("zeroGyroTrigger", () -> false, (v) -> {
+      // Reset the gyro if this value is set to true.
+      if (v) {
+        swerve.zeroGyroWithAlliance();
+      }
+    } );
   }
 }
