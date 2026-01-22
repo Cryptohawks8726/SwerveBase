@@ -59,4 +59,8 @@ public class StatefulSubsystem extends SubsystemBase {
     public void initSendable(SendableBuilder builder) {
         builder.addStringProperty("currentCommandName", this::getCurrentCommandName, null);
     }
+
+    public void putOnDashboard() {
+        SmartDashboard.putData("Subsystems/" + subsystemName, this);
+    }
 }
