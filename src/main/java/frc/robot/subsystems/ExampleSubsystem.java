@@ -14,7 +14,7 @@ public class ExampleSubsystem extends StatefulSubsystem {
 
     public ExampleSubsystem() {
         super("Example Subsystem");
-        SmartDashboard.putData("Subsystems/" + subsystemName, this);
+        putOnDashboard();
 
         //place normal constructor code in here
     }
