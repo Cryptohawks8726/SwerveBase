@@ -10,12 +10,11 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class StatefulSubsystem extends SubsystemBase {
     protected Command supplier = null;
     protected Command activeCommand = null;
-    protected String subsystemName = "UnnamedSubsystem";
     protected Trigger executionTrigger;
     protected String currentCommandName = "None";
 
     public StatefulSubsystem(String newSubsystemName) {
-        subsystemName = newSubsystemName;
+        setName(newSubsystemName);
 
         executionTrigger = new Trigger(() -> supplier != null);
 
@@ -42,7 +41,7 @@ public class StatefulSubsystem extends SubsystemBase {
 
         currentCommandName = toRun.getName();
 
-        SmartDashboard.putString(subsystemName + " State", currentCommandName);
+        SmartDashboard.putString(getName() + " State", currentCommandName);
     }
 
     /**
@@ -61,6 +60,6 @@ public class StatefulSubsystem extends SubsystemBase {
     }
 
     public void putOnDashboard() {
-        SmartDashboard.putData("Subsystems/" + subsystemName, this);
+        SmartDashboard.putData("Subsystems/" + getName(), this);
     }
 }
