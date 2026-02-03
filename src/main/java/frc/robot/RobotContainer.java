@@ -47,6 +47,8 @@ public class RobotContainer extends StatefulSubsystem {
     SmartDashboard.putData("Auto Chooser", autoChooser);
     SmartDashboard.putData("FieldPointDisplay", new FieldPointDisplay());
     putOnDashboard();
+
+    runNextCommand(new State.ManualIntake(this), true);
   }
   
   /**
