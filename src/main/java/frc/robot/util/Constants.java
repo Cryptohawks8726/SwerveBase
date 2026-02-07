@@ -45,7 +45,7 @@ public final class Constants {
         public static final double translationalErrorRange = 0.02;
         public static final double rotationalErrorRange = 0.1; // Radians
 
-        public static final double joystickDeadband = 0; //TODO: UPDATE this if drivers want
+        public static final double joystickDeadband = 0.1; //TODO: UPDATE this if drivers want
     }
     
     public static final class OdometryConstants {
