@@ -29,8 +29,8 @@ public final class Constants {
         public static final double maxSpeed = (demoMode ? 2.0 : 4.8); // m/s
         public static final double maxAngularSpeed = (demoMode ? 1.5 : 3); // rad/s
 
-        public static final double defaultTranslationCoefficient = 1;
-        public static final double defaultRotationCoefficient = 1;
+        public static final double defaultTranslationCoefficient = 0.7;
+        public static final double defaultRotationCoefficient = 0.7;
         public static final double slowTranslationCoefficient = 0.1;
         public static final double slowRotationCoefficient = 0.1;
 

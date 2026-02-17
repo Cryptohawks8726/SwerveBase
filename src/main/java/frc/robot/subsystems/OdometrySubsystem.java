@@ -82,7 +82,7 @@ public class OdometrySubsystem extends SubsystemBase {
         swerve.getSwerveDrive().setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 0.05));
 
         // TODO: UPDATE this if need be
-        johnGyro.setYaw(DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue ? 180 : 0);
+        johnGyro.setYaw(DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue ? 0 : 180);
     }
 
     @Override
