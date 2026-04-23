@@ -8,28 +8,23 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class StatefulSubsystem extends SubsystemBase {
-    protected Command supplier = null;
+    /// MAY BE NULL!
     protected Command activeCommand = null;
     protected Trigger executionTrigger;
-    protected String currentCommandName = "None";
+    protected String lastScheduledCommand = "None";
 
     public StatefulSubsystem(String newSubsystemName) {
         setName(newSubsystemName);
-
-        executionTrigger = new Trigger(() -> supplier != null);
-
-        executionTrigger
-                .onTrue(defer(() -> runOnce(() -> {
-                    activeCommand = supplier;
-                    supplier = null;
-                })
-                        .andThen(defer(() -> {
-                            activeCommand.addRequirements(this);
-                            return activeCommand;
-                        })))
-                        .ignoringDisable(true));
     }
 
+    /**
+     * Schedules the next command (state) to run on this subsystem. Only one command
+     * will run at a time.
+     * 
+     * @param toRun            The command to run. Passing null will cancel the
+     *                         current command.
+     * @param runsWhenDisabled Whether or not the command should run when disabled.
+     */
     public void runNextCommand(Command toRun, boolean runsWhenDisabled) {
         if (DriverStation.isDisabled() && runsWhenDisabled == false)
             return;
@@ -37,11 +32,28 @@ public class StatefulSubsystem extends SubsystemBase {
         if (getCurrentCommand() != null)
             getCurrentCommand().cancel();
 
-        supplier = toRun;
+        // Kill the old active command
+        cancelCurrentCommand();
 
-        currentCommandName = toRun.getName();
+        // Set the new active command
+        activeCommand = toRun;
 
-        SmartDashboard.putString(getName() + " State", currentCommandName);
+        // safety check in case a null command is passed
+        if (toRun == null) {
+            return;
+        }
+
+        activeCommand.initialize();
+
+        lastScheduledCommand = toRun.getName();
+    }
+
+    public void cancelCurrentCommand() {
+        if (activeCommand != null) {
+            activeCommand.end(true);
+            activeCommand = null;
+
+        }
     }
 
     /**
@@ -51,15 +63,52 @@ public class StatefulSubsystem extends SubsystemBase {
      *         is running. The name of the command's class if it is unnamed.
      */
     public String getCurrentCommandName() {
-        return activeCommand != null ? currentCommandName : "None";
+        return activeCommand != null ? activeCommand.getName() : "None";
+    }
+
+    public String getLastScheduledCommandName() {
+        return lastScheduledCommand;
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
+        // The command that is currently running.
         builder.addStringProperty("currentCommandName", this::getCurrentCommandName, null);
+        // The last command that was scheduled. This command may or may not have since
+        // ended.
+        builder.addStringProperty("lastScheduledCommand", this::getLastScheduledCommandName, null);
     }
 
     public void putOnDashboard() {
         SmartDashboard.putData("Subsystems/" + getName(), this);
+    }
+
+    @Override
+    public void periodic() {
+        // Run the active command
+        activeCommand.execute();
+        if (activeCommand.isFinished()) {
+            activeCommand.end(false);
+            activeCommand = null;
+        }
+
+        // For the "pressed" methods to work you need to have them be polled every
+        // frame, this is stupid but we can't really do anything about it
+        // If you don't do this then subsystems that don't check i.e. the A button
+        // will carry over their inputs to a state that does
+        // I.e. if you push a in state1 which has no a binding then switch to state2
+        // which has an a binding then that a binding will trigger the moment you switch
+        // unless you do this
+        StateBase.controller.stateManagerPeriodic();
+        StateBase.controller.getAButtonPressed();
+        StateBase.controller.getBButtonPressed();
+        StateBase.controller.getXButtonPressed();
+        StateBase.controller.getYButtonPressed();
+        StateBase.controller.getLeftTriggerPressed();
+        StateBase.controller.getRightTriggerPressed();
+        StateBase.controller.getLeftBumperButtonPressed();
+        StateBase.controller.getRightBumperButtonPressed();
+        StateBase.controller.getStartButtonPressed();
+        StateBase.controller.getBackButtonPressed();
     }
 }

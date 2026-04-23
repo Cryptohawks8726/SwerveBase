@@ -19,7 +19,6 @@ import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.util.Constants;
 import frc.robot.util.FieldPointDisplay;
 import frc.robot.util.SwerveCommandManager;
-import frc.robot.State.StateVariables;
 import frc.robot.util.stateStuff.StatefulSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 
@@ -27,22 +26,22 @@ public class RobotContainer extends StatefulSubsystem {
   // Sent to NetworkTables to allow the drive team to select multiple auto
   // options.
   private final SendableChooser<Command> autoChooser;
-  
 
   // Change directory to change the swerve config
   public final SwerveSubsystem swerve = new SwerveSubsystem(
-          new File(Filesystem.getDeployDirectory(), "2025bunnybotSwerve"));
+      new File(Filesystem.getDeployDirectory(), "2025bunnybotSwerve"));
   // Reference the command manager when actually commanding the swerve
   public final SwerveCommandManager swerveCommander = new SwerveCommandManager(swerve);
   public final ExampleSubsystem johnSubsystem = new ExampleSubsystem();
   public final OdometrySubsystem apriltagVision = new OdometrySubsystem(swerve);
 
-  public RobotContainer() {        
+  public RobotContainer() {
     super("Robot");
 
     autoChooser = new SendableChooser<>();
 
-    autoChooser.addOption("ShootDaStuffLow", new InstantCommand(() -> {}));
+    autoChooser.addOption("ShootDaStuffLow", new InstantCommand(() -> {
+    }));
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
     SmartDashboard.putData("FieldPointDisplay", new FieldPointDisplay());
@@ -50,7 +49,7 @@ public class RobotContainer extends StatefulSubsystem {
 
     runNextCommand(new State.ManualIntake(this), true);
   }
-  
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -69,16 +68,16 @@ public class RobotContainer extends StatefulSubsystem {
 
     // Game time (seconds)
     builder.addDoubleProperty("gameTime", () -> Timer.getMatchTime(), null);
-    
 
     Pose2d pose = swerve.getPose();
     // X, Y, Rotation (meters, meters, radians)
-    builder.addDoubleArrayProperty("robotPosition", () -> new double[] {pose.getMeasureX().baseUnitMagnitude(), pose.getMeasureY().baseUnitMagnitude(), pose.getRotation().getRadians()}, null);
+    builder.addDoubleArrayProperty("robotPosition", () -> new double[] { pose.getMeasureX().baseUnitMagnitude(),
+        pose.getMeasureY().baseUnitMagnitude(), pose.getRotation().getRadians() }, null);
     builder.addBooleanProperty("zeroGyroTrigger", () -> false, (v) -> {
       // Reset the gyro if this value is set to true.
       if (v) {
         swerve.zeroGyroWithAlliance();
       }
-    } );
+    });
   }
 }
