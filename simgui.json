@@ -25,6 +25,9 @@
             },
             "open": true
           },
+          "Robot": {
+            "open": true
+          },
           "Swerve": {
             "open": true
           },
