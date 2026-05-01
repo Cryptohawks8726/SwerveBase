@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.FieldPointDisplay;
 import frc.robot.util.stateStuff.StatefulSubsystem;
 
@@ -16,7 +15,7 @@ public class ExampleSubsystem extends StatefulSubsystem {
         super("Example Subsystem");
         putOnDashboard();
 
-        //place normal constructor code in here
+        // place normal constructor code in here
     }
 
     @Override
@@ -48,8 +47,11 @@ public class ExampleSubsystem extends StatefulSubsystem {
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
 
-        builder.addDoubleProperty("Ouput Control Effort", this::getOutputControlEffort, (d) -> {});
-        builder.addDoubleProperty("MutableValues/kP", this.pidController::getP, (d) -> { pidController.setP(d); });
+        builder.addDoubleProperty("Ouput Control Effort", this::getOutputControlEffort, (d) -> {
+        });
+        builder.addDoubleProperty("MutableValues/kP", this.pidController::getP, (d) -> {
+            pidController.setP(d);
+        });
 
         // This call registers a setpoint that can be easily modified from the dashboard
         // or glass.
