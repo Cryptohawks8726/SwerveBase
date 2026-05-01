@@ -8,9 +8,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.Constants;
 
 public class PhotonOdometrySource extends OdometrySource {
+    // Field in NetworkTables for visualizing the odometry.
+    final Field2d field = new Field2d();
     final Matrix<N3, N1> stdDevs;
     final String name;
     final PhotonCamera camera;
@@ -34,6 +38,7 @@ public class PhotonOdometrySource extends OdometrySource {
         this.stdDevs = stdDevs;
 
         poseEstimator = new PhotonPoseEstimator(Constants.aprilTagLayout, robotToCamera);
+        SmartDashboard.putData(name + "/Field Visualization", field);
     }
 
     @Override
@@ -51,7 +56,9 @@ public class PhotonOdometrySource extends OdometrySource {
             if (visionEst.isEmpty()) {
                 throw new VisionException("Failed to get a valid pose estimate.");
             } else {
-                return visionEst.get().estimatedPose.toPose2d();
+                var pose = visionEst.get().estimatedPose.toPose2d();
+                field.setRobotPose(pose);
+                return pose;
             }
         }
     }
@@ -60,5 +67,4 @@ public class PhotonOdometrySource extends OdometrySource {
     public Matrix<N3, N1> getMeasurementStdDevs() {
         return stdDevs;
     }
-
 }
