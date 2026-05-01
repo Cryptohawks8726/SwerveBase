@@ -4,6 +4,8 @@
 
 package frc.robot.util;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -26,6 +28,10 @@ public final class Constants {
     public static final boolean demoMode = false;
     // CHANGE BEFORE MATCHES!!!!!
     public static final boolean isBlueAlliance = false;
+
+    // Update per year.
+    public static final AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout
+            .loadField(AprilTagFields.k2026RebuiltAndymark);
 
     public static final class SwerveConstants {
         public static final double maxSpeed = (demoMode ? 2.0 : 4.8); // m/s

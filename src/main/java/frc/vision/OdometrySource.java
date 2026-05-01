@@ -26,7 +26,7 @@ public abstract class OdometrySource {
      * a pose estimate.
      * 
      * @return
-     * @throws VisionException
+     * @throws VisionException 
      */
     public abstract Pose2d getCurrentPoseEstimate() throws VisionException;
 

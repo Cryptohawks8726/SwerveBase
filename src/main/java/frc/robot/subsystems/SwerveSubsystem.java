@@ -15,8 +15,6 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -53,8 +51,6 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends StatefulSubsystem {
-  private static final AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout
-      .loadField(AprilTagFields.k2026RebuiltAndymark); // TODO: UPDATE ONCE MANUAL DROPS!!
 
   private final ArrayList<OdometrySource> odometrySources = new ArrayList<>();
 
@@ -626,11 +622,11 @@ public class SwerveSubsystem extends StatefulSubsystem {
   }
 
   public static Pose2d getTagRelativePose(Pose2d desiredPose, int tagID) {
-    if (!aprilTagLayout.getTagPose(tagID).isPresent())
+    if (!Constants.aprilTagLayout.getTagPose(tagID).isPresent())
       return new Pose2d(0, 0, new Rotation2d());
 
     // Uses the most recent tag for creating setpoints
-    Pose2d tagPose = aprilTagLayout.getTagPose(tagID).get().toPose2d();
+    Pose2d tagPose = Constants.aprilTagLayout.getTagPose(tagID).get().toPose2d();
 
     // Creates a desired pose for the robot by converting the desired distance from
     // the tag in tag-relative space to the desired bot pose in field space.
