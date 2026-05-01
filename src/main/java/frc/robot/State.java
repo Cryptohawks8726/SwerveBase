@@ -10,32 +10,7 @@ public class State {
      * Variables which multiple states or subsystems need to access go here
      */
     public class StateVariables {
-        public static int luniteCount = 0;
-        public static boolean currentlyDetectingLunite = false;
-        public static Pose2d shooterPoseSixSeven = new Pose2d();
-        public static int shooterGoalTagSixSeven;
-
-        public static void incrementLuniteCount() {
-            if (luniteCount == 3)
-                return;
-
-            luniteCount++;
-        }
-
-        public static void decrementLuniteCount() {
-            if (luniteCount == 0)
-                return;
-
-            luniteCount--;
-        }
-
-        public static void setLuniteCount(int newLuniteCount) {
-            luniteCount = newLuniteCount;
-        }
-
-        public static int getLuniteCount() {
-            return luniteCount;
-        }
+        // Put random variables here and make the codebase look crazy again
     }
 
     public static class ManualIntake extends StateBase {
