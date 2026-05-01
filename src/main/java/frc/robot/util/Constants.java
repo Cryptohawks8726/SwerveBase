@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 public final class Constants {
 
     public static final boolean demoMode = false;
+    // CHANGE BEFORE MATCHES!!!!!
+    public static final boolean isBlueAlliance = false;
 
     public static final class SwerveConstants {
         public static final double maxSpeed = (demoMode ? 2.0 : 4.8); // m/s
@@ -45,21 +47,24 @@ public final class Constants {
         public static final double translationalErrorRange = 0.02;
         public static final double rotationalErrorRange = 0.1; // Radians
 
-        public static final double joystickDeadband = 0.1; //TODO: UPDATE this if drivers want
+        public static final double joystickDeadband = 0.1; // TODO: UPDATE this if drivers want
     }
-    
+
     public static final class OdometryConstants {
+        // rad/s
+        public static final double LIMELIGHT_ROTATIONAL_SPEED_LIMIT = 2 * Math.PI;
+
         // Tag offsets used with the driveToPose function of a Limelight.java instance
         // x axis is forward bot distance from tag
         // y axis is offset right (positive) or left
         // rotation is measured in radians
-        //TODO: UPDATE WHEN GAME MANUAL RELEASES
+        // TODO: UPDATE WHEN GAME MANUAL RELEASES
         public static final Pose2d nearGoalAimingPosition = new Pose2d(2.6, 0, new Rotation2d(0)); // Rotation is 0
                                                                                                    // since the back of
                                                                                                    // the robot is doing
-                                                                                                   // the shooting 
+                                                                                                   // the shooting
 
-        //TODO: UPDATE DURING BOT FABRICATION
+        // TODO: UPDATE DURING BOT FABRICATION
         // Camera position relative to robot center
         public static final double forwardOffset = 0.17145; // 6.75 in
         public static final double sideOffset = -0.00635; // 0.25 in
@@ -68,7 +73,8 @@ public final class Constants {
         public static final double pitchOffset = 20; // Angled up or down
         public static final double yawOffset = 0; // Angled left or right
 
-        public static final int innerGoalApriltag = DriverStation.getAlliance() //TODO: UPDATE ONCE GAME MANUAL RELEASES!!
+        public static final int innerGoalApriltag = DriverStation.getAlliance() // TODO: UPDATE ONCE GAME MANUAL
+                                                                                // RELEASES!!
                 .orElseGet(() -> Alliance.Blue) == Alliance.Blue ? 5 : 6;
         public static final int outerGoalApriltag = DriverStation.getAlliance()
                 .orElseGet(() -> Alliance.Blue) == Alliance.Blue ? 7 : 8;

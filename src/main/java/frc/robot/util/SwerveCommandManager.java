@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.util.Constants.SwerveConstants;
@@ -23,6 +24,7 @@ public class SwerveCommandManager {
     public final Command driveFieldOriented;
     public final Command slowDriveFieldOriented;
     public final Command driveRobotRelative;
+    public final Command stayStill;
 
     public SwerveCommandManager(SwerveSubsystem swerve) {
         internalSwerve = swerve;
@@ -58,6 +60,8 @@ public class SwerveCommandManager {
                     chassisSpeedsSupplier.get().vyMetersPerSecond,
                     chassisSpeedsSupplier.get().omegaRadiansPerSecond);
         }).withName("Robot Relative Drive");
+
+        stayStill = new InstantCommand(() -> swerve.lock());
     }
 
     // Used for Apriltag and Object Detection alignment

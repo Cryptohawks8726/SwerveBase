@@ -102,18 +102,21 @@ public class State {
 
             if (controller.getXButtonPressed()) {
                 // ermm the pos is the outer closer one assuming we are on blue alliance
-                robot.swerve.driveToPose8726(
-                        robot.apriltagVision.getTagRelativePose(new Pose2d(1.5, 0, new Rotation2d(Math.PI)), 18), 0.3);
+                // robot.swerve.driveToPose8726(
+                // robot.apriltagVision.getTagRelativePose(new Pose2d(1.5, 0, new
+                // Rotation2d(Math.PI)), 18), 0.3);
             }
 
             if (controller.getAButtonPressed()) {
-                robot.apriltagVision.simulateTagRelativeSetpoint(new Pose2d(1.5, 0, new Rotation2d(Math.PI)), 18);
+                // robot.apriltagVision.simulateTagRelativeSetpoint(new Pose2d(1.5, 0, new
+                // Rotation2d(Math.PI)), 18);
             }
 
             if (controller.getBButtonPressed() && robot.swerve.getCurrentCommand() != null) {
                 robot.swerve.getCurrentCommand().cancel();
-                robot.swerve.setDefaultCommand(robot.swerveCommander.slowDriveFieldOriented); // Ermm this should cancel (in
-                                                                                          // theory)
+                robot.swerve.setDefaultCommand(robot.swerveCommander.slowDriveFieldOriented); // Ermm this should cancel
+                                                                                              // (in
+                // theory)
             }
         }
 
