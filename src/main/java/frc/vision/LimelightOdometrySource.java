@@ -29,7 +29,6 @@ public class LimelightOdometrySource extends OdometrySource {
     final NetworkTable limelightLogs;
     // Needed to get gyro readings
     final SwerveSubsystem swerve;
-    //
 
     int lastTag = 0;
 
@@ -40,6 +39,9 @@ public class LimelightOdometrySource extends OdometrySource {
      * Also requires the exact 3D position of the limelight relative to the robot,
      * with each
      * value provided separately as a double in meters or degrees :3
+     * 
+     * Standard devs can be made using VecBuilder.fill() and there are 3 in the form
+     * [x, y, rotation]
      */
     public LimelightOdometrySource(Matrix<N3, N1> stdDevs, String limelightName, SwerveSubsystem swerve,
             double forwardOffset, double rightOffset, double upOffset, double rollOffset, double pitchOffset,
