@@ -99,7 +99,7 @@ public class LimelightOdometrySource extends OdometrySource {
         // a tag
         if (tagID > 0) {
             if (Math.abs(swerve
-                    .getFieldVelocity().omegaRadiansPerSecond) > OdometryConstants.LIMELIGHT_ROTATIONAL_SPEED_LIMIT) {
+                    .getFieldVelocity().omegaRadiansPerSecond) < OdometryConstants.ODO_TRUST_ROTATIONAL_SPEED_LIMIT) {
                 // Getting MegaTag2 Pose Estimate
                 PoseEstimate megaTagPoseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
                 limelightBotPose = new Pose2d(megaTagPoseEstimate.pose.getX(), megaTagPoseEstimate.pose.getY(),

@@ -8,6 +8,8 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
@@ -29,7 +31,7 @@ public final class Constants {
     // CHANGE BEFORE MATCHES!!!!!
     public static final boolean isBlueAlliance = false;
 
-    // Update per year.
+    // Update per year. 67
     public static final AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout
             .loadField(AprilTagFields.k2026RebuiltAndymark);
 
@@ -37,10 +39,10 @@ public final class Constants {
         public static final double maxSpeed = (demoMode ? 2.0 : 4.8); // m/s
         public static final double maxAngularSpeed = (demoMode ? 1.5 : 3); // rad/s
 
-        public static final double defaultTranslationCoefficient = 0.7;
-        public static final double defaultRotationCoefficient = 0.7;
-        public static final double slowTranslationCoefficient = 0.1;
-        public static final double slowRotationCoefficient = 0.1;
+        public static final double defaultTranslationCoefficient = 1;
+        public static final double defaultRotationCoefficient = 1;
+        public static final double slowTranslationCoefficient = 0.3;
+        public static final double slowRotationCoefficient = 0.3;
 
         public static final double positionkP = 0.5;
         public static final double positionkI = 0.0;
@@ -58,33 +60,32 @@ public final class Constants {
 
     public static final class OdometryConstants {
         // rad/s
-        public static final double LIMELIGHT_ROTATIONAL_SPEED_LIMIT = 2 * Math.PI;
+        public static final double ODO_TRUST_ROTATIONAL_SPEED_LIMIT = 2 * Math.PI;
 
-        // Tag offsets used with the driveToPose function of a Limelight.java instance
+        // FOR LIMELIGHTs and PhotonVision Cams
         // x axis is forward bot distance from tag
         // y axis is offset right (positive) or left
         // rotation is measured in radians
-        // TODO: UPDATE WHEN GAME MANUAL RELEASES
-        public static final Pose2d nearGoalAimingPosition = new Pose2d(2.6, 0, new Rotation2d(0)); // Rotation is 0
-                                                                                                   // since the back of
-                                                                                                   // the robot is doing
-                                                                                                   // the shooting
-
+        // distance is measured in meters
         // TODO: UPDATE DURING BOT FABRICATION
         // Camera position relative to robot center
-        public static final double forwardOffset = 0.17145; // 6.75 in
-        public static final double sideOffset = -0.00635; // 0.25 in
-        public static final double upOffset = 0.36195; // 14.25 in
-        public static final double rollOffset = 0;
-        public static final double pitchOffset = 20; // Angled up or down
-        public static final double yawOffset = 0; // Angled left or right
+        // LL Cam
+        public static final double ll1forwardOffset = 0; // 0 in
+        public static final double ll1sideOffset = 0; // 0 in
+        public static final double ll1upOffset = 0; // 0 in
+        public static final double ll1rollOffset = 0; // we will most likely never use roll
+        public static final double ll1pitchOffset = 20; // Angled up or down
+        public static final double ll1yawOffset = 0; // Angled left or right
+        // PV Cam
+        public static final Transform3d pv1Offset = new Transform3d(
+                0, // 0 in (forward offset)
+                0, // 0 in (right offset)
+                0, // 0in (up offset)
+                new Rotation3d(
+                        0, // roll (most likely never used)
+                        0, // pitch (up or down)
+                        0 // yaw (left or right)
+                ));
 
-        public static final int innerGoalApriltag = DriverStation.getAlliance() // TODO: UPDATE ONCE GAME MANUAL
-                                                                                // RELEASES!!
-                .orElseGet(() -> Alliance.Blue) == Alliance.Blue ? 5 : 6;
-        public static final int outerGoalApriltag = DriverStation.getAlliance()
-                .orElseGet(() -> Alliance.Blue) == Alliance.Blue ? 7 : 8;
-
-        public static final int gyroID = 1;
     }
 }
