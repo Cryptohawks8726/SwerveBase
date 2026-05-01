@@ -14,8 +14,6 @@ import edu.wpi.first.util.sendable.SendableBuilder;
  * Use the static methods to register points. Rotation will currently not be
  * handled at all,
  * although in the future support for rotating points may be added.
- * Note that the display points currently are not implemented and are subject to
- * change.
  */
 public class FieldPointDisplay implements Sendable {
     /// Class to store setter and getter methods.
@@ -82,8 +80,8 @@ public class FieldPointDisplay implements Sendable {
     private double[] getDisplayPointArray() {
         double[] arr = new double[displayPoints.size() * 2];
         for (int i = 0; i < displayPoints.size(); i++) {
-            arr[i] = displayPoints.get(i).getX();
-            arr[i + 1] = displayPoints.get(i).getY();
+            arr[2 * i] = displayPoints.get(i).getX();
+            arr[2 * i + 1] = displayPoints.get(i).getY();
         }
 
         return arr;
@@ -93,8 +91,8 @@ public class FieldPointDisplay implements Sendable {
         double[] arr = new double[setpoints.size() * 2];
         for (int i = 0; i < setpoints.size(); i++) {
             Pose2d p = setpoints.get(i).get.get();
-            arr[i] = p.getX();
-            arr[i + 1] = p.getY();
+            arr[2 * i] = p.getX();
+            arr[2 * i + 1] = p.getY();
         }
 
         return arr;
