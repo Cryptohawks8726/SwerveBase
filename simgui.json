@@ -16,7 +16,13 @@
     }
   },
   "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
     "transitory": {
+      "Pose3d##v_BlueHub": {
+        "open": true
+      },
       "SmartDashboard": {
         "Subsystems": {
           "Example Subsystem": {
@@ -30,10 +36,18 @@
           },
           "Swerve": {
             "open": true
-          },
+          }
+        },
+        "Swerve Drive": {
           "open": true
         },
-        "open": true
+        "open": true,
+        "swerve": {
+          "advantagescope": {
+            "open": true
+          },
+          "open": true
+        }
       }
     }
   },
