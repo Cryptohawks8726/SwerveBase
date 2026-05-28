@@ -29,72 +29,41 @@ public class SwerveCommandManager {
     public final Command stayStill;
 
     public SwerveCommandManager(SwerveSubsystem swerve) {
-        if (RobotBase.isSimulation()) {
-            // Use alternative swerve commands to drive in sim
-            internalSwerve = swerve;
-            chassisSpeedsSupplier = SwerveInputStream.of(
-                    swerve.getSwerveDrive(),
-                    () -> johnController.getLeftY() * -1,
-                    () -> johnController.getLeftX() * -1)
-                    .withControllerRotationAxis(() -> -johnController.getRightX())
-                    .deadband(SwerveConstants.joystickDeadband)
-                    .scaleTranslation(SwerveConstants.defaultTranslationCoefficient)
-                    .scaleRotation(SwerveConstants.defaultRotationCoefficient)
-                    .allianceRelativeControl(true);
+        internalSwerve = swerve;
 
-            // Scales back the chassisspeeds for slow modes
-            slowChassisSpeedsSupplier = chassisSpeedsSupplier.copy()
-                    .scaleTranslation(SwerveConstants.slowTranslationCoefficient)
-                    .scaleRotation(SwerveConstants.slowRotationCoefficient);
+        // Converts driver input into a field-relative ChassisSpeeds that is controlled
+        // by angular velocity.
+        // Applies deadbands and inverts controls because joysticks
+        // are back-right positive while robot
+        // controls are front-left positive
+        // left stick controls translation
+        // right stick controls the angular velocity of the robot
+        chassisSpeedsSupplier = SwerveInputStream.of(
+                swerve.getSwerveDrive(),
+                () -> johnController.getLeftY() * -1,
+                () -> johnController.getLeftX() * -1)
+                .withControllerRotationAxis(() -> -johnController.getRightX())
+                .deadband(SwerveConstants.joystickDeadband)
+                .scaleTranslation(SwerveConstants.defaultTranslationCoefficient)
+                .scaleRotation(SwerveConstants.defaultRotationCoefficient)
+                .allianceRelativeControl(true);
 
-            driveFieldOriented = swerve.driveFieldOriented(chassisSpeedsSupplier).withName("Field Oriented Drive");
-            slowDriveFieldOriented = swerve.driveFieldOriented(slowChassisSpeedsSupplier)
-                    .withName("Slow Field Oriented Drive");
-            driveRobotRelative = swerve.drive(() -> {
-                return new ChassisSpeeds(
-                        chassisSpeedsSupplier.get().vxMetersPerSecond,
-                        chassisSpeedsSupplier.get().vyMetersPerSecond,
-                        chassisSpeedsSupplier.get().omegaRadiansPerSecond);
-            }).withName("Robot Relative Drive");
+        // Scales back the chassisspeeds for slow modes
+        slowChassisSpeedsSupplier = chassisSpeedsSupplier.copy()
+                .scaleTranslation(SwerveConstants.slowTranslationCoefficient)
+                .scaleRotation(SwerveConstants.slowRotationCoefficient);
 
-            stayStill = new InstantCommand(() -> swerve.lock());
-        } else {
-            internalSwerve = swerve;
+        driveFieldOriented = swerve.driveFieldOriented(chassisSpeedsSupplier).withName("Field Oriented Drive");
+        slowDriveFieldOriented = swerve.driveFieldOriented(slowChassisSpeedsSupplier)
+                .withName("Slow Field Oriented Drive");
+        driveRobotRelative = swerve.drive(() -> {
+            return new ChassisSpeeds(
+                    chassisSpeedsSupplier.get().vxMetersPerSecond,
+                    chassisSpeedsSupplier.get().vyMetersPerSecond,
+                    chassisSpeedsSupplier.get().omegaRadiansPerSecond);
+        }).withName("Robot Relative Drive");
 
-            // Converts driver input into a field-relative ChassisSpeeds that is controlled
-            // by angular velocity.
-            // Applies deadbands and inverts controls because joysticks
-            // are back-right positive while robot
-            // controls are front-left positive
-            // left stick controls translation
-            // right stick controls the angular velocity of the robot
-            chassisSpeedsSupplier = SwerveInputStream.of(
-                    swerve.getSwerveDrive(),
-                    () -> johnController.getLeftY() * -1,
-                    () -> johnController.getLeftX() * -1)
-                    .withControllerRotationAxis(() -> -johnController.getRightX())
-                    .deadband(SwerveConstants.joystickDeadband)
-                    .scaleTranslation(SwerveConstants.defaultTranslationCoefficient)
-                    .scaleRotation(SwerveConstants.defaultRotationCoefficient)
-                    .allianceRelativeControl(true);
-
-            // Scales back the chassisspeeds for slow modes
-            slowChassisSpeedsSupplier = chassisSpeedsSupplier.copy()
-                    .scaleTranslation(SwerveConstants.slowTranslationCoefficient)
-                    .scaleRotation(SwerveConstants.slowRotationCoefficient);
-
-            driveFieldOriented = swerve.driveFieldOriented(chassisSpeedsSupplier).withName("Field Oriented Drive");
-            slowDriveFieldOriented = swerve.driveFieldOriented(slowChassisSpeedsSupplier)
-                    .withName("Slow Field Oriented Drive");
-            driveRobotRelative = swerve.drive(() -> {
-                return new ChassisSpeeds(
-                        chassisSpeedsSupplier.get().vxMetersPerSecond,
-                        chassisSpeedsSupplier.get().vyMetersPerSecond,
-                        chassisSpeedsSupplier.get().omegaRadiansPerSecond);
-            }).withName("Robot Relative Drive");
-
-            stayStill = new InstantCommand(() -> swerve.lock());
-        }
+        stayStill = new InstantCommand(() -> swerve.lock());
     }
 
     // Used for Apriltag and Object Detection alignment
