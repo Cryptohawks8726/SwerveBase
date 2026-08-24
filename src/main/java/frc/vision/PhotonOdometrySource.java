@@ -17,7 +17,7 @@ import frc.robot.util.Constants.OdometryConstants;
 public class PhotonOdometrySource extends OdometrySource {
     // Field in NetworkTables for visualizing the odometry.
     final Field2d field = new Field2d();
-    final Matrix<N3, N1> stdDevs;
+    Matrix<N3, N1> stdDevs;
     final String name;
     final PhotonCamera camera;
     final PhotonPoseEstimator poseEstimator;
@@ -77,6 +77,11 @@ public class PhotonOdometrySource extends OdometrySource {
 
     @Override
     public Matrix<N3, N1> getMeasurementStdDevs() {
+        return stdDevs;
+    }
+
+    public Matrix<N3, N1> setMeasurementStdDevs(Matrix<N3, N1> newstdDevs) {
+        stdDevs = newstdDevs;
         return stdDevs;
     }
 }

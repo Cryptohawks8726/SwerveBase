@@ -22,7 +22,7 @@ public class LimelightOdometrySource extends OdometrySource {
     // Field in NetworkTables for visualizing the odometry.
     final Field2d field = new Field2d();
     // measurement standard deviations used by yagsl
-    final Matrix<N3, N1> stdDevs;
+    Matrix<N3, N1> stdDevs;
     // name of the limelight.
     final String name;
     // Access point to the limelight's data dump
@@ -124,6 +124,11 @@ public class LimelightOdometrySource extends OdometrySource {
 
     @Override
     public Matrix<N3, N1> getMeasurementStdDevs() {
+        return stdDevs;
+    }
+
+    public Matrix<N3, N1> setMeasurementStdDevs(Matrix<N3, N1> newstdDevs) {
+        stdDevs = newstdDevs;
         return stdDevs;
     }
 

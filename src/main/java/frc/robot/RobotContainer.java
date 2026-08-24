@@ -8,7 +8,10 @@ import java.io.File;
 
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -20,10 +23,13 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.util.Constants;
+import frc.robot.util.Constants.OdometryConstants;
 import frc.robot.util.FieldPointDisplay;
 import frc.robot.util.SwerveCommandManager;
 import frc.robot.util.stateStuff.StateBase;
 import frc.robot.util.stateStuff.StatefulSubsystem;
+import frc.vision.LimelightOdometrySource;
+import frc.vision.OdometrySource;
 import frc.robot.subsystems.ExampleSubsystem;
 
 public class RobotContainer extends StatefulSubsystem {
@@ -46,6 +52,12 @@ public class RobotContainer extends StatefulSubsystem {
   // Reference the command manager when actually commanding the swerve
   public final SwerveCommandManager swerveCommander = new SwerveCommandManager(swerve);
   public final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
+
+  public final OdometrySource limelight = new LimelightOdometrySource(Matrix < N3, N1 > stdDevs, "The Limelight",
+      swerve,
+      OdometryConstants.ll1forwardOffset, OdometryConstants.ll1sideOffset, OdometryConstants.ll1upOffset,
+      OdometryConstants.ll1rollOffset, OdometryConstants.ll1pitchOffset,
+      OdometryConstants.ll1yawOffset);
 
   public RobotContainer() {
     super("Robot");

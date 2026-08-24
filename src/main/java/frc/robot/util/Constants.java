@@ -29,9 +29,8 @@ public final class Constants {
 
     public static final boolean demoMode = false;
     // CHANGE BEFORE MATCHES!!!!!
-    public static final boolean isBlueAlliance = false;
+    public static final Alliance currentAlliance = Alliance.Blue;
 
-    // Update per year. 67
     public static final AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout
             .loadField(AprilTagFields.k2026RebuiltAndymark);
 

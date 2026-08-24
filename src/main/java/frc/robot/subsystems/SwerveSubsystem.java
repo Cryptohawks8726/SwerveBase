@@ -94,12 +94,18 @@ public class SwerveSubsystem extends StatefulSubsystem {
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     SmartDashboard.putData("Subsystems/" + getName(), this);
 
-    Pose2d startingPose = Constants.isBlueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
+    Pose2d startingPose = Constants.currentAlliance == Alliance.Blue ? new Pose2d(new Translation2d(Meter.of(1),
         Meter.of(4)),
         Rotation2d.fromDegrees(0))
         : new Pose2d(new Translation2d(Meter.of(16),
             Meter.of(4)),
             Rotation2d.fromDegrees(180));
+    for (OdometrySource s : odometrySources) {
+      try {
+        startingPose = s.getCurrentPoseEstimate();
+      } catch (VisionException v) {
+      }
+    }
     // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
     // objects being created.
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
@@ -419,7 +425,7 @@ public class SwerveSubsystem extends StatefulSubsystem {
    * If red alliance rotate the robot 180 after the drviebase zero command
    */
   public void zeroGyroWithAlliance() {
-    if (!Constants.isBlueAlliance) {
+    if (Constants.currentAlliance == Alliance.Red) {
       zeroGyro();
       // Set the pose 180 degrees
       resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(180)));
