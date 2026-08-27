@@ -10,8 +10,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -61,6 +65,7 @@ public final class Constants {
         // rad/s
         public static final double ODO_TRUST_ROTATIONAL_SPEED_LIMIT = 2 * Math.PI;
 
+        public static final Matrix<N3, N1> trustedSTDDevs = new Matrix(Nat.N3(), Nat.N1());
         // FOR LIMELIGHTs and PhotonVision Cams
         // x axis is forward bot distance from tag
         // y axis is offset right (positive) or left
