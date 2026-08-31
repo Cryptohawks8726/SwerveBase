@@ -29,7 +29,7 @@ public class LimelightOdometrySource extends OdometrySource {
     final NetworkTable limelightLogs;
     // Needed to get gyro readings
     final SwerveSubsystem swerve;
-
+    // last tag for adjusting odo stuffsies
     int lastTag = 0;
 
     /**
@@ -103,7 +103,8 @@ public class LimelightOdometrySource extends OdometrySource {
                 // Getting MegaTag2 Pose Estimate
                 PoseEstimate megaTagPoseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
                 limelightBotPose = new Pose2d(megaTagPoseEstimate.pose.getX(), megaTagPoseEstimate.pose.getY(),
-                        swerve.getRawGyroPosition());
+                        // swerve.getRawGyroPosition());
+                        megaTagPoseEstimate.pose.getRotation());
 
                 field.setRobotPose(limelightBotPose);
 
@@ -130,6 +131,10 @@ public class LimelightOdometrySource extends OdometrySource {
     public Matrix<N3, N1> setMeasurementStdDevs(Matrix<N3, N1> newstdDevs) {
         stdDevs = newstdDevs;
         return stdDevs;
+    }
+
+    public int getLastAprilTag() {
+        return lastTag;
     }
 
     public int getVisibleApriltag() {

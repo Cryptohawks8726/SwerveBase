@@ -53,7 +53,7 @@ public class RobotContainer extends StatefulSubsystem {
   public final SwerveCommandManager swerveCommander = new SwerveCommandManager(swerve);
   public final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 
-  public final OdometrySource limelight = new LimelightOdometrySource(OdometryConstants.trustedSTDDevs, "The Limelight",
+  public final OdometrySource limelight = new LimelightOdometrySource(OdometryConstants.REGULAR, "The Limelight",
       swerve,
       OdometryConstants.ll1forwardOffset, OdometryConstants.ll1sideOffset, OdometryConstants.ll1upOffset,
       OdometryConstants.ll1rollOffset, OdometryConstants.ll1pitchOffset,

@@ -65,7 +65,20 @@ public final class Constants {
         // rad/s
         public static final double ODO_TRUST_ROTATIONAL_SPEED_LIMIT = 2 * Math.PI;
 
-        public static final Matrix<N3, N1> trustedSTDDevs = new Matrix(Nat.N3(), Nat.N1());
+        public static final Matrix<N3, N1> REGULAR = new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[] {
+                0.1, 0.1, 0.1
+        });
+
+        public static final Matrix<N3, N1> SLIGHTLY_UNTRUSTED = new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[] {
+                0.2, 0.2, 0.2
+        });
+
+        public static final Matrix<N3, N1> SOMETHING_ELSE_IS_100 = new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[] {
+                0.30, 0.30, 0.30
+        });
+
+        public static final Matrix<N3, N1> FULLY_TRUSTED = new Matrix<N3, N1>(Nat.N3(), Nat.N1(),
+                new double[] { 0.01, 0.01, 0.01 });
         // FOR LIMELIGHTs and PhotonVision Cams
         // x axis is forward bot distance from tag
         // y axis is offset right (positive) or left
