@@ -1,0 +1,61 @@
+{
+  "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
+    "transitory": {
+      "SmartDashboard": {
+        "Swerve Drive": {
+          "open": true
+        },
+        "open": true,
+        "swerve": {
+          "modules": {
+            "backright": {
+              "open": true
+            },
+            "frontleft": {
+              "open": true
+            },
+            "frontright": {
+              "open": true
+            },
+            "open": true
+          },
+          "open": true
+        }
+      }
+    },
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Alerts": "Alerts",
+      "/SmartDashboard/Apriltag Bot Pose": "Field2d",
+      "/SmartDashboard/Auto Chooser": "String Chooser",
+      "/SmartDashboard/Encoders": "Alerts",
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/IMU": "Alerts",
+      "/SmartDashboard/JSON": "Alerts",
+      "/SmartDashboard/Motors": "Alerts",
+      "/SmartDashboard/PathPlanner": "Alerts",
+      "/SmartDashboard/Pigeon 2 (v6) [1]": "Gyro",
+      "/SmartDashboard/Swerve Drive": "Alerts",
+      "/SmartDashboard/The Limelight/Field Visualization": "Field2d"
+    }
+  },
+  "NetworkTables Info": {
+    "Clients": {
+      "open": true
+    },
+    "Connections": {
+      "open": true
+    },
+    "Server": {
+      "open": true
+    },
+    "visible": true
+  },
+  "NetworkTables Settings": {
+    "mode": "Client (NT3)",
+    "serverTeam": "8726"
+  }
+}

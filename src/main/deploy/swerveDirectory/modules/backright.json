@@ -1,4 +1,5 @@
 {
+<<<<<<< Updated upstream:src/main/deploy/swerveDirectory/modules/backright.json
     "location": {
       "front": -12.25,
       "left": -12.25
@@ -27,3 +28,31 @@
     },
     "absoluteEncoderInverted": false
   }
+=======
+  "location": {
+    "front": -12.25,
+    "left": -12.25
+  },
+  "absoluteEncoderOffset": 13.623047,
+  "drive": {
+    "type": "sparkmax_neo",
+    "id": 21,
+    "canbus": null
+  },
+  "angle": {
+    "type": "sparkmax_neo",
+    "id": 20,
+    "canbus": null
+  },
+  "encoder": {
+    "type": "cancoder",
+    "id": 22,
+    "canbus": null
+  },
+  "inverted": {
+    "drive": true,
+    "angle": false
+  },
+  "absoluteEncoderInverted": false
+}
+>>>>>>> Stashed changes:src/main/deploy/2025bunnybotSwerve/modules/backright.json
