@@ -11,12 +11,6 @@
         "open": true,
         "swerve": {
           "modules": {
-            "backright": {
-              "open": true
-            },
-            "frontleft": {
-              "open": true
-            },
             "frontright": {
               "open": true
             },
